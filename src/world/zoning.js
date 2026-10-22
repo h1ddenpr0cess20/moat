@@ -28,6 +28,7 @@ export function setZone(world, x, y, zone) {
     touch(world, 'flat', x, y);
     return 0;
   }
+  if (!Object.hasOwn(ZONE_ID, zone)) return -1;
   if (zoneBlocked(world, x, y)) return -1;
   const i = idx(x, y);
   const id = ZONE_ID[zone];
