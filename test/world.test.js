@@ -4,6 +4,7 @@ import { CENTER, GROUND, HOME_WARD, ROAD, SIZE, WARD } from '../src/config.js';
 import { newWorld, heightAt, SUB, HV, idx, wardId, wardOfTile, ownedCount, exposedBorders, bordersRealm } from '../src/world/index.js';
 import { startGame, completeAnnex, buildRoad, buildZone, rectTiles, lineTiles } from '../src/sim/game.js';
 import { network, setRoad } from '../src/world/roads.js';
+import { setZone } from '../src/world/zoning.js';
 
 test('the same seed makes the same land, and another seed another', () => {
   const a = newWorld('oxmere'), b = newWorld('oxmere'), c = newWorld('hollin');
@@ -143,4 +144,16 @@ test('a bridge may start on marshy bank: low ground counts as part of the span',
   const plan = planRoad(game, lineTiles(x0, y, x0 + 11, y), 'bridge');
   assert.equal(plan.reason, null, plan.reason);
   assert.ok(plan.spans.length >= 4, 'two water tiles and the marshy banks either side');
+});
+
+
+test('unknown zone types are rejected without changing the map', () => {
+  const game = startGame({ seed: 'moat' });
+  const { world } = game;
+  const x = CENTER + 10, y = CENTER + 10, i = idx(x, y);
+  const beforeZone = world.zone[i];
+  const beforeCrop = world.crop[i];
+  assert.equal(setZone(world, x, y, 'not-a-zone'), -1);
+  assert.equal(world.zone[i], beforeZone);
+  assert.equal(world.crop[i], beforeCrop);
 });
