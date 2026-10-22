@@ -4,7 +4,7 @@ import { CENTER, GROUND, HOME_WARD, ROAD, SIZE, WARD } from '../src/config.js';
 import { newWorld, heightAt, SUB, HV, idx, wardId, wardOfTile, ownedCount, exposedBorders, bordersRealm } from '../src/world/index.js';
 import { startGame, completeAnnex, buildRoad, buildZone, rectTiles, lineTiles } from '../src/sim/game.js';
 import { network, setRoad } from '../src/world/roads.js';
-import { setZone } from '../src/world/zoning.js';
+import { setZone, zoneBlocked } from '../src/world/zoning.js';
 
 test('the same seed makes the same land, and another seed another', () => {
   const a = newWorld('oxmere'), b = newWorld('oxmere'), c = newWorld('hollin');
@@ -150,7 +150,14 @@ test('a bridge may start on marshy bank: low ground counts as part of the span',
 test('unknown zone types are rejected without changing the map', () => {
   const game = startGame({ seed: 'moat' });
   const { world } = game;
-  const x = CENTER + 10, y = CENTER + 10, i = idx(x, y);
+  let spot = null;
+  for (let y = CENTER + 6; y < CENTER + 20 && !spot; y++) {
+    for (let x = CENTER + 6; x < CENTER + 20 && !spot; x++) {
+      if (!zoneBlocked(world, x, y)) spot = [x, y];
+    }
+  }
+  assert.ok(spot, 'find a tile that can be zoned');
+  const [x, y] = spot, i = idx(x, y);
   const beforeZone = world.zone[i];
   const beforeCrop = world.crop[i];
   assert.equal(setZone(world, x, y, 'not-a-zone'), -1);
