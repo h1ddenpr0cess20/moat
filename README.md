@@ -1,0 +1,58 @@
+# Moat
+
+A medieval town builder on a strategy map, built on the [Madness Engine](https://github.com/h1ddenpr0cess20/madness-engine).
+
+You rule from a castle on an island in its own moat. Build a town in the land around it, feed it through the seasons, and **dig the moat wider** to take in the next ward: more land, more forest, more stone and ore. Houses grow where you zone them, SimCity-style, along streets you lay, and the best way to lay them out is the **donut block**.
+
+There are no people on the screen, no cast and no characters: a town is seen in its smoke, its lit windows, its windmill sails and its crops.
+
+## Run it
+
+```sh
+npm install
+npm run dev      # http://localhost:5173
+npm run build    # a static site in dist/
+npm test         # world, simulation, block and save tests
+npm run lint
+```
+
+Node 22.12 or later. The game needs a browser with WebGPU or WebGL 2.
+
+## How to play
+
+| | |
+|---|---|
+| Slide the map | WASD or arrows; right button dragged; one finger on empty ground |
+| Turn / tilt / zoom | Q E / Z X / wheel (or pinch and twist on touch) |
+| Tools | 1 look · 2 roads · 3 zones · 4 blocks · 5 build · 6 clear · Esc or right-click lets go |
+| Turn a building | R while it is in your hand |
+| Time | Space pauses, Tab speeds up |
+| Pages | M realm map · L ledger · H chronicle · C castle · F10 menu |
+
+A year is 48 weeks, starting in March. People need **food** (grain or bread, vegetables and fruit, meat or fish: a table with all three is a happier one), **firewood** in the cold months, **homes**, and **work**. Lay roads, zone housing, market, fields, orchards and pasture, and put farmsteads, woodcutters, quarries and mills where they are wanted. The steward gives hints, once, as they matter.
+
+Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them. The king's collector wants tribute. Rank rises from Baron to Duke as the barony grows.
+
+### The moat and the realm
+
+The map is seven by seven **wards**. You own the one the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards.
+
+### Donut blocks and courtyard bonuses
+
+Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp a loop of street with a ring of plots round its inside. Houses grow on the ring; the middle is the **core**. Put a **Village Green** (Build → Civic), a well, a chapel, a tavern, a healer or a market square in the core and the block becomes a *courtyard*, as in SimCity Classic:
+
+* **Rating (0 to 100)** = how built the ring is × how good the heart is. Plaques over your blocks show it.
+* **Heart**: a village green is best for houses; a cathedral, chapel, market square, well, tavern, healer, watchtower or barracks serve the whole ring at once; kitchen gardens, an orchard, allotments or a common are worth something too. A second heart building adds more.
+* **What a good block earns the realm**: the heart's services reach *every* door in the ring (not just those in its circle), homes pay up to 18% more tax, courtyards add rooms (up to 12% more beds), the town's mood rises (up to +7), shops in the ring sell up to 30% more, fires start less often and spread half as far, and houses rise a level sooner.
+* A block's streets must join the castle's roads, or nobody will build there. Click a block to see its rating and what would improve it; the ledger's *Courtyards* page lists them all.
+
+## How it is made
+
+* `src/world/`: the land from a seed (heightfield, moat distance field, wards, gates, roads, zones, lots). Pure JS, no drawing.
+* `src/sim/`: the weekly simulation (economy, people, growth, events, blocks, actions). Pure JS; `src/save.js` stores only what changed from the seeded land.
+* `src/render/`: the picture on the engine's `gfx`, `stage`, `view` and `effects`: chunked terrain painted per pixel, a flooded moat, trees, autotiled roads and seasonal fields, about forty building models drawn in code, day/night and season grading, rain and snow.
+* `src/audio/`: sound and a generative lute, recorder and frame-drum score, all Web Audio, no samples.
+* `src/ui/`: the HUD, tools, panels, realm map and menus, in plain DOM.
+* `test/`: node tests, and `test/bot.js`, a scripted player used for tuning.
+
+See [docs/design.md](docs/design.md) for the numbers.

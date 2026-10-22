@@ -26,6 +26,8 @@ export function weather(game) {
   if (cal.weekInSeason !== 0) return;
   if (cal.season === 0) {
     game.weather.harvest = clamp(0.78 + game.rnd() * 0.5, 0.7, 1.3);
+    // The first year is kind: a lord has a season to find his feet.
+    if (cal.year === 1) game.weather.harvest = Math.max(1.02, game.weather.harvest);
     const h = game.weather.harvest;
     if (h < 0.88) game.note('A cold, dry spring. The harvest will be thin.', 'bad');
     else if (h > 1.12) game.note('A mild, wet spring: the harvest should be a good one.', 'good');

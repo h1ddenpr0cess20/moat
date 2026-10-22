@@ -17,6 +17,8 @@ import { idx, touch } from '../world/world.js';
 const FIT = 0.9;
 /** The most of the workforce that building crews may take. */
 const CREW_SHARE = 0.55;
+/** The share of the workforce always held for building sites, if there are any. */
+const CREW_FLOOR = 0.3;
 /** Field tiles one farmhand looks after, and how many a farmstead can hold. */
 export const TILES_PER_HAND = 6;
 /** Wood in one level of a tile's trees. */
@@ -93,7 +95,12 @@ export function assignFields(game) {
 }
 
 export const jobsOf = (b) => (b.type === 'farmstead' ? (b.jobs ?? 1) : BUILDINGS[b.type]?.jobs ?? 0);
-export const priorityOf = (game, type) => game.prio[type] ?? (BUILDINGS[type]?.cat === 'food' ? 3 : 2);
+export const priorityOf = (game, type) => {
+  if (game.prio[type] !== undefined) return game.prio[type];
+  // A town short of timber needs its woodcutters before almost anything.
+  if ((type === 'woodcutter' || type === 'forester') && game.stock.wood < 70) return 3;
+  return BUILDINGS[type]?.cat === 'food' ? 3 : 2;
+};
 
 /**
  * Shares out the people: the garrison first, then the workplaces of the
@@ -134,7 +141,15 @@ export function allocate(game) {
     employed += need * share;
     open += need * (1 - share);
   };
+  // Builders are never left out: a third of the hands are held back for the sites, whatever else is short.
+  let wanted = 0;
+  for (const w of world.wards) if (w.dig) wanted += w.dig.crew;
+  if (game.castleWork) wanted += game.castleWork.crew;
+  for (const b of world.buildings.values()) if (b.state === 'building') wanted += BUILDINGS[b.type].crew;
+  const reserve = Math.min(wanted, labor, workforce * CREW_FLOOR);
+  labor -= reserve;
   staff(3);
+  labor += reserve;
 
   // Crews work one site at a time, in the order the work was given: the moat first, then the castle, then the buildings.
   let budget = Math.min(labor, workforce * CREW_SHARE);
@@ -168,6 +183,48 @@ function sourceTiles(world, b, from, radius) {
         : (i) => world.ground[i] === GROUND.WATER || world.moat[i] === 1;
   countNear(world, cx, cy, radius, (i) => { if (test(i)) out.push(i); return false; });
   return out;
+}
+
+/** A forester's week: young trees on open ground within reach, and the ones already there brought on a level. */
+function plant(game, b, w, season) {
+  const { world } = game;
+  const [cx, cy] = centerOf(b);
+  const free = [], young = [];
+  const r = w.radius;
+  for (let y = Math.max(1, Math.floor(cy - r)); y <= Math.min(world.size - 2, Math.ceil(cy + r)); y++) {
+    for (let x = Math.max(1, Math.floor(cx - r)); x <= Math.min(world.size - 2, Math.ceil(cx + r)); x++) {
+      if ((x + 0.5 - cx) ** 2 + (y + 0.5 - cy) ** 2 > r * r) continue;
+      const i = idx(x, y);
+      if (!world.realm[i]) continue;
+      if (world.tree[i] > 0 && world.tree[i] < 3) { young.push(i); continue; }
+      if (world.tree[i] || world.ground[i] !== GROUND.GRASS || world.bld[i] || world.road[i] || world.zone[i] || (game.blockOf && game.blockOf[i] >= 0)) continue;
+      // Leave a margin of open ground beside every street and wall, so that what is planted never shuts a lot in.
+      let crowded = false;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (world.road[idx(x + dx, y + dy)] || world.bld[idx(x + dx, y + dy)]) { crowded = true; break; }
+      if (!crowded) free.push(i);
+    }
+  }
+  b.sow = (b.sow ?? 0) + w.plant * b.workers * season;
+  b.tendAcc = (b.tendAcc ?? 0) + w.tend * b.workers * season;
+  let planted = 0;
+  while (b.sow >= 1 && free.length) {
+    b.sow -= 1;
+    const k = Math.floor(game.rnd() * free.length);
+    const i = free.splice(k, 1)[0];
+    world.tree[i] = 1;
+    touch(world, 'trees', i % world.size, Math.floor(i / world.size));
+    planted++;
+  }
+  while (b.tendAcc >= 1 && young.length) {
+    b.tendAcc -= 1;
+    const k = Math.floor(game.rnd() * young.length);
+    const i = young[k];
+    world.tree[i]++;
+    if (world.tree[i] >= 3) young.splice(k, 1);
+    touch(world, 'trees', i % world.size, Math.floor(i / world.size));
+  }
+  if (!free.length && b.sow > 1) b.sow = 1;
+  b.note = season <= 0 ? 'Resting through the winter' : free.length || young.length || planted ? 'Tending the young woods' : 'No open ground left to plant';
 }
 
 function work(game) {
@@ -221,6 +278,8 @@ function work(game) {
         b.acc = 0;
       }
       if (!b.note) b.note = 'At work';
+    } else if (w.kind === 'plant') {
+      plant(game, b, w, [1, 0.7, 0.8, 0][cal.season] * haulK(b) * mood);
     } else if (w.kind === 'make') {
       let ratio = b.eff * haulK(b) * mood;
       let wait = '';

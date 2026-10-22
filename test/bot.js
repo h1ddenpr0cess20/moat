@@ -1,9 +1,8 @@
 import { BUILDINGS } from '../src/catalog.js';
-import { CENTER, DIRS, GROUND } from '../src/config.js';
-import { buildBlock, buildRoad, buildZone, placeBuilding, planAnnex, rectTiles, startAnnex, startCastle, setTrade } from '../src/sim/actions.js';
-import { autoPlace } from '../src/sim/hamlet.js';
-import { network, roadBlocked } from '../src/world/roads.js';
-import { idx, inb } from '../src/world/world.js';
+import { CENTER, GROUND } from '../src/config.js';
+import { buildBlock, buildZone, placeBuilding, planAnnex, rectTiles, startAnnex, startCastle, setTrade } from '../src/sim/actions.js';
+import { autoPlace, connect } from '../src/sim/hamlet.js';
+import { idx } from '../src/world/world.js';
 
 /**
  * A player that follows a sensible order of play, for tests and for tuning:
@@ -13,44 +12,6 @@ import { idx, inb } from '../src/world/world.js';
  */
 
 const C = CENTER;
-
-/** Builds a road from a rectangle to the nearest connected road, by the shortest free way. Returns whether it is connected after. */
-export function connect(game, rect) {
-  const { world } = game;
-  const { dist } = network(world);
-  const touching = (x, y) => DIRS.some(([dx, dy]) => inb(x + dx, y + dy) && dist[idx(x + dx, y + dy)] >= 0);
-  const starts = [];
-  for (let x = rect.x - 1; x <= rect.x + rect.w; x++) for (let y = rect.y - 1; y <= rect.y + rect.d; y++) {
-    const inside = x >= rect.x && x < rect.x + rect.w && y >= rect.y && y < rect.y + rect.d;
-    const corner = (x < rect.x || x >= rect.x + rect.w) && (y < rect.y || y >= rect.y + rect.d);
-    if (!inside && !corner && inb(x, y)) starts.push([x, y]);
-  }
-  if (starts.some(([x, y]) => dist[idx(x, y)] >= 0)) return true;
-  const prev = new Map();
-  const queue = [];
-  for (const [x, y] of starts) {
-    if (roadBlocked(world, x, y) && !world.road[idx(x, y)]) continue;
-    prev.set(idx(x, y), -1);
-    queue.push([x, y]);
-  }
-  for (let q = 0; q < queue.length; q++) {
-    const [x, y] = queue[q];
-    if (touching(x, y) || dist[idx(x, y)] >= 0) {
-      const path = [];
-      for (let i = idx(x, y); i !== -1; i = prev.get(i)) path.push([i % world.size, Math.floor(i / world.size)]);
-      buildRoad(game, path.filter(([px, py]) => !world.road[idx(px, py)]), 'dirt');
-      return true;
-    }
-    for (const [dx, dy] of DIRS) {
-      const nx = x + dx, ny = y + dy;
-      if (!inb(nx, ny) || prev.has(idx(nx, ny))) continue;
-      if (roadBlocked(world, nx, ny) && !world.road[idx(nx, ny)]) continue;
-      prev.set(idx(nx, ny), idx(x, y));
-      queue.push([nx, ny]);
-    }
-  }
-  return false;
-}
 
 const count = (game, type) => [...game.world.buildings.values()].filter((b) => b.type === type).length;
 
@@ -98,6 +59,8 @@ export function createBot(game) {
       const forest = forestAt();
       if (!count(game, 'woodcutter') && forest && s.wood > 30) put(game, 'woodcutter', forest[0], forest[1], 10);
       if (count(game, 'woodcutter') === 1 && pop() > 30 && forest && s.wood > 40) put(game, 'woodcutter', forest[0], forest[1], 12);
+      const lodge = [...world.buildings.values()].find((b) => b.type === 'woodcutter');
+      if (lodge && count(game, 'forester') < 1 + Math.floor(pop() / 60) && s.wood > 50 && s.gold > 30) put(game, 'forester', lodge.x + 2, lodge.y + 2, 6);
       if (!count(game, 'farmstead') && s.wood > 50) put(game, 'farmstead', C + 10, C - 3, 4);
       if (count(game, 'farmstead') === 1 && s.wood > 70) put(game, 'farmstead', C - 11, C - 3, 4);
       if (count(game, 'farmstead') === 2 && pop() > 45 && s.wood > 70) put(game, 'farmstead', C, C - 11, 4);

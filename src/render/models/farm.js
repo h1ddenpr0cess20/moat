@@ -140,6 +140,29 @@ export function woodcutter(m, v) {
   return { smoke: [top], height: 1.3 };
 }
 
+export function forester(m, v) {
+  const { rnd } = v;
+  gabled(m, rnd, { x0: -0.7, x1: 0.2, z0: -0.78, z1: 0.0, h1: 0.58, wallMat: 'timber', wall: '#9a7a52', roofMat: 'thatch', roof: pickFrom(rnd, PALETTE.thatch), ridgeH: 0.42, over: 0.15, frame: false, doors: [{ face: 'front', u: 0.3, w: 0.21, h: 0.38 }], windows: [{ face: 'front', u: 0.7, w: 0.16 }] });
+  const top = chimney(m, -0.5, -0.55, 0.5, 1.1);
+  // A fenced nursery: rows of saplings in turned earth.
+  m.box('plain', 0.3, 0.0, -0.8, 1.0, 0.03, 0.9, '#5a4228', { skip: ['bottom'] });
+  fenceRun(m, [0.28, 0, -0.82], [1.02, 0, -0.82], { h: 0.16 });
+  fenceRun(m, [1.02, 0, -0.82], [1.02, 0, 0.92], { h: 0.16 });
+  fenceRun(m, [1.02, 0, 0.92], [0.28, 0, 0.92], { h: 0.16 });
+  for (let r = 0; r < 4; r++) for (let k = 0; k < 5; k++) {
+    const x = 0.45 + r * 0.17, z = -0.65 + k * 0.32 + (r % 2) * 0.08;
+    const g = 0.08 + 0.1 * ((r + k) % 3);
+    m.cylinder('bark', x, 0.03, z, 0.008, 0.012, g, 4, '#6a4a2c', { smooth: false });
+    m.cone('leafB', x, 0.03 + g * 0.45, z, 0.05 + g * 0.18, 0.03 + g + 0.12, 6, '#7fbf5a');
+  }
+  // A watering tub, a spade and a bundle of whips.
+  barrel(m, -0.5, 0.0, 0.3);
+  m.beam('wood', [-0.2, 0.0, 0.45], [-0.12, 0.42, 0.45], 0.016, PALETTE.wood[0]);
+  m.box('metal', -0.17, 0.0, 0.43, -0.08, 0.06, 0.47, '#8a8a90');
+  logPile(m, -0.75, 0.0, 0.35, { len: 0.3, rows: 2, r: 0.015, yaw: Math.PI / 2 });
+  return { smoke: [top], height: 1.1 };
+}
+
 export function hunter(m, v) {
   const { rnd } = v;
   gabled(m, rnd, { x0: -0.7, x1: 0.7, z0: -0.7, z1: 0.25, h1: 0.6, wallMat: 'timber', wall: '#8f6f48', roofMat: 'slate', roof: '#6a5a46', ridgeH: 0.45, over: 0.15, frame: false, doors: [{ face: 'front', u: 0.7, w: 0.22 }], windows: [{ face: 'front', u: 1.15, w: 0.17 }] });

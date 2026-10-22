@@ -16,6 +16,7 @@ export function createDialogs(ctx) {
     get current() { return open?.name ?? null; },
     open(name, args = {}) {
       dialogs.close();
+      ctx.tip.hide();
       const make = kinds.get(name);
       if (!make) return;
       const dialog = make(ctx, args);

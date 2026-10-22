@@ -15,7 +15,7 @@ const HINTS = {
   blockMade: { text: 'A ring of homes will grow round it. Now give it a <b>heart</b>: with the <b>Build</b> tool, set a <b>Village Green</b> in the middle, with a <b>well</b> beside it. A good heart serves every door in the ring, and the block earns a courtyard bonus.' },
   heart: { text: 'A courtyard! The plaque over the block shows its rating. It climbs as the ring fills, and as the heart grows: taxes, rooms, mood and safety all improve. Make another, and join it to the first.' },
   food: { text: 'The stores are running thin. <b>Zone wheat</b> near a farmstead before the spring, and put a few hands on the plough: a hungry town does not stay.' },
-  winter: { text: 'Winter is coming, my lord. The people burn timber to keep warm: see that you have some, and a woodcutter who works.' },
+  winter: { text: 'Winter is coming, my lord. The people burn timber to keep warm: see that you have some, and a woodcutter who works. A <b>forester’s lodge</b> plants new woods, so the cutters never run dry.' },
   raid: { text: 'Raiders have been sighted at the gate! A <b>gatehouse</b> and a <b>watchtower</b> will hold them. They come in the end to the weakest gate.' },
   moat: { text: 'The treasury is fat. Open the <b>Realm map</b> (<b>M</b>) and widen the moat round another ward: more land, more forest, more stone. A larger castle can hold more wards.' },
   idle: { text: 'There are idle hands in the town. More farmsteads, mills and workshops will use them, and a town with work is a happy one.' },

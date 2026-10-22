@@ -23,7 +23,7 @@ export function menuDialog(ctx) {
   };
   return {
     title: 'The Steward’s Table',
-    icon: 'menu',
+    icon: 'castle',
     width: 720,
     draw(body) {
       const saved = flow.savedAt();

@@ -195,10 +195,13 @@ export function generate(world) {
       // Copses in two corners of the home ward.
       for (const c of copses) {
         const d = Math.hypot(x + 0.5 - (CENTER + c[0] * WARD * 0.29), y + 0.5 - (CENTER + c[1] * WARD * 0.29));
-        if (d < 4.6) n = Math.max(n, 0.62 + (1 - d / 4.6) * 0.12 + noise2(x * 2, y * 2, seed) * 0.05 - 0.04 * (d / 4.6));
+        if (d < 5.4) n = Math.max(n, 0.62 + (1 - d / 5.4) * 0.12 + noise2(x * 2, y * 2, seed) * 0.05 - 0.04 * (d / 5.4));
       }
       // The rest of the home ward stays clear, so there is room for the first houses.
-      if (cheb < WARD * 0.5 && !copses.some((c) => Math.hypot(x + 0.5 - (CENTER + c[0] * WARD * 0.29), y + 0.5 - (CENTER + c[1] * WARD * 0.29)) < 4.8)) n = Math.min(n, 0.4);
+      if (cheb < WARD * 0.5 && !copses.some((c) => Math.hypot(x + 0.5 - (CENTER + c[0] * WARD * 0.29), y + 0.5 - (CENTER + c[1] * WARD * 0.29)) < 5.6)) n = Math.min(n, 0.4);
+      // A belt of woods inside the moat's bank: shelter, a view, and timber for a young barony.
+      const edge = WARD * 0.5 - cheb;
+      if (edge > 3.2 && edge < 6.2) n = Math.max(n, 0.28 + fbm(x / 4 + 11, y / 4 - 7, seed + 5, 2) * 0.62);
       if (n > 0.5) tree[i] = Math.min(3, 1 + Math.floor((n - 0.5) / 0.06));
     }
   }
