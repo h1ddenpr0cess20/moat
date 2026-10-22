@@ -1,54 +1,39 @@
-import * as GFX from 'madness-engine/gfx';
-import { createStage } from 'madness-engine/stage';
-import { defineView } from 'madness-engine/view';
-import { CENTER } from './config.js';
-import { startGame } from './sim/game.js';
-import { createMaterials, colorLeaves } from './render/materials.js';
-import { createTerrain } from './render/terrain.js';
-import { createWater } from './render/water.js';
-import { createSkyDomes, lightAt, paintDay, paintReflections } from './render/sky.js';
-import { heightAt } from './world/world.js';
+import { CENTER, TICK_SECONDS } from './config.js';
+import { startGame, step } from './sim/game.js';
+import { createScene } from './render/scene.js';
 
 const params = new URLSearchParams(location.search);
 const host = document.getElementById('game');
-const game = startGame({ seed: params.get('seed') ?? 'moat' });
-const { world } = game;
+const game = startGame({ seed: params.get('seed') ?? 'moat', difficulty: params.get('difficulty') ?? 'normal' });
 
-const viewDef = defineView({ home: { yaw: 0.0, pitch: 0.95, zoom: 2.2 }, limits: { pitch: [0.28, 1.5], zoom: [0.2, 22] } });
-const sunDir = new GFX.Vector3(-0.3, 1, 0.6).normalize();
-const day = paintDay();
-const stage = await createStage(host, {
-  lens: { distance: 12, fov: 34 }, view: viewDef.createView(), sky: day, room: paintReflections(day),
-  lights: { key: { from: sunDir }, fill: null }, shadowSize: 2048, backdrop: '#9fb8c8', label: 'moat',
-});
-stage.camera.far = 900;
-const materials = createMaterials(GFX);
-const terrain = createTerrain(GFX, world, materials, stage.scene);
-const water = createWater(GFX, world, materials, stage.scene);
-const domes = createSkyDomes(GFX, stage.scene);
-water.build();
-const t0 = performance.now();
-await terrain.paintAll([CENTER, CENTER]);
-console.log('painted ground in', Math.round(performance.now() - t0), 'ms');
+// Development: play a bot's hand for some weeks first, to see a town.
+const pre = +(params.get('bot') ?? 0);
+if (pre && import.meta.env.DEV) {
+  const { createBot } = await import('../test/bot.js');
+  const bot = createBot(game);
+  for (let w = 0; w < pre && !game.gameOver; w++) { bot.think(); step(game); }
+} else if (+(params.get('week') ?? 0)) {
+  for (let w = 0; w < +params.get('week'); w++) step(game);
+}
 
-const season = +(params.get('season') ?? 1);
-const tod = +(params.get('tod') ?? 0.42);
-colorLeaves(materials, GFX, season, 0.3);
-terrain.setSeason(season, 0.3, season === 3 ? 0.85 : 0);
-const L = lightAt(tod, 0.95);
-sunDir.set(...L.dir);
-stage.key.color.setRGB(...L.key);
-stage.key.intensity = L.keyIntensity;
-stage.hemi.color.setRGB(...L.hemiSky);
-stage.hemi.groundColor.setRGB(...L.hemiGround);
-stage.hemi.intensity = L.hemiIntensity;
-domes.set(L.dusk, L.night);
+const scene = await createScene({ host, game, progress: (f, text) => { document.title = `${Math.round(f * 100)}% ${text}`; } });
+const { stage, camera, atmosphere } = scene;
 
-stage.target.set(CENTER, heightAt(world, CENTER, CENTER), CENTER + 4);
-stage.view.aim.zoom = +(params.get('zoom') ?? 2.6);
-stage.view.aim.pitch = +(params.get('pitch') ?? 0.9);
-stage.view.aim.yaw = +(params.get('yaw') ?? 0.4);
+const p = (k, d) => (params.has(k) ? +params.get(k) : d);
+camera.focus(p('x', CENTER), p('z', CENTER + 3), { zoom: p('zoom', 2.4), yaw: p('yaw', 0.3), instant: true });
+stage.view.aim.pitch = p('pitch', 0.95);
 stage.view.step(1, true);
-stage.run((dt) => { water.update(dt); });
-globalThis.moat = { game, stage, world, terrain, water, materials };
+if (params.has('tod')) { atmosphere.setMode('hold'); atmosphere.setTime(p('tod', 0.45)); }
+
+let speed = p('speed', 1);
+let acc = 0;
+stage.run((dt) => {
+  if (speed > 0 && !game.gameOver) {
+    acc += dt * speed;
+    while (acc >= TICK_SECONDS) { acc -= TICK_SECONDS; step(game); }
+  }
+  scene.weekFrac = acc / TICK_SECONDS;
+  scene.frame(dt);
+});
+globalThis.moat = { game, scene, setSpeed: (s) => { speed = s; } };
 document.title = 'ready';

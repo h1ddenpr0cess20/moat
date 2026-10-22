@@ -14,7 +14,7 @@ import { lightAt } from './sky.js';
 const DAY = 150;
 
 /** How much snow lies on the ground, 0 to 1, by the week of the year. */
-export const snowAt = (inYear) => (inYear >= 36 ? Math.min(1, (inYear - 35) / 4) * 0.9 : inYear < 5 ? Math.max(0, 1 - inYear / 5) * 0.9 : 0);
+export const snowAt = (inYear) => (inYear >= 36 ? Math.min(1, (inYear - 35) / 4) * 0.9 : inYear < 3 ? Math.max(0, 1 - inYear / 3) * 0.9 : 0);
 
 /** Is it raining? Showers in spring and autumn, now and then in summer, in three-week spells. */
 export function rainAt(week, seed) {
@@ -31,9 +31,8 @@ const FILMS = [
 ];
 const VIGNETTE = 'radial-gradient(ellipse at center, transparent 58%, rgba(10,16,28,0.34) 100%)';
 
-export function createAtmosphere({ GFX, stage, materials, terrain, water, domes, fx, seed }) {
+export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water, domes, fx, seed }) {
   const { mat } = materials;
-  const sunDir = stage.key.from ?? null;
   let clock = 0.38;
   let mode = 'auto';
   let filmKey = '';
@@ -65,7 +64,7 @@ export function createAtmosphere({ GFX, stage, materials, terrain, water, domes,
       const rain = rainAt(week, seed);
       overcast += ((rain ? 1 : 0) - overcast) * Math.min(1, dt * 0.8);
       const dim = 1 - 0.38 * overcast;
-      if (sunDir) sunDir.set(...L.dir);
+      sunDir.set(...L.dir);
       stage.key.color.setRGB(...L.key);
       stage.key.intensity = L.keyIntensity * dim * (season === 3 ? 0.92 : 1);
       stage.hemi.color.setRGB(L.hemiSky[0], L.hemiSky[1], L.hemiSky[2]);

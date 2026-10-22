@@ -93,23 +93,27 @@ function paintFields() {
         if (orient) ctx.rotate(Math.PI / 2);
         ctx.translate(-S / 2, -S / 2);
         const frost = stage === 5;
-        const soil = frost ? '#7a6a5a' : '#6a4e32';
-        const rows = 8, sp = S / rows;
-        const plant = (cols, w) => { for (let r = 0; r < rows; r++) { ctx.strokeStyle = cols[0]; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(0, r * sp + sp / 2); ctx.lineTo(S, r * sp + sp / 2); ctx.stroke(); ctx.strokeStyle = cols[1]; ctx.lineWidth = w * 0.4; ctx.beginPath(); ctx.moveTo(0, r * sp + sp / 2 - w * 0.2); ctx.lineTo(S, r * sp + sp / 2 - w * 0.2); ctx.stroke(); } };
+        const soil = frost ? '#7a6a5a' : '#6e5034';
+        const rows = 12, sp = S / rows;
+        const plant = (cols, w) => { for (let r = 0; r < rows; r++) { ctx.strokeStyle = cols[0]; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(0, r * sp + sp * 0.3); ctx.lineTo(S, r * sp + sp * 0.3); ctx.stroke(); ctx.strokeStyle = cols[1]; ctx.lineWidth = w * 0.4; ctx.beginPath(); ctx.moveTo(0, r * sp + sp * 0.3 - w * 0.2); ctx.lineTo(S, r * sp + sp * 0.3 - w * 0.2); ctx.stroke(); } };
         if (crop === 0 || crop === 1) {
           ctx.fillStyle = soil; ctx.fillRect(0, 0, S, S);
-          ctx.strokeStyle = frost ? '#8e7e6e' : '#4e3822'; ctx.lineWidth = 2;
-          for (let r = 0; r < rows; r++) { ctx.beginPath(); ctx.moveTo(0, r * sp + 1); ctx.lineTo(S, r * sp + 1); ctx.stroke(); }
+          // Ploughed earth: dark troughs, pale ridges, and clods.
+          for (let r = 0; r < rows; r++) {
+            ctx.fillStyle = frost ? '#6e6052' : '#523a24'; ctx.fillRect(0, r * sp + sp * 0.62, S, sp * 0.38);
+            ctx.fillStyle = frost ? '#9a8a7a' : '#86663f'; ctx.fillRect(0, r * sp + sp * 0.18, S, sp * 0.22);
+          }
+          for (let k = 0; k < 140; k++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(40,26,14,0.3)' : 'rgba(180,150,100,0.26)'; ctx.fillRect(rnd() * S, rnd() * S, 1.6, 1.2); }
           if (crop === 0) {
-            if (stage === 1) for (let r = 0; r < rows; r++) for (let k = 0; k < 12; k++) { ctx.fillStyle = '#86b84e'; ctx.fillRect(k * 5.4 + (r % 2), r * sp + sp / 2 - 1, 1.6, 2.4); }
+            if (stage === 1) for (let r = 0; r < rows; r++) for (let k = 0; k < 12; k++) { ctx.fillStyle = '#86b84e'; ctx.fillRect(k * 5.4 + (r % 2) * 2.5, r * sp + sp * 0.3, 1.6, 2.4); }
             if (stage === 2) plant(['#5e9a34', '#84c04e'], 4);
             if (stage === 3) { plant(['#cfa63e', '#ecd26e'], 5.4); for (let k = 0; k < 90; k++) { ctx.fillStyle = 'rgba(240,215,120,0.6)'; ctx.fillRect(rnd() * S, rnd() * S, 1.4, 1.4); } }
-            if (stage === 4) { ctx.strokeStyle = '#c4a766'; ctx.lineWidth = 1.6; for (let r = 0; r < rows; r++) { ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(0, r * sp + sp / 2); ctx.lineTo(S, r * sp + sp / 2); ctx.stroke(); } ctx.setLineDash([]); }
+            if (stage === 4) { ctx.strokeStyle = '#c4a766'; ctx.lineWidth = 1.6; for (let r = 0; r < rows; r++) { ctx.setLineDash([4, 3]); ctx.beginPath(); ctx.moveTo(0, r * sp + sp * 0.3); ctx.lineTo(S, r * sp + sp * 0.3); ctx.stroke(); } ctx.setLineDash([]); }
           } else {
             // Vegetables: round heads in rows.
             const heads = stage === 0 ? 0 : stage === 1 ? 0.5 : stage === 2 ? 0.8 : stage === 3 ? 1 : 0.35;
             if (stage < 5) for (let r = 0; r < rows; r++) for (let k = 0; k < 7; k++) {
-              const x = k * 9.4 + 4 + (r % 2) * 3, y = r * sp + sp / 2;
+              const x = k * 9.4 + 4 + (r % 2) * 3, y = r * sp + sp * 0.3;
               ctx.fillStyle = stage === 3 ? (rnd() < 0.2 ? '#a64a6a' : '#8ab84e') : '#6aa23a';
               ctx.beginPath(); ctx.arc(x, y, 1.2 + 2.6 * heads, 0, 7); ctx.fill();
               ctx.fillStyle = 'rgba(210,235,150,0.5)'; ctx.beginPath(); ctx.arc(x - 0.8, y - 0.8, 0.9 * heads + 0.3, 0, 7); ctx.fill();
@@ -135,8 +139,6 @@ function paintFields() {
             }
           }
         }
-        // A faint edge so the tiles read as a patch.
-        ctx.strokeStyle = 'rgba(30,22,12,0.22)'; ctx.lineWidth = 1.5; ctx.strokeRect(0.75, 0.75, S - 1.5, S - 1.5);
         ctx.restore();
       }
     }
@@ -169,6 +171,16 @@ export function createDecals(GFX, world, materials, scene) {
   const chunks = Array.from({ length: CHUNKS * CHUNKS }, () => ({ road: null, field: null, zone: null, fields: false }));
   let zoneBoost = 0;
   let cal = { season: 1, weekInSeason: 0 };
+
+  /** Rows run along the longer way a field goes: 0 along x, 1 along y. */
+  const runsAlong = (x, y, z) => {
+    let hx = 1, hy = 1;
+    for (let k = 1; k < 12 && inb(x - k, y) && world.zone[idx(x - k, y)] === z; k++) hx++;
+    for (let k = 1; k < 12 && inb(x + k, y) && world.zone[idx(x + k, y)] === z; k++) hx++;
+    for (let k = 1; k < 12 && inb(x, y - k) && world.zone[idx(x, y - k)] === z; k++) hy++;
+    for (let k = 1; k < 12 && inb(x, y + k) && world.zone[idx(x, y + k)] === z; k++) hy++;
+    return hx >= hy ? 0 : 1;
+  };
 
   const hAt = (vx, vy) => world.h[Math.max(0, Math.min(HV - 1, vy)) * HV + Math.max(0, Math.min(HV - 1, vx))];
 
@@ -234,7 +246,7 @@ export function createDecals(GFX, world, materials, scene) {
         if (!z || world.bld[t] || world.road[t]) continue;
         if (z >= ZONE_ID.wheat) {
           const name = z === ZONE_ID.wheat ? 0 : z === ZONE_ID.veg ? 1 : 2;
-          const orient = (((x >> 2) + (y >> 2)) & 1);
+          const orient = runsAlong(x, y, z);
           const stage = fieldStage(z, world.crop[t], cal);
           const row = name * 2 + orient;
           const u0 = (stage * CELL + 1) / (CELL * 8), u1 = ((stage + 1) * CELL - 1) / (CELL * 8);
@@ -252,7 +264,7 @@ export function createDecals(GFX, world, materials, scene) {
       for (const t of world.cores) {
         const x = t % world.size, y = Math.floor(t / world.size);
         if (Math.floor(x / CHUNK) !== cx || Math.floor(y / CHUNK) !== cy || world.bld[t]) continue;
-        const orient = (((x >> 1) + (y >> 1)) & 1);
+        const orient = (x + y) & 1;
         const stage = [1, 3, 3, 0][cal.season] ?? 1;
         const row = 6 + orient;
         const u0 = (stage * CELL + 1) / (CELL * 8), u1 = ((stage + 1) * CELL - 1) / (CELL * 8);
