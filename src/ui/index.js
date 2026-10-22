@@ -81,13 +81,15 @@ export function createUI({ game, scene, root, clock, sfx = () => {}, extra = {} 
     else if (e.code === 'F10') ctx.dialogs.toggle('menu');
   });
 
-  let t = 0, slow = 0;
+  let t = 0, slow = 0, mapT = 0, mapN = 0;
   const ui = {
     ctx, tools: ctx.tools, hud, toasts, dialogs: ctx.dialogs, steward: ctx.steward, hide(on) { root.classList.toggle('away', on); },
     update(dt) {
       labels.update();
       t -= dt;
-      if (t <= 0) { t = 0.25; hud.update(); minimap.update(); }
+      mapT -= dt;
+      if (t <= 0) { t = 0.25; hud.update(); }
+      if (mapT <= 0) { mapT = 1; minimap.update(); if (++mapN % 5 === 0) minimap.repaint(); }
       slow -= dt;
       if (slow <= 0) { slow = 1.2; ctx.inspector.refresh(); toolbar.update(); }
     },
