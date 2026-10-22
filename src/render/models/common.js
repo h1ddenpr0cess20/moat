@@ -55,24 +55,32 @@ export function panel(m, mat, f, u0, v0, u1, v1, off, col, o) {
   m.quad(mat, at(f, u0, v0, off), at(f, u1, v0, off), at(f, u1, v1, off), at(f, u0, v1, off), col, o);
 }
 
+/**
+ * How far from its wall each layer of a wall's dressing stands. Every layer is
+ * a few millimetres past the one under it, so no two faces share a plane: faces
+ * that do fight for the pixel, and flicker as the camera moves.
+ */
+export const LAYER = Object.freeze({ glass: 0.006, glow: 0.011, frame: 0.016, shutter: 0.034 });
+
 /** A window on a face: glass in a timber frame, with a lit pane over it that shows at night, and shutters if asked. */
 export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow = true, frame = PALETTE.timber } = {}) {
   const t = 0.028;
-  panel(m, 'glass', f, u - w / 2, v, u + w / 2, v + h, 0.006, PALETTE.glass);
-  if (glow) panel(m, 'glow', f, u - w / 2 + 0.012, v + 0.012, u + w / 2 - 0.012, v + h - 0.012, 0.012, PALETTE.warm);
-  // The frame: four thin bars and a mullion.
-  const o = 0.012;
-  const bar = (a, b, c, d) => panel(m, 'timber', f, a, b, c, d, o, frame, { uvScale: 2 });
-  bar(u - w / 2 - t, v - t, u + w / 2 + t, v + t * 0.6);
-  bar(u - w / 2 - t, v + h - t * 0.6, u + w / 2 + t, v + h + t);
-  bar(u - w / 2 - t, v, u - w / 2 + t * 0.4, v + h);
-  bar(u + w / 2 - t * 0.4, v, u + w / 2 + t, v + h);
-  bar(u - t * 0.3, v, u + t * 0.3, v + h);
+  panel(m, 'glass', f, u - w / 2, v, u + w / 2, v + h, LAYER.glass, PALETTE.glass);
+  if (glow) panel(m, 'glow', f, u - w / 2 + 0.012, v + 0.012, u + w / 2 - 0.012, v + h - 0.012, LAYER.glow, PALETTE.warm);
+  // The frame: four thin bars and a mullion, the sides and the mullion cut to fit between the top and bottom bars.
+  const o = LAYER.frame;
+  const bar = (a, b, c, d) => panel(m, 'trim', f, a, b, c, d, o, frame, { uvScale: 2 });
+  const foot = v + t * 0.6, head = v + h - t * 0.6;
+  bar(u - w / 2 - t, v - t, u + w / 2 + t, foot);
+  bar(u - w / 2 - t, head, u + w / 2 + t, v + h + t);
+  bar(u - w / 2 - t, foot, u - w / 2 + t * 0.4, head);
+  bar(u + w / 2 - t * 0.4, foot, u + w / 2 + t, head);
+  bar(u - t * 0.3, foot, u + t * 0.3, head);
   if (sill) m.quad('stone', at(f, u - w / 2 - 0.05, v - t, 0.05), at(f, u + w / 2 + 0.05, v - t, 0.05), at(f, u + w / 2 + 0.05, v - t, 0.0), at(f, u - w / 2 - 0.05, v - t, 0.0), PALETTE.stone[0]);
   if (shutters) {
     for (const s of [-1, 1]) {
-      const x = u + s * (w / 2 + 0.05);
-      panel(m, 'wood', f, x - 0.045, v, x + 0.045, v + h, 0.018, shutters);
+      const x = u + s * (w / 2 + 0.045);
+      panel(m, 'wood', f, x - 0.04, v, x + 0.04, v + h, LAYER.shutter, shutters);
     }
   }
 }
@@ -80,9 +88,9 @@ export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow 
 /** A door on a face: planks, a lintel, a stone step, an iron ring. */
 export function doorOn(m, f, u, w, h, col, { step = true } = {}) {
   panel(m, 'wood', f, u - w / 2, 0, u + w / 2, h, 0.012, col);
-  panel(m, 'timber', f, u - w / 2 - 0.035, h, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
-  panel(m, 'timber', f, u - w / 2 - 0.035, 0, u - w / 2, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
-  panel(m, 'timber', f, u + w / 2, 0, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u - w / 2 - 0.035, h, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u - w / 2 - 0.035, 0, u - w / 2, h, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u + w / 2, 0, u + w / 2 + 0.035, h, 0.016, PALETTE.timber, { uvScale: 2 });
   panel(m, 'metal', f, u + w / 2 - 0.07, h * 0.45, u + w / 2 - 0.045, h * 0.45 + 0.025, 0.02, '#2a2a2a');
   if (step) m.box('stone', ...bounds(f, u - w / 2 - 0.05, u + w / 2 + 0.05, 0, 0.055, 0.0, 0.1), PALETTE.stone[0], { skip: ['bottom'] });
 }
@@ -95,28 +103,41 @@ function bounds(f, u0, u1, v0, v1, o0, o1) {
 
 /**
  * Half-timbering on a face: posts at `cols` along it, rails at the given
- * heights, and a brace in some of the panels. The beams stand a hair proud.
+ * heights, and a brace in some of the panels. The beams stand a hair proud, and
+ * they are cut to meet square, the posts and braces stopping at the rails and
+ * the posts, because two beams that overlap with their faces in one plane flicker
+ * where they cross.
  */
 export function halfTimber(m, f, { cols = 4, rails = null, brace = true, thick = 0.032, col = PALETTE.timber, rnd = Math.random, skip = [], capped = true } = {}) {
+  const r = thick / 2;
   const hs = [...(rails ?? [0, f.h])];
   // A rail right at the eaves would poke through the roof: keep it just under.
   if (capped) hs[hs.length - 1] -= 0.045;
+  // A rail on the ground would sink into the stone base it stands on, and one at the top of a storey into the storey above, whose own rail would then lie in its plane: each is kept wholly within the wall.
+  for (let i = 0; i < hs.length; i++) hs[i] = Math.min(Math.max(hs[i], r), f.h - r);
   const off = 0.01;
-  const beam = (a, b) => m.beam('timber', at(f, a[0], a[1], off), at(f, b[0], b[1], off), thick, col, { uvScale: 2 });
-  // Rails, and the posts between them.
-  for (const v of hs) beam([0, v], [f.w, v]);
+  const beam = (a, b) => m.beam('trim', at(f, a[0], a[1], off), at(f, b[0], b[1], off), thick, col, { uvScale: 2 });
+  // Nothing is quite flush with the corners of the wall: a beam end in the plane of the next wall would fight it.
+  const e = 0.004;
+  for (const v of hs) beam([e, v], [f.w - e, v]);
+  const post = (c) => e + r + ((f.w - 2 * (e + r)) * c) / cols;
   for (let c = 0; c <= cols; c++) {
-    const u = (f.w * c) / cols;
-    for (let r = 0; r + 1 < hs.length; r++) beam([u, hs[r]], [u, hs[r + 1]]);
+    for (let k = 0; k + 1 < hs.length; k++) beam([post(c), hs[k] + r], [post(c), hs[k + 1] - r]);
   }
   if (!brace) return;
   for (let c = 0; c < cols; c++) {
-    for (let r = 0; r + 1 < hs.length; r++) {
-      if (skip.some(([sc, sr]) => sc === c && sr === r)) continue;
+    for (let k = 0; k + 1 < hs.length; k++) {
+      if (skip.some(([sc, sr]) => sc === c && sr === k)) continue;
       if (rnd() < 0.55) continue;
-      const u0 = (f.w * c) / cols, u1 = (f.w * (c + 1)) / cols;
-      if (rnd() < 0.5) beam([u0, hs[r]], [u1, hs[r + 1]]);
-      else beam([u1, hs[r]], [u0, hs[r + 1]]);
+      const flip = rnd() < 0.5;
+      // The clear panel between the posts and rails, and a brace across it that stops short of them.
+      const u0 = post(c) + r, u1 = post(c + 1) - r, v0 = hs[k] + r, v1 = hs[k + 1] - r;
+      const dx = u1 - u0, dy = v1 - v0, len = Math.hypot(dx, dy);
+      const cs = dx / len, sn = dy / len;
+      const cut = Math.max(r * (1 + sn) / cs, r * (1 + cs) / sn);
+      if (len - 2 * cut < thick) continue;
+      const sx = flip ? -1 : 1, x0 = flip ? u1 : u0, x1 = flip ? u0 : u1;
+      beam([x0 + sx * cs * cut, v0 + sn * cut], [x1 - sx * cs * cut, v1 - sn * cut]);
     }
   }
 }
@@ -129,11 +150,11 @@ export function chimney(m, x, z, y0, y1, { w = 0.17, col = PALETTE.stone[1] } = 
   return [x, y1 + 0.05, z];
 }
 
-/** A run of post-and-rail fence between two points. */
-export function fenceRun(m, a, b, { h = 0.2, col = PALETTE.wood[0], posts = 0.34 } = {}) {
+/** A run of post-and-rail fence between two points. A run that starts where another ended leaves out its first post (`first: false`), as two posts in one place fight. */
+export function fenceRun(m, a, b, { h = 0.2, col = PALETTE.wood[0], posts = 0.34, first = true } = {}) {
   const len = Math.hypot(b[0] - a[0], b[2] - a[2]);
   const n = Math.max(1, Math.round(len / posts));
-  for (let i = 0; i <= n; i++) {
+  for (let i = first ? 0 : 1; i <= n; i++) {
     const t = i / n;
     const x = a[0] + (b[0] - a[0]) * t, z = a[2] + (b[2] - a[2]) * t, y = a[1] + (b[1] - a[1]) * t;
     m.box('wood', x - 0.016, y, z - 0.016, x + 0.016, y + h, z + 0.016, col, { skip: ['bottom'], uvScale: 2 });

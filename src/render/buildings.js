@@ -1,6 +1,7 @@
 import { CHUNK, CHUNKS } from '../config.js';
 import { heightAt } from '../world/world.js';
 import { Batch } from './mesher.js';
+import { castsShadow } from './materials.js';
 import { modelFor } from './models/index.js';
 import { castleScaffold } from './models/castle.js';
 import { freeTree } from './dispose.js';
@@ -14,8 +15,6 @@ import { freeTree } from './dispose.js';
 
 /** The turn to put a model's front (+z) toward each way a building can face: north, east, south, west. */
 export const YAW = [Math.PI, Math.PI / 2, 0, -Math.PI / 2];
-
-const NO_SHADOW = new Set(['glow', 'glass', 'flame']);
 
 export function createBuildings(GFX, world, materials, scene) {
   const { mat } = materials;
@@ -32,7 +31,7 @@ export function createBuildings(GFX, world, materials, scene) {
       const material = mat[name];
       if (!material) { console.warn('moat: no material', name); continue; }
       const mesh = new GFX.Mesh(geometry, material);
-      mesh.castShadow = !NO_SHADOW.has(name);
+      mesh.castShadow = castsShadow(name);
       mesh.receiveShadow = true;
       if (name === 'glow' || name === 'flame') mesh.renderOrder = 3;
       parent.add(mesh);

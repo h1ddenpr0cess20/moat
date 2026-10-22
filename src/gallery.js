@@ -1,7 +1,7 @@
 import * as GFX from 'madness-engine/gfx';
 import { createStage } from 'madness-engine/stage';
 import { defineView } from 'madness-engine/view';
-import { createMaterials, colorLeaves } from './render/materials.js';
+import { castsShadow, createMaterials, colorLeaves } from './render/materials.js';
 import { Batch } from './render/mesher.js';
 import { modelFor } from './render/models/index.js';
 import { lightAt, paintDay, paintReflections } from './render/sky.js';
@@ -58,7 +58,7 @@ for (const [name, acc] of batch.accs) {
   const material = mat[name];
   if (!material) { console.warn('no material', name); continue; }
   const mesh = new GFX.Mesh(g, material);
-  mesh.castShadow = name !== 'glow' && name !== 'glass';
+  mesh.castShadow = castsShadow(name);
   mesh.receiveShadow = true;
   if (name === 'glow') mesh.renderOrder = 3;
   stage.scene.add(mesh);

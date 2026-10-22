@@ -15,7 +15,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "madness-engine": "github:h1ddenpr0cess20/madness-engine#76fd951653d120f826f6c6a95fa7de9723c55981"
+    "madness-engine": "github:h1ddenpr0cess20/madness-engine"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -72,15 +72,16 @@ export function farmstead(m, v) {
   const bx0 = 0.15, bx1 = 1.45, bz0 = -1.4, bz1 = 0.2;
   gabled(m, rnd, { x0: bx0, x1: bx1, z0: bz0, z1: bz1, h1: 0.85, wallMat: 'siding', wall: '#a88e66', roofMat: 'thatch', roof: pickFrom(rnd, PALETTE.thatch), ridgeH: 0.7, over: 0.16, axis: 'z', frame: false });
   m.box('wood', 0.5, 0.0, bz1 - 0.01, 1.1, 0.7, bz1 + 0.04, '#6a4a2c', { skip: ['bottom', 'back'] });
+  // The bracing of a door: each beam a little proud of the one it crosses.
   m.beam('timber', [0.5, 0.0, bz1 + 0.05], [1.1, 0.7, bz1 + 0.05], 0.035, PALETTE.timber);
-  m.beam('timber', [1.1, 0.0, bz1 + 0.05], [0.5, 0.7, bz1 + 0.05], 0.035, PALETTE.timber);
-  m.beam('timber', [0.8, 0.0, bz1 + 0.05], [0.8, 0.7, bz1 + 0.05], 0.03, PALETTE.timber);
+  m.beam('timber', [1.1, 0.0, bz1 + 0.06], [0.5, 0.7, bz1 + 0.06], 0.035, PALETTE.timber);
+  m.beam('timber', [0.8, 0.0, bz1 + 0.07], [0.8, 0.7, bz1 + 0.07], 0.03, PALETTE.timber);
   m.box('wood', 0.72, 1.0, bz1 - 0.01, 0.88, 1.2, bz1 + 0.03, '#3a281a', { skip: ['bottom', 'back'] });
   // The yard: a fence with a gate gap, haystacks, a cart, a trough.
   fenceRun(m, [-1.45, 0, 1.25], [-0.2, 0, 1.25], { h: 0.2 });
   fenceRun(m, [0.2, 0, 1.25], [1.45, 0, 1.25], { h: 0.2 });
-  fenceRun(m, [-1.45, 0, 1.25], [-1.45, 0, -0.5], { h: 0.2 });
-  fenceRun(m, [1.45, 0, 1.25], [1.45, 0, 0.3], { h: 0.2 });
+  fenceRun(m, [-1.45, 0, 1.25], [-1.45, 0, -0.5], { h: 0.2, first: false });
+  fenceRun(m, [1.45, 0, 1.25], [1.45, 0, 0.3], { h: 0.2, first: false });
   haystack(m, -0.9, 0, 0.3, 0.2);
   haystack(m, -0.5, 0, 0.75, 0.15);
   cart(m, 0.6, 0, 0.65, 0.5);
@@ -132,7 +133,7 @@ export function woodcutter(m, v) {
   // A chopping block with an axe in it.
   m.cylinder('bark', 0.1, 0, 0.7, 0.11, 0.12, 0.2, 9, '#7a5a3a', { smooth: true, capCol: '#c9a26a' });
   m.beam('wood', [0.1, 0.2, 0.7], [0.2, 0.42, 0.7], 0.018, PALETTE.wood[0]);
-  m.box('metal', 0.07, 0.18, 0.69, 0.14, 0.24, 0.71, '#8a8a90');
+  m.box('metal', 0.07, 0.18, 0.685, 0.14, 0.24, 0.715, '#8a8a90');
   // A trestle, planks, a few stumps.
   m.beam('wood', [0.45, 0.2, 0.9], [0.45, 0, 0.9], 0.03, PALETTE.wood[1]);
   for (let i = 0; i < 4; i++) m.box('wood', 0.55, i * 0.025, 0.95, 0.95, i * 0.025 + 0.025, 1.12, PALETTE.wood[(i + 1) % 3], { skip: ['bottom'] });
@@ -147,8 +148,8 @@ export function forester(m, v) {
   // A fenced nursery: rows of saplings in turned earth.
   m.box('plain', 0.3, 0.0, -0.8, 1.0, 0.03, 0.9, '#5a4228', { skip: ['bottom'] });
   fenceRun(m, [0.28, 0, -0.82], [1.02, 0, -0.82], { h: 0.16 });
-  fenceRun(m, [1.02, 0, -0.82], [1.02, 0, 0.92], { h: 0.16 });
-  fenceRun(m, [1.02, 0, 0.92], [0.28, 0, 0.92], { h: 0.16 });
+  fenceRun(m, [1.02, 0, -0.82], [1.02, 0, 0.92], { h: 0.16, first: false });
+  fenceRun(m, [1.02, 0, 0.92], [0.28, 0, 0.92], { h: 0.16, first: false });
   for (let r = 0; r < 4; r++) for (let k = 0; k < 5; k++) {
     const x = 0.45 + r * 0.17, z = -0.65 + k * 0.32 + (r % 2) * 0.08;
     const g = 0.08 + 0.1 * ((r + k) % 3);
@@ -169,7 +170,7 @@ export function hunter(m, v) {
   const top = chimney(m, 0.5, -0.4, 0.5, 1.15);
   // A drying rack with hides, and a smoking frame.
   m.beam('wood', [-0.95, 0.5, 0.65], [-0.2, 0.5, 0.65], 0.025, PALETTE.wood[1]);
-  for (const x of [-0.95, -0.2]) m.beam('wood', [x, 0, 0.65], [x, 0.5, 0.65], 0.025, PALETTE.wood[1]);
+  for (const x of [-0.95, -0.2]) m.beam('wood', [x, 0, 0.65], [x, 0.4875, 0.65], 0.025, PALETTE.wood[1]);
   for (let i = 0; i < 3; i++) m.quad('cloth', [-0.85 + i * 0.25, 0.48, 0.66], [-0.65 + i * 0.25, 0.48, 0.66], [-0.67 + i * 0.25, 0.2, 0.66], [-0.83 + i * 0.25, 0.2, 0.66], pickFrom(rnd, ['#8a6a48', '#6a4a30', '#a08060']));
   logPile(m, 0.2, 0.0, 0.7, { len: 0.34, rows: 2, r: 0.035, yaw: 0 });
   return { smoke: [top], height: 1.2 };

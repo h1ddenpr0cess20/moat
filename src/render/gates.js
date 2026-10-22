@@ -2,6 +2,7 @@ import { CASTLE_BRIDGE } from '../world/wards.js';
 import { heightAt } from '../world/world.js';
 import { CENTER, ROAD } from '../config.js';
 import { Batch, Mesher } from './mesher.js';
+import { castsShadow } from './materials.js';
 import { PALETTE } from './models/common.js';
 import { freeTree } from './dispose.js';
 
@@ -94,7 +95,7 @@ export function createGates(GFX, world, materials, scene) {
       const geometry = acc.geometry(GFX);
       if (!geometry || !mat[name]) continue;
       const mesh = new GFX.Mesh(geometry, mat[name]);
-      mesh.castShadow = name !== 'glow' && name !== 'glass';
+      mesh.castShadow = castsShadow(name);
       mesh.receiveShadow = true;
       if (name === 'glow') mesh.renderOrder = 3;
       parent.add(mesh);

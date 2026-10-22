@@ -28,8 +28,8 @@ export function quarry(m, v) {
   m.box('stone', -1.2, 0.05, -1.3, 1.0, 0.18, -0.2, '#8f8a80', { skip: ['bottom'] });
   m.box('stone', -1.0, 0.17, -1.2, 0.7, 0.3, -0.6, '#a29c90', { skip: ['bottom'] });
   // Stacked blocks, in rows.
-  for (let i = 0; i < 4; i++) for (let k = 0; k < 2 - (i > 1 ? 1 : 0); k++) block(m, rnd, -0.9 + i * 0.4, 0.06 + k * 0.2, 0.55 + (i % 2) * 0.1, 0.3);
-  for (let i = 0; i < 3; i++) block(m, rnd, 0.5 + (i % 2) * 0.3, 0.06 + Math.floor(i / 2) * 0.2, 0.7, 0.3, 0.3);
+  for (let i = 0; i < 4; i++) for (let k = 0; k < 2 - (i > 1 ? 1 : 0); k++) block(m, rnd, -0.9 + i * 0.4, 0.06 + k * 0.2, 0.55 + (i % 2) * 0.1, 0.3 - k * 0.03);
+  for (let i = 0; i < 3; i++) block(m, rnd, 0.78 + (i % 2) * 0.42, 0.06 + Math.floor(i / 2) * 0.2, 0.7, 0.3 - Math.floor(i / 2) * 0.03, 0.3);
   rubble(m, rnd, 0.9, -0.2, 0.4, 10);
   rubble(m, rnd, -1.1, -0.9, 0.3, 8);
   // A crane: two legs, a jib, a pulley and a block on the rope.
@@ -55,7 +55,7 @@ export function ironmine(m, v) {
   // The mouth: two props and a lintel round the dark.
   m.box('plain', -0.3, 0, -0.2, 0.3, 0.5, -0.05, '#0c0a08', { skip: ['bottom', 'back'] });
   for (const x of [-0.33, 0.33]) m.box('wood', x - 0.04, 0, -0.22, x + 0.04, 0.56, -0.04, PALETTE.wood[1], { skip: ['bottom'] });
-  m.box('wood', -0.4, 0.5, -0.22, 0.4, 0.6, -0.04, PALETTE.wood[1], { skip: ['bottom'] });
+  m.box('wood', -0.4, 0.5, -0.23, 0.4, 0.6, -0.03, PALETTE.wood[1], { skip: ['bottom'] });
   m.box('glow', -0.03, 0.4, -0.03, 0.03, 0.46, 0.0, '#ffb45a', { skip: ['bottom'] });
   // Rails out of it, an ore cart on them.
   for (const x of [-0.12, 0.12]) m.box('metal', x - 0.012, 0.0, -0.1, x + 0.012, 0.025, 1.0, '#4a4a50', { skip: ['bottom'] });
@@ -67,9 +67,9 @@ export function ironmine(m, v) {
   });
   // The headframe: an A-frame of timber with a winding wheel.
   m.beam('wood', [0.85, 0.0, -0.1], [1.05, 1.4, -0.35], 0.07, PALETTE.wood[1]);
-  m.beam('wood', [1.25, 0.0, -0.1], [1.05, 1.4, -0.35], 0.07, PALETTE.wood[1]);
+  m.beam('wood', [1.25, 0.0, -0.1], [1.05, 1.4, -0.35], 0.056, PALETTE.wood[1]);
   m.beam('wood', [0.85, 0.0, -0.7], [1.05, 1.4, -0.45], 0.07, PALETTE.wood[1]);
-  m.beam('wood', [1.25, 0.0, -0.7], [1.05, 1.4, -0.45], 0.07, PALETTE.wood[1]);
+  m.beam('wood', [1.25, 0.0, -0.7], [1.05, 1.4, -0.45], 0.056, PALETTE.wood[1]);
   m.beam('wood', [0.95, 0.7, -0.1], [1.15, 0.7, -0.1], 0.04, PALETTE.wood[0]);
   m.beam('wood', [0.95, 0.7, -0.7], [1.15, 0.7, -0.7], 0.04, PALETTE.wood[0]);
   m.push().translate(1.05, 1.3, -0.4).rotateY(Math.PI / 2);
@@ -92,7 +92,7 @@ export function storehouse(m, v) {
   for (const u of [0.7, 1.9]) {
     m.box('wood', x0 + u - 0.3, 0.1, z1 - 0.01, x0 + u + 0.3, 0.75, z1 + 0.04, '#5a3a20', { skip: ['bottom', 'back'] });
     m.beam('timber', [x0 + u - 0.3, 0.1, z1 + 0.05], [x0 + u + 0.3, 0.75, z1 + 0.05], 0.035, PALETTE.timber);
-    m.beam('timber', [x0 + u + 0.3, 0.1, z1 + 0.05], [x0 + u - 0.3, 0.75, z1 + 0.05], 0.035, PALETTE.timber);
+    m.beam('timber', [x0 + u + 0.3, 0.1, z1 + 0.06], [x0 + u - 0.3, 0.75, z1 + 0.06], 0.035, PALETTE.timber);
   }
   for (let i = 0; i < 3; i++) crate(m, -0.9 + i * 0.25, 0.0, 1.0, 0.15);
   crate(m, -0.8, 0.15, 1.0, 0.13);
@@ -118,11 +118,11 @@ export function smithy(m, v) {
   // Stone walls on three sides, open at the front half.
   m.box('stone', x0 - 0.03, -0.35, z0 - 0.03, x1 + 0.03, 0.08, z1 + 0.03, PALETTE.stone[3], { skip: ['bottom'] });
   m.box('stone', x0, 0.08, z0, x1, 0.74, z0 + 0.12, '#8f887a', { skip: ['bottom'] });
-  m.box('stone', x0, 0.08, z0, x0 + 0.12, 0.74, z1, '#8f887a', { skip: ['bottom'] });
-  m.box('stone', x1 - 0.12, 0.08, z0, x1, 0.74, z1, '#8f887a', { skip: ['bottom'] });
-  m.box('stone', x0, 0.08, z1 - 0.12, x0 + 0.5, 0.74, z1, '#8f887a', { skip: ['bottom'] });
-  m.box('stone', x1 - 0.5, 0.08, z1 - 0.12, x1, 0.74, z1, '#8f887a', { skip: ['bottom'] });
-  m.box('stone', x0, 0.68, z1 - 0.12, x1, 0.74, z1, '#8f887a', { skip: ['bottom'] });
+  m.box('stone', x0, 0.08, z0 + 0.12, x0 + 0.12, 0.74, z1, '#8f887a', { skip: ['bottom'] });
+  m.box('stone', x1 - 0.12, 0.08, z0 + 0.12, x1, 0.74, z1, '#8f887a', { skip: ['bottom'] });
+  m.box('stone', x0 + 0.12, 0.08, z1 - 0.12, x0 + 0.5, 0.74, z1, '#8f887a', { skip: ['bottom'] });
+  m.box('stone', x1 - 0.5, 0.08, z1 - 0.12, x1 - 0.12, 0.74, z1, '#8f887a', { skip: ['bottom'] });
+  m.box('stone', x0 + 0.5, 0.68, z1 - 0.12, x1 - 0.5, 0.74, z1, '#8f887a', { skip: ['bottom'] });
   m.gable('tile', x0, z0, x1, z1, 0.74, 1.3, pickFrom(rnd, PALETTE.tile), { over: 0.15, gable: 'stone', gableColor: '#8f887a', axis: 'x', ridge: { mat: 'wood', col: PALETTE.wood[1] } });
   // The forge: a hearth against the back wall, a hood, a chimney.
   m.box('stone', -0.3, 0.08, z0 + 0.12, 0.3, 0.38, z0 + 0.5, '#756f66', { skip: ['bottom'] });
@@ -153,7 +153,7 @@ export function weaver(m, v) {
   const top = chimney(m, -0.4, -0.75, 0.5, 1.3);
   // A drying rack hung with dyed cloth.
   m.beam('wood', [-1.0, 0.7, 0.55], [1.0, 0.7, 0.55], 0.03, PALETTE.wood[1]);
-  for (const x of [-1.0, 1.0]) m.beam('wood', [x, 0, 0.55], [x, 0.7, 0.55], 0.03, PALETTE.wood[1]);
+  for (const x of [-1.0, 1.0]) m.beam('wood', [x, 0, 0.55], [x, 0.685, 0.55], 0.03, PALETTE.wood[1]);
   const cols = ['#b32a2a', '#2a4a9a', '#c9a227', '#2a7a4a', '#7a3a8a', '#e0d0a0', '#b32a2a'];
   cols.forEach((c, i) => {
     const x = -0.85 + i * 0.28;
@@ -162,8 +162,8 @@ export function weaver(m, v) {
   // A loom frame and a pair of dye vats.
   m.box('wood', 0.55, 0.0, 0.2, 0.62, 0.55, 0.28, PALETTE.wood[1]);
   m.box('wood', 0.95, 0.0, 0.2, 1.02, 0.55, 0.28, PALETTE.wood[1]);
-  m.box('wood', 0.55, 0.5, 0.2, 1.02, 0.56, 0.28, PALETTE.wood[1]);
-  for (let i = 0; i < 6; i++) m.box('cloth', 0.6 + i * 0.065, 0.1, 0.235, 0.62 + i * 0.065, 0.5, 0.245, '#e8e0c8');
+  m.box('wood', 0.54, 0.5, 0.19, 1.03, 0.56, 0.29, PALETTE.wood[1]);
+  for (let i = 0; i < 6; i++) m.box('cloth', 0.64 + i * 0.05, 0.1, 0.235, 0.66 + i * 0.05, 0.5, 0.245, '#e8e0c8');
   for (const [x, c] of [[-0.9, '#2a4a9a'], [-0.6, '#b32a2a']]) {
     m.cylinder('wood', x, 0, 0.1, 0.12, 0.13, 0.22, 10, PALETTE.wood[1], { smooth: true, bottom: false, capCol: c });
   }

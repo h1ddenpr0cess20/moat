@@ -13,8 +13,8 @@ function yard(m, rnd, width, z, { gate = 0 } = {}) {
   const half = width / 2;
   fenceRun(m, [-half, 0, z], [gate - 0.16, 0, z], { h: 0.16 });
   fenceRun(m, [gate + 0.16, 0, z], [half, 0, z], { h: 0.16 });
-  fenceRun(m, [-half, 0, z], [-half, 0, z - 0.5], { h: 0.16 });
-  fenceRun(m, [half, 0, z], [half, 0, z - 0.5], { h: 0.16 });
+  fenceRun(m, [-half, 0, z], [-half, 0, z - 0.5], { h: 0.16, first: false });
+  fenceRun(m, [half, 0, z], [half, 0, z - 0.5], { h: 0.16, first: false });
   if (rnd() < 0.7) {
     const bx = (rnd() < 0.5 ? -1 : 1) * (half - 0.3);
     m.box('plain', bx - 0.2, 0, z - 0.34, bx + 0.2, 0.035, z - 0.1, '#4a3622');
@@ -85,7 +85,8 @@ export function house(m, v) {
   const J = 0.09;
   const u = faces(x0 - 0.03, z0 - 0.02, x1 + 0.03, z1 + J, 0.62, 1.08);
   // Beams under the overhang.
-  m.box('timber', x0 - 0.03, 0.58, z1, x1 + 0.03, 0.64, z1 + J, PALETTE.timber, { skip: ['bottom'] });
+  // The bressummer stands a centimetre past the storey above it, which would otherwise share its front and its ends.
+  m.box('timber', x0 - 0.042, 0.58, z1, x1 + 0.042, 0.64, z1 + J + 0.012, PALETTE.timber, { skip: ['bottom'] });
   m.box('plaster', x0 - 0.03, 0.62, z0 - 0.02, x1 + 0.03, 1.08, z1 + J, wall, { skip: ['bottom', 'top'] });
   for (const n of ['front', 'back']) halfTimber(m, u[n], { cols: 4, rails: [0, 0.46], rnd });
   for (const n of ['left', 'right']) halfTimber(m, u[n], { cols: 3, rails: [0, 0.46], rnd });
@@ -127,7 +128,7 @@ export function townhouse(m, v) {
   let y = 0.62;
   for (let s = 0; s < 2; s++) {
     const nz = zf + 0.08;
-    m.box('timber', x0 - 0.02, y - 0.05, zf, x1 + 0.02, y + 0.03, nz, PALETTE.timber, { skip: ['bottom'] });
+    m.box('timber', x0 - 0.042, y - 0.05, zf, x1 + 0.042, y + 0.02, nz + 0.012, PALETTE.timber, { skip: ['bottom'] });
     m.box('plaster', x0 - 0.02, y, z0 - 0.02, x1 + 0.02, y + 0.5, nz, wall, { skip: ['bottom', 'top'] });
     const F = faces(x0 - 0.02, z0 - 0.02, x1 + 0.02, nz, y, y + 0.5);
     for (const n of ['front', 'back']) halfTimber(m, F[n], { cols: 4, rails: [0, 0.5], rnd, capped: s === 1 });
@@ -195,9 +196,9 @@ export function shop(m, v) {
   const roof = pickFrom(rnd, PALETTE.tile);
   const F = body(m, rnd, v, { x0, x1, z0, z1, h0: 0.09, h1: 0.7, wall, roof, roofMat: 'tile', ridgeH: 0.52, doorU: 0.28, doorCol: pickFrom(rnd, PALETTE.door), shutters: pickFrom(rnd, PALETTE.shutter) });
   // A wide counter window with an awning over it.
-  panel(m, 'wood', F.front, 0.7, 0.12, 1.35, 0.5, 0.02, '#3a2a1c');
-  panel(m, 'glass', F.front, 0.75, 0.2, 1.3, 0.46, 0.026, PALETTE.glass);
-  panel(m, 'glow', F.front, 0.76, 0.21, 1.29, 0.45, 0.03, PALETTE.warm);
+  panel(m, 'wood', F.front, 0.7, 0.12, 1.35, 0.5, 0.042, '#3a2a1c');
+  panel(m, 'glass', F.front, 0.75, 0.2, 1.3, 0.46, 0.047, PALETTE.glass);
+  panel(m, 'glow', F.front, 0.76, 0.21, 1.29, 0.45, 0.052, PALETTE.warm);
   awning(m, x0 + 0.62, x0 + 1.4, z1 + 0.02, z1 + 0.34, 0.54, pickFrom(rnd, ['#b32a2a', '#2a4a9a', '#2a7a4a']), '#efe4cc');
   sign(m, F.front, 1.05, 0.64);
   const top = chimney(m, 0.55, -0.3, 0.55, 1.35);
@@ -222,7 +223,7 @@ export function merchant(m, v) {
   doorOn(m, G.front, 1.3, 0.22, 0.4, pickFrom(rnd, PALETTE.door));
   windowOn(m, G.right, 0.6, 0.2, 0.2, 0.22, { shutters: PALETTE.shutter[0] });
   windowOn(m, G.left, 0.7, 0.2, 0.2, 0.22, { shutters: PALETTE.shutter[0] });
-  m.box('timber', x0 - 0.02, 0.58, z0 - 0.02, x1 + 0.02, 0.66, z1 + 0.1, PALETTE.timber, { skip: ['bottom'] });
+  m.box('timber', x0 - 0.042, 0.58, z0 - 0.042, x1 + 0.042, 0.66, z1 + 0.1, PALETTE.timber, { skip: ['bottom'] });
   m.box('plaster', x0 - 0.02, 0.62, z0 - 0.02, x1 + 0.02, 1.22, z1 + 0.08, wall, { skip: ['bottom', 'top'] });
   const U = faces(x0 - 0.02, z0 - 0.02, x1 + 0.02, z1 + 0.08, 0.62, 1.22);
   for (const n of ['front', 'back']) halfTimber(m, U[n], { cols: 4, rails: [0, 0.6], rnd });
