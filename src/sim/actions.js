@@ -48,7 +48,7 @@ export function planRoad(game, tiles, type = 'dirt') {
     const here = inb(x, y) ? world.road[idx(x, y)] : 0;
     const want = type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT;
     if (reason === 'A bridge' || (here === want) || (here === ROAD.COBBLE && want === ROAD.DIRT) || here === ROAD.SPAN) continue;
-    if (reason) { bad.push([x, y]); why ??= reason; continue; }
+    if (reason) { bad.push([x, y]); why ??= reason === 'Waterlogged' ? 'Too wet for a road: lay a bridge over it' : reason === 'Water' ? 'Water: lay a bridge over it' : reason; continue; }
     ok.push([x, y]);
     addCost(cost, ROADS[type].cost);
   }
@@ -57,27 +57,31 @@ export function planRoad(game, tiles, type = 'dirt') {
 
 /** Natural water the lord may bridge: a river or lake inside the realm, never the moat. */
 const spanWater = (world, x, y) => inb(x, y) && world.ground[idx(x, y)] === GROUND.WATER && world.realm[idx(x, y)] === 1 && !world.moat[idx(x, y)] && !world.bld[idx(x, y)];
-/** The longest bridge: tiles of water in a row. */
+/** Low, marshy ground beside the water: no road will lie on it, but a boardwalk will. */
+const marsh = (world, x, y) => inb(x, y) && !world.bld[idx(x, y)] && !world.road[idx(x, y)] && roadBlocked(world, x, y) === 'Waterlogged';
+/** The longest bridge: tiles of water (or marsh) in a row. */
 export const MAX_SPAN = 6;
 
 /**
  * A bridge over water, along a straight line of tiles from one bank to the
- * other: dry tiles are laid as dirt road, water tiles as a plank span. Both
- * ends must be on land, the water must be the realm's own, and a span is at
- * most six tiles. `spans` are the water tiles; `tiles` is everything to lay.
+ * other: dry tiles are laid as dirt road, water and marsh as a plank span. The
+ * ends must not be in the water, the water must be the realm's own, and a span
+ * is at most six tiles. `spans` are the tiles on planks; `tiles` is everything
+ * to lay.
  */
 function planBridge(game, tiles) {
   const { world } = game;
   const out = { tiles: [], spans: [], blocked: [], cost: {}, afford: false, reason: null };
-  const water = tiles.map(([x, y]) => spanWater(world, x, y));
-  if (!water.some(Boolean)) return { ...out, blocked: tiles.filter(([x, y]) => roadBlocked(world, x, y)), reason: 'A bridge needs water to cross' };
-  if (water[0] || water[water.length - 1]) return { ...out, blocked: tiles.filter((_, k) => water[k]), reason: 'Both ends of a bridge must be on dry land' };
+  const open = tiles.map(([x, y]) => spanWater(world, x, y));
+  const wet = tiles.map(([x, y], k) => open[k] || marsh(world, x, y));
+  if (!open.some(Boolean)) return { ...out, blocked: tiles.filter(([x, y]) => roadBlocked(world, x, y) && !marsh(world, x, y)), reason: 'A bridge needs water to cross' };
+  if (open[0] || open[open.length - 1]) return { ...out, blocked: tiles.filter((_, k) => open[k]), reason: 'Both ends of a bridge must be on the bank, not in the water' };
   let run = 0;
-  for (const w of water) { run = w ? run + 1 : 0; if (run > MAX_SPAN) return { ...out, blocked: tiles.filter((_, k) => water[k]), reason: `Too long to span: ${MAX_SPAN} tiles of water at most` }; }
+  for (const w of wet) { run = w ? run + 1 : 0; if (run > MAX_SPAN) return { ...out, blocked: tiles.filter((_, k) => wet[k]), reason: `Too long to span: ${MAX_SPAN} tiles of water at most` }; }
   for (let k = 0; k < tiles.length; k++) {
     const [x, y] = tiles[k];
     const here = world.road[idx(x, y)];
-    if (water[k]) {
+    if (wet[k]) {
       if (here === ROAD.SPAN) continue;
       out.tiles.push([x, y]); out.spans.push([x, y]);
       addCost(out.cost, ROADS.bridge.cost);
@@ -105,9 +109,12 @@ export function buildRoad(game, tiles, type = 'dirt', { free = false } = {}) {
     const span = isSpan.has(idx(x, y));
     const c = span ? ROADS.bridge.cost : ROADS[type === 'bridge' ? 'dirt' : type].cost;
     if (!free && !canPay(game.stock, c)) break;
-    let timber = 0;
+    let timber;
     if (span) {
       const i = idx(x, y);
+      timber = clearTrees(game.world, x, y);
+      game.world.zone[i] = 0;
+      game.world.crop[i] = 0;
       game.world.road[i] = ROAD.SPAN;
       touch(game.world, ['flat', 'ground', 'water'], x, y, x, y, 1);
       game.world.netVersion = (game.world.netVersion ?? 0) + 1;

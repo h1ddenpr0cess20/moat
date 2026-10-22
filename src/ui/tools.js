@@ -6,6 +6,8 @@ import { buildingAt, footprint, gateRect } from '../world/buildings.js';
 import { nearestRoadSide } from '../world/roads.js';
 import { idx, inb } from '../world/world.js';
 import { TINTS } from '../render/overlays.js';
+import { modelFor } from '../render/models/index.js';
+import { heightAt } from '../world/world.js';
 
 /**
  * The lord's hand. A tool says what a click or a drag does on the ground:
@@ -147,11 +149,41 @@ export function createTools(ctx) {
     return Boolean(world.zone[i] || (world.realm[i] && (world.tree[i] > 0 || (world.ground[i] === GROUND.ROCK && world.amount[i] > 0))));
   };
 
+  /** How tall a building stands, in tiles, for picking it by its body and not only by its footprint. */
+  const heightOf = (b) => (b.type === 'castle' ? (modelFor('castle', { level: b.level }).height ?? 4.4) : b.state === 'building' ? 1.4 : (modelFor(b.type, { level: b.level, variant: b.variant }).height ?? 1.5) + 0.35);
+
+  /**
+   * The building the pointer is over, if its body (not just the ground it
+   * stands on) is under it: a ray from the eye against each building's box,
+   * nearer than where the ray reaches the ground.
+   */
+  const buildingUnder = (clientX, clientY, ground) => {
+    const { o, d } = camera.ray(clientX, clientY);
+    let limit = ground ? Math.hypot(ground.x - o.x, ground.y - o.y, ground.z - o.z) : Infinity;
+    let best = null;
+    for (const b of world.buildings.values()) {
+      const base = heightAt(world, b.x + b.w / 2, b.y + b.d / 2);
+      const lo = [b.x, base - 0.1, b.y], hi = [b.x + b.w, base + heightOf(b), b.y + b.d];
+      const org = [o.x, o.y, o.z], dir = [d.x, d.y, d.z];
+      let t0 = 0, t1 = limit, hit = true;
+      for (let a = 0; a < 3 && hit; a++) {
+        if (Math.abs(dir[a]) < 1e-9) { if (org[a] < lo[a] || org[a] > hi[a]) hit = false; continue; }
+        let ta = (lo[a] - org[a]) / dir[a], tb = (hi[a] - org[a]) / dir[a];
+        if (ta > tb) [ta, tb] = [tb, ta];
+        t0 = Math.max(t0, ta); t1 = Math.min(t1, tb);
+        if (t0 > t1) hit = false;
+      }
+      if (hit && t0 < limit) { limit = t0; best = b; }
+    }
+    return best;
+  };
+
   const preview = {
     select(p, e) {
       if (!p) { overlays.clear('hover'); tip.hide(); return; }
-      const [x, y] = tileOf(p);
-      const b = buildingAt(world, x, y);
+      let [x, y] = tileOf(p);
+      const b = buildingUnder(e.clientX, e.clientY, p) ?? buildingAt(world, x, y);
+      if (b) { x = b.x; y = b.y; }
       const g = !b && gateAtTile(x, y);
       const block = !b && !g && blockAt(game, x, y);
       overlays.rect('hover', b ? { x: b.x, y: b.y, w: b.w, d: b.d } : g ? gateRect(g) : null, { color: '#ffffff', width: 0.1, opacity: 0.7 });
@@ -255,13 +287,13 @@ export function createTools(ctx) {
     demolish(p, e) {
       if (!p) { overlays.clear('hover'); overlays.clear('main'); tip.hide(); return; }
       const [x, y] = tileOf(p);
-      const b = buildingAt(world, x, y);
+      const b = buildingUnder(e.clientX, e.clientY, p) ?? buildingAt(world, x, y);
       const i = inb(x, y) ? idx(x, y) : -1;
       overlays.clear('main');
       if (b) {
         overlays.rect('hover', { x: b.x, y: b.y, w: b.w, d: b.d }, { color: TINTS.bad, width: 0.16, opacity: 0.9 });
-        const back = Object.entries(BUILDINGS[b.type].cost).map(([r, n]) => [r, Math.floor(n * (b.state === 'building' ? 0.8 : 0.4))]).filter(([, n]) => n > 0);
-        tip.show(b.id === 1 ? '<span class="bad">The castle stands.</span>' : `<b>Tear down the ${BUILDINGS[b.type].name.toLowerCase()}</b><br><span class="dim">Gives back ${back.length ? back.map(([r, n]) => `${n} ${r}`).join(', ') : 'nothing'}</span>`, e.clientX, e.clientY);
+        const back = b.id === 1 ? [] : Object.entries(BUILDINGS[b.type].cost).map(([r, n]) => [r, Math.floor(n * (b.state === 'building' ? 0.8 : 0.4))]).filter(([, n]) => n > 0);
+        tip.show(b.id === 1 ? '<span class="bad">The castle stands.</span>' : `<b>Tear down the ${BUILDINGS[b.type]?.name.toLowerCase()}</b><br><span class="dim">Gives back ${back.length ? back.map(([r, n]) => `${n} ${r}`).join(', ') : 'nothing'}</span>`, e.clientX, e.clientY);
       } else if (i >= 0 && clearable(x, y)) {
         overlays.clear('hover');
         const tiles = drag ? rectTiles(drag.start[0], drag.start[1], x, y) : [[x, y]];
@@ -312,7 +344,7 @@ export function createTools(ctx) {
       }
     } else if (tool === 'demolish') {
       let n = 0;
-      const tiles = d.custom ? rectTiles(d.start[0], d.start[1], x, y) : [[x, y]];
+      const tiles = d.custom ? rectTiles(d.start[0], d.start[1], x, y) : [d.start];
       for (const [tx, ty] of tiles) {
         if (!inb(tx, ty) || (d.custom && buildingAt(world, tx, ty))) continue;
         const r = demolish(game, tx, ty);
@@ -344,7 +376,7 @@ export function createTools(ctx) {
 
   const selectAt = (p) => {
     const [x, y] = tileOf(p);
-    const b = buildingAt(world, x, y);
+    const b = buildingUnder(lastPointer.clientX, lastPointer.clientY, p) ?? buildingAt(world, x, y);
     if (b) return ctx.inspector.show({ kind: 'building', id: b.id });
     const g = gateAtTile(x, y);
     if (g) return ctx.inspector.show({ kind: 'gate', id: world.gates.indexOf(g) });
@@ -389,8 +421,9 @@ export function createTools(ctx) {
     }
     drag = { start: tileOf(p), sx: e.clientX, sy: e.clientY, moved: false, custom: false };
     if (tool === 'demolish') {
-      const [x, y] = drag.start;
-      if (buildingAt(world, x, y)) { finishDrag(p); return; }
+      const under = buildingUnder(e.clientX, e.clientY, p);
+      if (under) drag.start = [under.x, under.y];
+      if (under || buildingAt(world, drag.start[0], drag.start[1])) { finishDrag(p); return; }
     }
     preview[tool]?.(p, e);
   });
@@ -404,6 +437,7 @@ export function createTools(ctx) {
     }
     if (e.button !== 0 || !drag) return;
     if (camera.grabbing) camera.endGrab();
+    lastPointer = { ...lastPointer, x: e.clientX, y: e.clientY, clientX: e.clientX, clientY: e.clientY };
     const p = e.target === dom ? pickFor(e) : tools.hover;
     finishDrag(p ?? tools.hover);
   });

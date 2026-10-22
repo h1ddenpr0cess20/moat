@@ -33,8 +33,11 @@ export function createInspector(ctx) {
 
   // ------------------------------------------------------------ status words
 
+  /** A building's definition; the castle's is its tier's. */
+  const defOf = (b) => (b.type === 'castle' ? { name: CASTLE_LEVELS[game.castleLevel].name, cat: 'castle', desc: CASTLE_LEVELS[game.castleLevel].desc } : BUILDINGS[b.type]);
+
   function statusOf(b) {
-    const def = BUILDINGS[b.type];
+    const def = defOf(b);
     if (b.type === 'castle') return game.castleWork ? ['Masons at work', 'warn'] : ['Home of the lord', 'good'];
     if (b.state === 'building') return [`Under construction · ${pct(b.progress)}`, 'warn'];
     if (needsRoad(b) && !b.connected && b.type !== 'gatehouse') return ['No road to the castle', 'bad'];
@@ -45,7 +48,7 @@ export function createInspector(ctx) {
 
   const describe = {
     building(b) {
-      const def = BUILDINGS[b.type];
+      const def = defOf(b);
       const [status] = statusOf(b);
       const block = blockAt(game, b.x, b.y);
       return `<b>${def.name}</b><div class="dim">${status}</div>${block && block.q > 0 ? `<div class="good">Part of ${block.name} · rating ${block.rating}</div>` : ''}`;
@@ -105,7 +108,7 @@ export function createInspector(ctx) {
   }
 
   function showBuilding(b) {
-    const def = BUILDINGS[b.type];
+    const def = defOf(b);
     const [status, kind] = statusOf(b);
     const parts = [...head(def.name, `${def.cat === 'housing' ? 'Home' : def.cat === 'market' ? 'Trade' : def.cat[0].toUpperCase() + def.cat.slice(1)}${b.level > 1 && def.cat === 'housing' ? ` · level ${b.level}` : ''}`)];
     parts.push(h('div.badge-line', {}, tag(status, kind)));

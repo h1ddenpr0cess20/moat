@@ -110,7 +110,7 @@ test('bridges cross a river inside the realm, but not the moat, and not too far'
   assert.ok(game.stock.wood >= 100 - 3 * 4, 'the spans cost timber (felled trees give some back)');
   // A bridge needs water, and both ends on land.
   assert.match(planRoad(game, lineTiles(x0, y, x0 + 3, y), 'bridge').reason, /needs water/);
-  assert.match(planRoad(game, lineTiles(wx, y, x0 + 11, y), 'bridge').reason, /dry land/);
+  assert.match(planRoad(game, lineTiles(wx, y, x0 + 11, y), 'bridge').reason, /bank/);
   // Too long a span.
   for (let x = x0 + 1; x <= x0 + 9; x++) world.ground[idx(x, y)] = G.WATER;
   world.road[idx(wx, y)] = 0; world.road[idx(wx + 1, y)] = 0; world.road[idx(wx + 2, y)] = 0;
@@ -123,4 +123,24 @@ test('bridges cross a river inside the realm, but not the moat, and not too far'
   // The moat is crossed only at the gates.
   const moatTile = [CENTER - 4, CENTER];
   assert.equal(planRoad(game, lineTiles(moatTile[0] - 3, moatTile[1], moatTile[0] + 3, moatTile[1]), 'bridge').tiles.length, 0);
+});
+
+test('a bridge may start on marshy bank: low ground counts as part of the span', async () => {
+  const { GROUND: G } = await import('../src/config.js');
+  const { planRoad } = await import('../src/sim/game.js');
+  const { roadBlocked } = await import('../src/world/roads.js');
+  const game = startGame({ seed: 'moat' });
+  const { world } = game;
+  let y = null, x0 = null;
+  for (let yy = CENTER - 12; yy <= CENTER - 6 && y === null; yy++) for (let xx = 94; xx <= 105 && y === null; xx++) {
+    if (Array.from({ length: 12 }, (_, k) => roadBlocked(world, xx + k, yy)).every((r) => !r)) { y = yy; x0 = xx; }
+  }
+  for (let x = x0 + 5; x <= x0 + 6; x++) world.ground[idx(x, y)] = G.WATER;
+  // The banks either side are low and wet: no road, but a boardwalk.
+  for (const bx of [x0 + 4, x0 + 7]) for (let dy = 0; dy <= 2; dy++) for (let dx = 0; dx <= 2; dx++) world.h[(y * SUB + dy) * HV + bx * SUB + dx] = 0.04;
+  assert.equal(roadBlocked(world, x0 + 4, y), 'Waterlogged');
+  assert.match(planRoad(game, lineTiles(x0 + 4, y, x0 + 4, y), 'dirt').reason, /bridge/, 'a plain road tells you to use a bridge');
+  const plan = planRoad(game, lineTiles(x0, y, x0 + 11, y), 'bridge');
+  assert.equal(plan.reason, null, plan.reason);
+  assert.ok(plan.spans.length >= 4, 'two water tiles and the marshy banks either side');
 });

@@ -167,6 +167,15 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
 
   const api = {
     pick,
+    /** The ray under a screen point: { o: origin, d: direction } in world units. */
+    ray(clientX, clientY) {
+      const r = dom.getBoundingClientRect();
+      ndc.x = ((clientX - r.left) / r.width) * 2 - 1;
+      ndc.y = -(((clientY - r.top) / r.height) * 2 - 1);
+      caster.setFromCamera(ndc, camera);
+      const { origin, direction } = caster.ray;
+      return { o: { x: origin.x, y: origin.y, z: origin.z }, d: { x: direction.x, y: direction.y, z: direction.z } };
+    },
     /** Whether two fingers are on the screen: a tool should let go of what it was doing. */
     get gesturing() { return touches.size >= 2; },
     get distance() { return 12 * view.zoom; },
