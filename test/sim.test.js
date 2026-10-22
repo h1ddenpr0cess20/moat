@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { GOODS } from '../src/catalog.js';
-import { headcount, setTax, startGame, step } from '../src/sim/game.js';
+import { demolish, headcount, setTax, startGame, step } from '../src/sim/game.js';
 import { createBot } from './bot.js';
 
 test('every starting hamlet has a connected farm, granary and woodcutter', () => {
@@ -42,4 +42,26 @@ test('a town with no food does not grow', () => {
   const before = headcount(game);
   for (let w = 0; w < 8; w++) step(game);
   assert.ok(headcount(game) <= before);
+});
+
+test('the clearing tool fells trees and breaks rock, and the stores gain by it', () => {
+  const game = startGame({ seed: 'moat' });
+  const { world } = game;
+  let tree = null, rock = null;
+  for (let i = 0; i < world.tree.length && !(tree && rock); i++) {
+    if (!world.realm[i] || world.bld[i] || world.road[i] || world.zone[i]) continue;
+    if (!tree && world.tree[i] > 0) tree = i;
+    if (!rock && world.ground[i] === 1 && world.amount[i] > 0) rock = i;
+  }
+  assert.ok(tree !== null, 'there are trees in the realm');
+  const wood = game.stock.wood;
+  assert.ok(demolish(game, tree % world.size, Math.floor(tree / world.size)).ok);
+  assert.equal(world.tree[tree], 0);
+  assert.ok(game.stock.wood > wood);
+  if (rock !== null) {
+    const stone = game.stock.stone;
+    assert.ok(demolish(game, rock % world.size, Math.floor(rock / world.size)).ok);
+    assert.ok(game.stock.stone > stone);
+  }
+  assert.equal(demolish(game, 3, 3).ok, false, 'nothing is cleared outside the realm');
 });

@@ -1,5 +1,5 @@
 import { BUILDINGS, FARM_RADIUS, RANKS, ROADS, ZONES, costText } from '../catalog.js';
-import { CENTER, ROAD } from '../config.js';
+import { CENTER, GROUND, ROAD } from '../config.js';
 import { HEARTS, blockAt, computeBlocks } from '../sim/blocks.js';
 import { buildBlock, buildRoad, buildZone, demolish, eraseZones, lineTiles, planBlock, planBuilding, placeBuilding, planRoad, planZone, rectTiles } from '../sim/actions.js';
 import { buildingAt, footprint, gateRect } from '../world/buildings.js';
@@ -20,7 +20,7 @@ export const TOOLS = [
   { id: 'zone', icon: 'zone', name: 'Zones', key: '3', tip: 'Drag to zone land for houses, shops, fields and orchards.' },
   { id: 'block', icon: 'block', name: 'Blocks', key: '4', tip: 'Stamp a donut block: a street loop, a ring of homes and a heart.' },
   { id: 'build', icon: 'build', name: 'Build', key: '5', tip: 'Set down a building.' },
-  { id: 'demolish', icon: 'demolish', name: 'Clear', key: '6', tip: 'Tear down buildings, roads and zones.' },
+  { id: 'demolish', icon: 'demolish', name: 'Clear', key: '6', tip: 'Tear down buildings, roads and zones, and clear trees and rock for timber and stone.' },
 ];
 
 export const BLOCK_SIZES = { small: 10, medium: 14, large: 18 };
@@ -138,6 +138,15 @@ export function createTools(ctx) {
 
   const rectOf = (a, b) => ({ x: Math.min(a[0], b[0]), y: Math.min(a[1], b[1]), w: Math.abs(a[0] - b[0]) + 1, d: Math.abs(a[1] - b[1]) + 1 });
 
+  /** Whether the clearing tool has anything to do on a tile: a road, a zone, trees, or bare rock within the realm. */
+  const clearable = (x, y) => {
+    if (!inb(x, y)) return false;
+    const i = idx(x, y);
+    if (world.bld[i]) return false;
+    if (world.road[i]) return world.road[i] !== ROAD.BRIDGE;
+    return Boolean(world.zone[i] || (world.realm[i] && (world.tree[i] > 0 || (world.ground[i] === GROUND.ROCK && world.amount[i] > 0))));
+  };
+
   const preview = {
     select(p, e) {
       if (!p) { overlays.clear('hover'); tip.hide(); return; }
@@ -252,11 +261,11 @@ export function createTools(ctx) {
         overlays.rect('hover', { x: b.x, y: b.y, w: b.w, d: b.d }, { color: TINTS.bad, width: 0.16, opacity: 0.9 });
         const back = Object.entries(BUILDINGS[b.type].cost).map(([r, n]) => [r, Math.floor(n * (b.state === 'building' ? 0.8 : 0.4))]).filter(([, n]) => n > 0);
         tip.show(b.id === 1 ? '<span class="bad">The castle stands.</span>' : `<b>Tear down the ${BUILDINGS[b.type].name.toLowerCase()}</b><br><span class="dim">Gives back ${back.length ? back.map(([r, n]) => `${n} ${r}`).join(', ') : 'nothing'}</span>`, e.clientX, e.clientY);
-      } else if (i >= 0 && (world.road[i] || world.zone[i])) {
+      } else if (i >= 0 && clearable(x, y)) {
         overlays.clear('hover');
         const tiles = drag ? rectTiles(drag.start[0], drag.start[1], x, y) : [[x, y]];
-        overlays.fill('main', tiles.filter(([tx, ty]) => inb(tx, ty) && (world.road[idx(tx, ty)] || world.zone[idx(tx, ty)]) && !world.bld[idx(tx, ty)] && world.road[idx(tx, ty)] !== ROAD.BRIDGE), { color: TINTS.bad, opacity: 0.5 });
-        tip.show(`<b>Clear ${world.road[i] ? 'road' : 'zone'}</b>`, e.clientX, e.clientY);
+        overlays.fill('main', tiles.filter(([tx, ty]) => inb(tx, ty) && clearable(tx, ty)), { color: TINTS.bad, opacity: 0.5 });
+        tip.show(`<b>Clear ${world.road[i] ? 'road' : world.zone[i] ? 'zone' : world.tree[i] ? 'trees' : 'rock'}</b>${world.tree[i] && !world.road[i] && !world.zone[i] ? '<div class="dim">The timber goes to the stores.</div>' : world.ground[i] === GROUND.ROCK && !world.road[i] && !world.zone[i] ? '<div class="dim">Some of the stone goes to the stores.</div>' : ''}`, e.clientX, e.clientY);
       } else { overlays.clear('hover'); tip.hide(); }
     },
   };

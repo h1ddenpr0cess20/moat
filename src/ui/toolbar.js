@@ -87,7 +87,7 @@ export function createToolbar(ctx) {
       put(tabs, cards, h('div.hint', { html: cur ? `<b>${BUILDINGS[cur].name}.</b> Click on the land to build. <b>R</b> turns it${o.build.front === null ? ' (it faces the nearest street by itself)' : ''}. Right-click or Esc to stop.` : 'Choose a building, then click on the land.' }),
         ctx.tools.pendingTouch ? h('button.btn.gold', { onclick: () => tools.commit() }, 'Place it here') : null);
     } else if (t === 'demolish') {
-      put(h('div.hint', { html: 'Click a building, road or zone to clear it. Drag over roads and zones to clear many. A building gives back some of what it cost.' }));
+      put(h('div.hint', { html: 'Click a building, road, zone, tree or outcrop to clear it. Drag to clear many (buildings are only cleared by a click). Buildings give back some of what they cost, trees give timber, and rock gives stone.' }));
     }
   };
 

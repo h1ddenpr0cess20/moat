@@ -1,10 +1,10 @@
 import { BUILDINGS, CASTLE_LEVELS, RANKS, ROADS, ZONES, ZONE_ID, annexCost, annexWork, canPay, costText, pay } from '../catalog.js';
-import { CENTER, ROAD, WARD } from '../config.js';
+import { CENTER, GROUND, ROAD, WARD } from '../config.js';
 import { addBuilding, check, removeBuilding } from '../world/buildings.js';
 import { blockPlan, BLOCK, setZone, zoneBlocked } from '../world/zoning.js';
 import { clearRoad, roadBlocked, setRoad } from '../world/roads.js';
 import { bordersRealm, carveMoat, computeMoat, gradeWard, ownedCount } from '../world/wards.js';
-import { idx, inb, touchAll } from '../world/world.js';
+import { clearTrees, idx, inb, touch, touchAll } from '../world/world.js';
 import { PRICES } from './state.js';
 
 /**
@@ -187,6 +187,20 @@ export function demolish(game, x, y) {
   }
   if (world.road[i] && world.road[i] !== ROAD.BRIDGE) { clearRoad(world, x, y); game.world.bver = (game.world.bver ?? 0) + 1; return { ok: true, what: 'Road' }; }
   if (world.zone[i]) { setZone(world, x, y, null); return { ok: true, what: 'Zone' }; }
+  // Land of the realm's own can be cleared of its woods and its bare rock: the timber and the stone come to the stores.
+  if (world.realm[i] && world.tree[i] > 0) {
+    const wood = clearTrees(world, x, y);
+    game.stock.wood += wood;
+    return { ok: true, what: 'Trees', back: { wood } };
+  }
+  if (world.realm[i] && world.ground[i] === GROUND.ROCK && world.amount[i] > 0) {
+    const stone = Math.floor(world.amount[i] * 0.3);
+    game.stock.stone += stone;
+    world.amount[i] = 0;
+    world.ground[i] = GROUND.GRASS;
+    touch(world, ['ground', 'terrain'], x, y, x, y, 2);
+    return { ok: true, what: 'Rock', back: { stone } };
+  }
   return { ok: false };
 }
 
