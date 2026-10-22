@@ -69,7 +69,7 @@ export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow 
   if (glow) panel(m, 'glow', f, u - w / 2 + 0.012, v + 0.012, u + w / 2 - 0.012, v + h - 0.012, LAYER.glow, PALETTE.warm);
   // The frame: four thin bars and a mullion, the sides and the mullion cut to fit between the top and bottom bars.
   const o = LAYER.frame;
-  const bar = (a, b, c, d) => panel(m, 'timber', f, a, b, c, d, o, frame, { uvScale: 2 });
+  const bar = (a, b, c, d) => panel(m, 'trim', f, a, b, c, d, o, frame, { uvScale: 2 });
   const foot = v + t * 0.6, head = v + h - t * 0.6;
   bar(u - w / 2 - t, v - t, u + w / 2 + t, foot);
   bar(u - w / 2 - t, head, u + w / 2 + t, v + h + t);
@@ -88,9 +88,9 @@ export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow 
 /** A door on a face: planks, a lintel, a stone step, an iron ring. */
 export function doorOn(m, f, u, w, h, col, { step = true } = {}) {
   panel(m, 'wood', f, u - w / 2, 0, u + w / 2, h, 0.012, col);
-  panel(m, 'timber', f, u - w / 2 - 0.035, h, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
-  panel(m, 'timber', f, u - w / 2 - 0.035, 0, u - w / 2, h, 0.016, PALETTE.timber, { uvScale: 2 });
-  panel(m, 'timber', f, u + w / 2, 0, u + w / 2 + 0.035, h, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u - w / 2 - 0.035, h, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u - w / 2 - 0.035, 0, u - w / 2, h, 0.016, PALETTE.timber, { uvScale: 2 });
+  panel(m, 'trim', f, u + w / 2, 0, u + w / 2 + 0.035, h, 0.016, PALETTE.timber, { uvScale: 2 });
   panel(m, 'metal', f, u + w / 2 - 0.07, h * 0.45, u + w / 2 - 0.045, h * 0.45 + 0.025, 0.02, '#2a2a2a');
   if (step) m.box('stone', ...bounds(f, u - w / 2 - 0.05, u + w / 2 + 0.05, 0, 0.055, 0.0, 0.1), PALETTE.stone[0], { skip: ['bottom'] });
 }
@@ -116,7 +116,7 @@ export function halfTimber(m, f, { cols = 4, rails = null, brace = true, thick =
   // A rail on the ground would sink into the stone base it stands on, and one at the top of a storey into the storey above, whose own rail would then lie in its plane: each is kept wholly within the wall.
   for (let i = 0; i < hs.length; i++) hs[i] = Math.min(Math.max(hs[i], r), f.h - r);
   const off = 0.01;
-  const beam = (a, b) => m.beam('timber', at(f, a[0], a[1], off), at(f, b[0], b[1], off), thick, col, { uvScale: 2 });
+  const beam = (a, b) => m.beam('trim', at(f, a[0], a[1], off), at(f, b[0], b[1], off), thick, col, { uvScale: 2 });
   // Nothing is quite flush with the corners of the wall: a beam end in the plane of the next wall would fight it.
   const e = 0.004;
   for (const v of hs) beam([e, v], [f.w - e, v]);

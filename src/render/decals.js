@@ -1,6 +1,6 @@
 import { ZONES, ZONE_ID } from '../catalog.js';
 import { CHUNK, CHUNKS, ROAD } from '../config.js';
-import { HV, SUB, idx, inb } from '../world/world.js';
+import { HV, SUB, heightAt, idx, inb } from '../world/world.js';
 import { rgb } from './mesher.js';
 import { freeGeometry } from './dispose.js';
 
@@ -13,6 +13,48 @@ import { freeGeometry } from './dispose.js';
 
 const CELL = 64;
 const LIFT = 0.03;
+/**
+ * The atlases leave a margin round every cell. The smaller mip levels a far-off tile is drawn from blend each
+ * texel with its neighbours, and with no margin the neighbour is the next cell, so a road bends toward a shape
+ * it is not and a field takes the colour of the one beside it in the atlas, differently as the camera moves.
+ */
+const PAD = 8;
+const STRIDE = CELL + 2 * PAD;
+/** The roads' atlas: a column for each of the 16 ways a road meets its neighbours, and one that is solid. */
+const ROAD_COLS = 17, ROAD_ROWS = 8;
+const SOLID = 16;
+/** The fields' atlas: a column for each stage of the year, a row for each crop and each way its rows run. */
+const FIELD_COLS = 6, FIELD_ROWS = 8;
+
+/** Where a cell lies in texture coordinates: left, top, right, bottom. */
+const cellUV = (col, row, cols, rows) => [
+  (col * STRIDE + PAD) / (cols * STRIDE), 1 - (row * STRIDE + PAD) / (rows * STRIDE),
+  (col * STRIDE + PAD + CELL) / (cols * STRIDE), 1 - (row * STRIDE + PAD + CELL) / (rows * STRIDE),
+];
+
+/**
+ * Fills the margin round the cell at (ox, oy): by running the cell's edge on (`clamp`, for the roads, whose edge
+ * is where a road leaves the tile) or by bringing the opposite edge round (`wrap`, for the fields, which repeat).
+ */
+function pad(ctx, ox, oy, wrap) {
+  const a = ctx.canvas;
+  ctx.save();
+  ctx.imageSmoothingEnabled = false;
+  ctx.globalCompositeOperation = 'source-over';
+  for (const [x, y, w, h] of [[ox - PAD, oy - PAD, STRIDE, PAD], [ox - PAD, oy + CELL, STRIDE, PAD], [ox - PAD, oy, PAD, CELL], [ox + CELL, oy, PAD, CELL]]) ctx.clearRect(x, y, w, h);
+  if (wrap) {
+    ctx.drawImage(a, ox + CELL - PAD, oy, PAD, CELL, ox - PAD, oy, PAD, CELL);
+    ctx.drawImage(a, ox, oy, PAD, CELL, ox + CELL, oy, PAD, CELL);
+    ctx.drawImage(a, ox - PAD, oy + CELL - PAD, STRIDE, PAD, ox - PAD, oy - PAD, STRIDE, PAD);
+    ctx.drawImage(a, ox - PAD, oy, STRIDE, PAD, ox - PAD, oy + CELL, STRIDE, PAD);
+  } else {
+    ctx.drawImage(a, ox, oy, 1, CELL, ox - PAD, oy, PAD, CELL);
+    ctx.drawImage(a, ox + CELL - 1, oy, 1, CELL, ox + CELL, oy, PAD, CELL);
+    ctx.drawImage(a, ox - PAD, oy, STRIDE, 1, ox - PAD, oy - PAD, STRIDE, PAD);
+    ctx.drawImage(a, ox - PAD, oy + CELL - 1, STRIDE, 1, ox - PAD, oy + CELL, STRIDE, PAD);
+  }
+  ctx.restore();
+}
 
 function surface(w, h) {
   const c = document.createElement('canvas');
@@ -22,42 +64,50 @@ function surface(w, h) {
 
 const seeded = (seed) => { let s = seed; return () => { s = (s * 16807) % 2147483647; return s / 2147483647; }; };
 
-/** The roads: 16 shapes (which of N, E, S, W it joins) by 4 variants by 2 kinds. */
+/** The roads: 16 shapes (which of N, E, S, W it joins) and a solid one, by 4 variants by 2 kinds. */
 function paintRoads(cobble) {
-  const [atlas, ctx] = surface(CELL * 16, CELL * 8);
-  const m = 8, r = 12;
+  const [atlas, ctx] = surface(STRIDE * ROAD_COLS, STRIDE * ROAD_ROWS);
+  // The corner of a tile where its neighbours on both sides are roads is the solid one's (see `build`), so the shapes need no more than the 8 by 8 that leaves.
+  const m = 8, r = 12, out = 16;
   const rnd = seeded(77);
   for (let type = 0; type < 2; type++) {
     for (let variant = 0; variant < 4; variant++) {
-      for (let mask = 0; mask < 16; mask++) {
-        const ox = mask * CELL, oy = (type * 4 + variant) * CELL;
+      for (let mask = 0; mask < ROAD_COLS; mask++) {
+        const solid = mask === SOLID;
+        const ox = mask * STRIDE + PAD, oy = (type * 4 + variant) * STRIDE + PAD;
+        // The arms run on past the edge of the cell, so that the worn verge drawn round the road does not close across where it goes on.
         const path = () => {
           ctx.beginPath();
+          if (solid) { ctx.rect(ox, oy, CELL, CELL); return; }
           ctx.roundRect(ox + m, oy + m, CELL - 2 * m, CELL - 2 * m, r);
-          if (mask & 1) ctx.rect(ox + m, oy, CELL - 2 * m, m + r);
-          if (mask & 2) ctx.rect(ox + CELL - m - r, oy + m, m + r, CELL - 2 * m);
-          if (mask & 4) ctx.rect(ox + m, oy + CELL - m - r, CELL - 2 * m, m + r);
-          if (mask & 8) ctx.rect(ox, oy + m, m + r, CELL - 2 * m);
+          if (mask & 1) ctx.rect(ox + m, oy - out, CELL - 2 * m, m + r + out);
+          if (mask & 2) ctx.rect(ox + CELL - m - r, oy + m, m + r + out, CELL - 2 * m);
+          if (mask & 4) ctx.rect(ox + m, oy + CELL - m - r, CELL - 2 * m, m + r + out);
+          if (mask & 8) ctx.rect(ox - out, oy + m, m + r + out, CELL - 2 * m);
         };
         // The worn verge: a soft dark edge round the road.
+        if (!solid) {
+          ctx.save();
+          ctx.beginPath(); ctx.rect(ox, oy, CELL, CELL); ctx.clip();
+          if ('filter' in ctx) ctx.filter = 'blur(2px)';
+          path();
+          ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(48,38,26,0.55)'; ctx.stroke();
+          ctx.fillStyle = 'rgba(48,38,26,0.55)'; ctx.fill();
+          ctx.restore();
+        }
         ctx.save();
         ctx.beginPath(); ctx.rect(ox, oy, CELL, CELL); ctx.clip();
-        if ('filter' in ctx) ctx.filter = 'blur(2px)';
-        path();
-        ctx.lineWidth = 5; ctx.strokeStyle = 'rgba(48,38,26,0.55)'; ctx.stroke();
-        ctx.fillStyle = 'rgba(48,38,26,0.55)'; ctx.fill();
-        ctx.restore();
-        ctx.save();
         path();
         ctx.clip();
         if (type === 0) {
           // Beaten earth: ruts, speckle, a trodden middle.
+          const open = solid ? 15 : mask;
           ctx.fillStyle = '#a58959'; ctx.fillRect(ox, oy, CELL, CELL);
           for (let k = 0; k < 150; k++) { ctx.fillStyle = rnd() < 0.5 ? 'rgba(80,62,40,0.28)' : 'rgba(210,190,150,0.3)'; ctx.fillRect(ox + rnd() * CELL, oy + rnd() * CELL, 1 + rnd() * 2, 1 + rnd()); }
           ctx.strokeStyle = 'rgba(80,60,38,0.4)'; ctx.lineWidth = 3;
           for (const f of [0.38, 0.62]) {
-            if (mask & 5 || !(mask & 10)) { ctx.beginPath(); ctx.moveTo(ox + f * CELL, oy + (mask & 1 ? 0 : m + 2)); ctx.lineTo(ox + f * CELL, oy + CELL - (mask & 4 ? 0 : m + 2)); ctx.stroke(); }
-            if (mask & 10) { ctx.beginPath(); ctx.moveTo(ox + (mask & 8 ? 0 : m + 2), oy + f * CELL); ctx.lineTo(ox + CELL - (mask & 2 ? 0 : m + 2), oy + f * CELL); ctx.stroke(); }
+            if (open & 5 || !(open & 10)) { ctx.beginPath(); ctx.moveTo(ox + f * CELL, oy + (open & 1 ? 0 : m + 2)); ctx.lineTo(ox + f * CELL, oy + CELL - (open & 4 ? 0 : m + 2)); ctx.stroke(); }
+            if (open & 10) { ctx.beginPath(); ctx.moveTo(ox + (open & 8 ? 0 : m + 2), oy + f * CELL); ctx.lineTo(ox + CELL - (open & 2 ? 0 : m + 2), oy + f * CELL); ctx.stroke(); }
           }
         } else {
           // Setts laid in rows, a little different each.
@@ -67,27 +117,26 @@ function paintRoads(cobble) {
           ctx.globalCompositeOperation = 'multiply';
           ctx.fillStyle = '#b6a48a'; ctx.fillRect(ox, oy, CELL, CELL);
           ctx.globalCompositeOperation = 'source-over';
-          ctx.fillStyle = 'rgba(40,30,20,0.18)';
-          ctx.fillRect(ox, oy, CELL, 1.5); ctx.fillRect(ox, oy + CELL - 1.5, CELL, 1.5);
         }
         ctx.restore();
+        pad(ctx, ox, oy, false);
       }
     }
   }
   return atlas;
 }
 
-const STAGES = 6;
+const STAGES = FIELD_COLS;
 
 /** The fields: for each crop and each stage of its year, with the rows running either way. */
 function paintFields() {
-  const [atlas, ctx] = surface(CELL * 8, CELL * 8);
+  const [atlas, ctx] = surface(STRIDE * FIELD_COLS, STRIDE * FIELD_ROWS);
   const rnd = seeded(91);
   const S = CELL;
   for (let crop = 0; crop < 4; crop++) {
     for (let orient = 0; orient < 2; orient++) {
       for (let stage = 0; stage < STAGES; stage++) {
-        const ox = stage * S, oy = (crop * 2 + orient) * S;
+        const ox = stage * STRIDE + PAD, oy = (crop * 2 + orient) * STRIDE + PAD;
         ctx.save();
         ctx.beginPath(); ctx.rect(ox, oy, S, S); ctx.clip();
         ctx.translate(ox + S / 2, oy + S / 2);
@@ -141,11 +190,15 @@ function paintFields() {
           }
         }
         ctx.restore();
+        pad(ctx, ox, oy, true);
       }
     }
   }
   return atlas;
 }
+
+/** The corners of a tile: which two sides meet there (N 1, E 2, S 4, W 8), and which way the diagonal neighbour is. */
+const CORNERS = [[0, 1, 2, 1, -1], [1, 2, 4, 1, 1], [2, 4, 8, -1, 1], [3, 8, 1, -1, -1]];
 
 /** The stage of a field's year, 0 to 5. */
 export function fieldStage(zone, crop, cal) {
@@ -203,6 +256,22 @@ export function createDecals(GFX, world, materials, scene) {
     }
   };
 
+  /**
+   * A square of a tile's corner, `size` of the tile along its sides, on the ground. `corner` is 0 for the
+   * north-east, 1 south-east, 2 south-west, 3 north-west; `uv` is the cell it is cut from, as for `tileQuads`.
+   */
+  const cornerQuad = (out, x, y, corner, uv, size) => {
+    const east = corner === 0 || corner === 1, south = corner === 1 || corner === 2;
+    const fu = east ? 1 - size : 0, fv = south ? 1 - size : 0;
+    const pts = [[fu, fv], [fu + size, fv], [fu + size, fv + size], [fu, fv + size]].map(([u, v]) => ({ x: x + u, z: y + v, y: heightAt(world, x + u, y + v) + LIFT, u, v }));
+    for (const k of [0, 2, 1, 0, 3, 2]) {
+      const p = pts[k];
+      out.pos.push(p.x, p.y, p.z);
+      out.nor.push(0, 1, 0);
+      out.uv.push(uv[0] + (uv[2] - uv[0]) * p.u, uv[1] + (uv[3] - uv[1]) * p.v);
+    }
+  };
+
   const geometry = (out, withUv, withColor) => {
     if (!out.pos.length) return null;
     const g = new GFX.BufferGeometry();
@@ -238,9 +307,11 @@ export function createDecals(GFX, world, materials, scene) {
           const mask = (roadAt(x, y - 1) ? 1 : 0) | (roadAt(x + 1, y) ? 2 : 0) | (roadAt(x, y + 1) ? 4 : 0) | (roadAt(x - 1, y) ? 8 : 0);
           const variant = Math.floor(((x * 73856093) ^ (y * 19349663)) >>> 0) % 4;
           const row = (r === ROAD.COBBLE ? 4 : 0) + variant;
-          const u0 = (mask * CELL + 1) / (CELL * 16), u1 = ((mask + 1) * CELL - 1) / (CELL * 16);
-          const v0 = 1 - (row * CELL + 1) / (CELL * 8), v1 = 1 - ((row + 1) * CELL - 1) / (CELL * 8);
-          tileQuads(roads, x, y, [u0, v0, u1, v1]);
+          tileQuads(roads, x, y, cellUV(mask, row, ROAD_COLS, ROAD_ROWS));
+          // Where the road goes on both ways and on the diagonal too, the tile's corner is road: the shape has a notch there that a road two tiles wide would show as a hole at every crossing of the tiles.
+          for (const [corner, a, b, dx, dy] of CORNERS) {
+            if ((mask & a) && (mask & b) && roadAt(x + dx, y + dy)) cornerQuad(roads, x, y, corner, cellUV(SOLID, row, ROAD_COLS, ROAD_ROWS), 0.135);
+          }
           continue;
         }
         const z = world.zone[t];
@@ -250,9 +321,7 @@ export function createDecals(GFX, world, materials, scene) {
           const orient = runsAlong(x, y, z);
           const stage = fieldStage(z, world.crop[t], cal);
           const row = name * 2 + orient;
-          const u0 = (stage * CELL + 1) / (CELL * 8), u1 = ((stage + 1) * CELL - 1) / (CELL * 8);
-          const v0 = 1 - (row * CELL + 1) / (CELL * 8), v1 = 1 - ((row + 1) * CELL - 1) / (CELL * 8);
-          tileQuads(fields, x, y, [u0, v0, u1, v1]);
+          tileQuads(fields, x, y, cellUV(stage, row, FIELD_COLS, FIELD_ROWS));
           any = true;
         } else {
           const color = rgb(ZONES[Object.keys(ZONES)[z - 1]].color);
@@ -268,9 +337,7 @@ export function createDecals(GFX, world, materials, scene) {
         const orient = (x + y) & 1;
         const stage = [1, 3, 3, 0][cal.season] ?? 1;
         const row = 6 + orient;
-        const u0 = (stage * CELL + 1) / (CELL * 8), u1 = ((stage + 1) * CELL - 1) / (CELL * 8);
-        const v0 = 1 - (row * CELL + 1) / (CELL * 8), v1 = 1 - ((row + 1) * CELL - 1) / (CELL * 8);
-        tileQuads(fields, x, y, [u0, v0, u1, v1]);
+        tileQuads(fields, x, y, cellUV(stage, row, FIELD_COLS, FIELD_ROWS));
       }
     }
     place('road', c, geometry(roads, true, false), roadMat, 1.5);
