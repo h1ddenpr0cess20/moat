@@ -25,9 +25,11 @@ export function well(m, v) {
 export function green(m, v) {
   const { rnd } = v;
   // A pond, a maypole with ribbons, a bench, a few small trees.
-  m.cylinder('stone', -0.4, 0.0, 0.3, 0.55, 0.56, 0.06, 18, '#8f887a', { smooth: true, bottom: false });
-  m.cylinder('glass', -0.4, 0.05, 0.3, 0.5, 0.5, 0.01, 18, '#2a5a78', { smooth: true });
-  for (let i = 0; i < 6; i++) m.sphere('hedge', -0.4 + Math.cos(i) * 0.38, 0.06, 0.3 + Math.sin(i) * 0.3, 0.07, 0.03, 0.07, '#5f9a3a', { detail: 0 });
+  // The curb is a wall and a ring on top, and the water lies a little under it, out beneath the ring: a stone lid on the pond and water at the same height fight for every pixel of it.
+  m.cylinder('stone', -0.4, 0.0, 0.3, 0.55, 0.56, 0.06, 18, '#8f887a', { smooth: true, bottom: false, caps: false });
+  m.ring('stone', -0.4, 0.06, 0.3, 0.5, 0.55, 18, '#8f887a');
+  m.cylinder('glass', -0.4, 0.035, 0.3, 0.53, 0.53, 0.01, 18, '#2a5a78', { smooth: true });
+  for (let i = 0; i < 6; i++) m.sphere('hedge', -0.4 + Math.cos(i) * 0.38, 0.05, 0.3 + Math.sin(i) * 0.3, 0.07, 0.03, 0.07, '#5f9a3a', { detail: 0 });
   m.cylinder('wood', 0.7, 0, -0.3, 0.025, 0.04, 1.35, 7, '#d8caa0');
   const cols = ['#b32a2a', '#2a4a9a', '#c9a227', '#2a7a4a', '#b32a2a', '#2a4a9a'];
   cols.forEach((c, i) => {
@@ -36,8 +38,8 @@ export function green(m, v) {
   });
   m.sphere('wood', 0.7, 1.37, -0.3, 0.04, 0.04, 0.04, '#d4b24a', { detail: 0 });
   m.box('wood', -0.3, 0.14, -0.85, 0.3, 0.17, -0.7, PALETTE.wood[0], { skip: ['bottom'] });
-  m.box('wood', -0.3, 0.0, -0.85, -0.25, 0.15, -0.7, PALETTE.wood[1]);
-  m.box('wood', 0.25, 0.0, -0.85, 0.3, 0.15, -0.7, PALETTE.wood[1]);
+  m.box('wood', -0.29, 0.0, -0.84, -0.25, 0.15, -0.71, PALETTE.wood[1]);
+  m.box('wood', 0.25, 0.0, -0.84, 0.29, 0.15, -0.71, PALETTE.wood[1]);
   for (let i = 0; i < 5; i++) {
     const a = rnd() * 6.28, d = 0.9 + rnd() * 0.4;
     m.sphere('hedge', Math.cos(a) * d, 0.1, Math.sin(a) * d * 0.9, 0.12, 0.1, 0.12, pickFrom(rnd, ['#5f9a3a', '#78b043', '#c9a24a', '#c9507a']), { detail: 0, jitter: 0.25 });
@@ -54,7 +56,7 @@ export function tavern(m, v) {
   for (const n of ['front', 'back']) halfTimber(m, G[n], { cols: 6, rails: [0, 0.52], rnd, capped: false });
   for (const n of ['left', 'right']) halfTimber(m, G[n], { cols: 4, rails: [0, 0.52], rnd, capped: false });
   const J = 0.1;
-  m.box('timber', x0 - 0.03, 0.58, z1, x1 + 0.03, 0.65, z1 + J, PALETTE.timber, { skip: ['bottom'] });
+  m.box('timber', x0 - 0.042, 0.58, z1, x1 + 0.042, 0.64, z1 + J + 0.012, PALETTE.timber, { skip: ['bottom'] });
   const wall = pickFrom(rnd, PALETTE.plaster);
   m.box('plaster', x0 - 0.03, 0.62, z0 - 0.02, x1 + 0.03, 1.12, z1 + J, wall, { skip: ['bottom', 'top'] });
   const U = faces(x0 - 0.03, z0 - 0.02, x1 + 0.03, z1 + J, 0.62, 1.12);
@@ -116,7 +118,7 @@ export function chapel(m) {
   m.box('stone', tx0, 0.1, tz0, tx1, 1.85, tz1, STONE[2], { skip: ['bottom', 'top'] });
   const T = faces(tx0, tz0, tx1, tz1, 0.1, 1.85);
   doorOn(m, T.front, 0.42, 0.3, 0.52, '#5a3a20', {});
-  panel(m, 'stone', T.front, 0.1, 0.5, 0.74, 0.6, 0.015, STONE[3]);
+  panel(m, 'stone', T.front, 0.1, 0.5, 0.74, 0.6, 0.03, STONE[3]);
   lancet(m, T.front, 0.42, 0.95, 0.14, 0.4, '#ffcf6a');
   // Louvred belfry openings with the bell glowing within.
   for (const f of [T.front, T.back, T.left, T.right]) panel(m, 'plain', f, f.w / 2 - 0.1, 1.35, f.w / 2 + 0.1, 1.7, 0.012, '#15110e');
@@ -134,7 +136,7 @@ export function healer(m, v) {
   const top = chimney(m, -0.45, -0.45, 0.5, 1.2);
   // A green cross over the door, herbs hung from the eaves, a herb garden with rows.
   panel(m, 'cloth', faces(-0.7, -0.75, 0.7, 0.2, 0.09, 0.62).front, 0.54, 0.46, 0.58, 0.58, 0.04, '#2a7a4a');
-  panel(m, 'cloth', faces(-0.7, -0.75, 0.7, 0.2, 0.09, 0.62).front, 0.5, 0.5, 0.62, 0.54, 0.04, '#2a7a4a');
+  panel(m, 'cloth', faces(-0.7, -0.75, 0.7, 0.2, 0.09, 0.62).front, 0.5, 0.5, 0.62, 0.54, 0.046, '#2a7a4a');
   for (let i = 0; i < 5; i++) m.sphere('hedge', -0.5 + i * 0.22, 0.52, 0.24, 0.04, 0.07, 0.04, pickFrom(rnd, ['#8aa84a', '#a8b85a', '#7a9a3a']), { detail: 0 });
   m.box('plain', -0.9, 0, 0.45, 0.9, 0.04, 0.95, '#4a3622');
   for (let r = 0; r < 3; r++) for (let i = 0; i < 9; i++) m.sphere('hedge', -0.8 + i * 0.2, 0.08, 0.55 + r * 0.16, 0.045, 0.045, 0.045, pickFrom(rnd, ['#6a9a3a', '#8ab84a', '#c97a9a', '#b8a84a']), { detail: 0 });
@@ -213,7 +215,7 @@ export function barracks(m, v) {
   flag(m, 1.85, 0.9, 0.55, 1.3, '#b32a2a', { w: 0.34 });
   m.box('wood', -0.8, 0.0, 0.9, 0.8, 0.04, 1.0, PALETTE.wood[1]);
   m.beam('wood', [-0.8, 0.5, 0.95], [0.8, 0.5, 0.95], 0.03, PALETTE.wood[1]);
-  for (const x of [-0.8, 0.8]) m.beam('wood', [x, 0, 0.95], [x, 0.5, 0.95], 0.03, PALETTE.wood[1]);
+  for (const x of [-0.8, 0.8]) m.beam('wood', [x, 0, 0.95], [x, 0.485, 0.95], 0.03, PALETTE.wood[1]);
   for (let i = 0; i < 7; i++) { m.beam('wood', [-0.7 + i * 0.23, 0.0, 0.95], [-0.7 + i * 0.23, 0.95, 0.95], 0.014, '#8a6a42'); m.tri('metal', [-0.7 + i * 0.23 - 0.025, 0.93, 0.95], [-0.7 + i * 0.23 + 0.025, 0.93, 0.95], [-0.7 + i * 0.23, 1.06, 0.95], '#b8bcc4'); }
   m.cylinder('thatch', 1.45, 0.0, 1.0, 0.25, 0.25, 0.04, 14, '#d8caa0', { smooth: true });
   m.cylinder('cloth', 1.45, 0.04, 1.0, 0.2, 0.2, 0.01, 14, '#b32a2a', { smooth: true, caps: true });
@@ -232,20 +234,21 @@ export function gatehouse(m, v) {
     m.box('stone', cx - tw / 2 - 0.06, 2.0, -0.96, cx + tw / 2 + 0.06, 2.12, 0.96, STONE[2], { skip: ['bottom'] });
     crenellate(m, [cx - tw / 2 - 0.06, 0, 0.96], [cx + tw / 2 + 0.06, 0, 0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
     crenellate(m, [cx - tw / 2 - 0.06, 0, -0.96], [cx + tw / 2 + 0.06, 0, -0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
-    crenellate(m, [cx + s * (tw / 2 + 0.06), 0, -0.96], [cx + s * (tw / 2 + 0.06), 0, 0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
+    crenellate(m, [cx + s * (tw / 2 + 0.06), 0, -0.84], [cx + s * (tw / 2 + 0.06), 0, 0.84], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
     for (const z of [-0.45, 0.3]) m.box('plain', cx - 0.03, 1.2, z + (z > 0 ? 0.5 : 0), cx + 0.03, 1.5, z + 0.04 + (z > 0 ? 0.5 : 0), '#0c0a08', { skip: ['bottom'] });
     m.box('plain', cx + s * (tw / 2 - 0.02) - 0.01, 1.2, -0.08, cx + s * (tw / 2 - 0.02) + 0.01, 1.5, 0.08, '#0c0a08');
     flag(m, cx, 2.12, 0, 0.55, pickFrom(rnd, PALETTE.banner), { w: 0.34 });
   }
   // The wall and the arch over the passage.
-  m.box('stone', -0.5, 1.15, -0.9, 0.5, 2.0, 0.9, STONE[0], { skip: ['bottom'] });
-  m.box('stone', -0.5, 2.0, -0.96, 0.5, 2.12, 0.96, STONE[2], { skip: ['bottom'] });
-  m.box('wood', -0.5, 1.05, -0.9, 0.5, 1.15, 0.9, PALETTE.wood[1], { skip: ['bottom', 'top'] });
-  crenellate(m, [-0.5, 0, 0.96], [0.5, 0, 0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
-  crenellate(m, [-0.5, 0, -0.96], [0.5, 0, -0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
+  // (Between the towers: it stops at their walls, and the lintel and the parapet over it at the edges of their caps.)
+  m.box('stone', -0.33, 1.15, -0.9, 0.33, 2.0, 0.9, STONE[0], { skip: ['bottom'] });
+  m.box('stone', -0.24, 2.0, -0.96, 0.24, 2.12, 0.96, STONE[2], { skip: ['bottom'] });
+  m.box('wood', -0.33, 1.05, -0.9, 0.33, 1.15, 0.9, PALETTE.wood[1], { skip: ['bottom', 'top'] });
+  crenellate(m, [-0.24, 0, 0.96], [0.24, 0, 0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
+  crenellate(m, [-0.24, 0, -0.96], [0.24, 0, -0.96], 2.12, { h: 0.12, w: 0.11, gap: 0.08 });
   // The portcullis: a grid of iron in the mouth, raised halfway.
   for (let i = 0; i < 6; i++) m.box('metal', -0.45 + i * 0.18, 0.7, 0.9, -0.43 + i * 0.18, 1.1, 0.92, '#3a3a40');
-  for (const y of [0.85, 0.98]) m.box('metal', -0.47, y, 0.9, 0.47, y + 0.02, 0.92, '#3a3a40');
+  for (const y of [0.85, 0.98]) m.box('metal', -0.47, y, 0.89, 0.47, y + 0.02, 0.93, '#3a3a40');
   // A wooden floor through the passage, and torches inside.
   m.box('wood', -0.5, 0.0, -0.9, 0.5, 0.04, 0.9, PALETTE.wood[1], { skip: ['bottom'] });
   m.box('glow', -0.48, 0.7, -0.05, -0.44, 0.78, 0.03, '#ffb45a');

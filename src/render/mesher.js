@@ -283,7 +283,8 @@ export class Mesher {
     const u = norm(cross(dir, up)), v = cross(u, dir);
     const h = t / 2;
     const corner = (p, su, sv) => [p[0] + u[0] * h * su + v[0] * h * sv, p[1] + u[1] * h * su + v[1] * h * sv, p[2] + u[2] * h * su + v[2] * h * sv];
-    const ring = (p) => [corner(p, -1, -1), corner(p, 1, -1), corner(p, 1, 1), corner(p, -1, 1)];
+    // u × v runs against the beam, so this order goes counter-clockwise seen from its far end, which keeps the faces turned outward.
+    const ring = (p) => [corner(p, -1, -1), corner(p, -1, 1), corner(p, 1, 1), corner(p, 1, -1)];
     const r0 = ring(a), r1 = ring(b);
     for (let i = 0; i < 4; i++) {
       const j = (i + 1) % 4;
@@ -299,6 +300,16 @@ export class Mesher {
     for (let i = 0; i < sides; i++) {
       const a0 = (i / sides) * Math.PI * 2, a1 = ((i + 1) / sides) * Math.PI * 2;
       this.tri(mat, [cx, y, cz], [cx + Math.cos(a1) * r, y, cz + Math.sin(a1) * r], [cx + Math.cos(a0) * r, y, cz + Math.sin(a0) * r], col, o);
+    }
+    return this;
+  }
+
+  /** A flat ring lying on y between two radii, its top facing up. */
+  ring(mat, cx, y, cz, rIn, rOut, sides, col, o = {}) {
+    const p = (a, r) => [cx + Math.cos(a) * r, y, cz + Math.sin(a) * r];
+    for (let i = 0; i < sides; i++) {
+      const a0 = (i / sides) * Math.PI * 2, a1 = ((i + 1) / sides) * Math.PI * 2;
+      this.quad(mat, p(a1, rIn), p(a1, rOut), p(a0, rOut), p(a0, rIn), col, o);
     }
     return this;
   }
