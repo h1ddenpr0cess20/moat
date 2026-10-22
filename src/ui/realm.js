@@ -2,7 +2,8 @@ import { CASTLE_LEVELS, RESOURCES, annexCost, annexWork } from '../catalog.js';
 import { CENTER, GROUND, SIZE, WARD, WARDS } from '../config.js';
 import { startAnnex, planAnnex } from '../sim/game.js';
 import { bordersRealm, ownedCount, wardTraits } from '../world/wards.js';
-import { h } from './dom.js';
+import { HV, SUB } from '../world/world.js';
+import { fill, h } from './dom.js';
 
 /**
  * The map of the barony, drawn like a surveyor's: the seven by seven wards,
@@ -28,7 +29,8 @@ function terrainImage(world) {
     for (let x = 0; x < SIZE; x++) {
       const i = y * SIZE + x;
       const g = world.ground[i];
-      const shade = 0.88 + 0.12 * Math.sin(x * 0.7) * Math.cos(y * 0.6);
+      const hh = (a, b) => world.h[Math.min(HV - 1, Math.max(0, b * SUB)) * HV + Math.min(HV - 1, Math.max(0, a * SUB))];
+      const shade = Math.max(0.72, Math.min(1.18, 1 + (hh(x - 1, y - 1) - hh(x + 1, y + 1)) * 0.16));
       let c;
       if (g === GROUND.WATER) c = [112, 156, 186];
       else if (g === GROUND.CLIFF) c = [150, 132, 108];
@@ -114,7 +116,7 @@ export function realmDialog(ctx, { ward: initial = null } = {}) {
       if (plan.capped) parts.push(h('p', { html: `Your castle can hold ${cap} ${cap === 1 ? 'ward' : 'wards'}. <b>Raise it</b> to take more.` }), h('button.btn.small', { onclick: () => { ctx.dialogs.close(); ctx.inspector.show({ kind: 'building', id: 1 }); } }, 'Look at the castle'));
     }
     parts.push(h('p.dim', {}, `Realm: ${owned} of ${cap} wards your ${CASTLE_LEVELS[game.castleLevel].name.toLowerCase()} can hold.`));
-    info.replaceChildren(...parts);
+    fill(info, parts);
   };
 
   canvas.addEventListener('pointerdown', (e) => {
@@ -136,7 +138,7 @@ export function realmDialog(ctx, { ward: initial = null } = {}) {
     refresh: true,
     width: 940,
     draw(body) {
-      if (!body.contains(canvas)) body.replaceChildren(h('div.realm-map', {}, h('div', {}, canvas, h('p.dim', { style: { marginTop: '6px' } }, 'Click a ward. Double-click to fly there.')), info));
+      if (!body.contains(canvas)) fill(body, h('div.realm-map', {}, h('div', {}, canvas, h('p.dim', { style: { marginTop: '6px' } }, 'Click a ward. Double-click to fly there.')), info));
       draw(); showInfo();
       clearInterval(timer);
       timer = setInterval(draw, 120);

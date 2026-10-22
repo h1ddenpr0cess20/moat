@@ -3,7 +3,7 @@ import { jobsOf, priorityOf } from '../sim/economy.js';
 import { headcount, setPriority, setTax, setTrade } from '../sim/game.js';
 import { PRICES } from '../sim/state.js';
 import { ownedCount } from '../world/wards.js';
-import { h, num, round, signed } from './dom.js';
+import { fill, h, num, round, signed } from './dom.js';
 import { GOOD_ICON, icon } from './icons.js';
 
 /**
@@ -36,7 +36,7 @@ function treasury(ctx, body) {
     need.castle ? [`A ${['', 'stone keep', 'castle', 'citadel'][need.castle]}`, game.castleLevel >= need.castle] : null,
     need.building ? [`A ${BUILDINGS[need.building].name.toLowerCase()}`, [...game.world.buildings.values()].some((b) => b.type === need.building && b.state === 'ready')] : null,
   ].filter(Boolean);
-  body.replaceChildren(
+  fill(body, 
     h('div.grid2', {},
       h('div', {}, h('h3', {}, 'Coin'), h('div.stat', {}, h('span', {}, 'In the treasury'), h('b', {}, num(game.stock.gold))), t,
         bonus?.tax > 0.001 ? h('p.dim', {}, `Courtyard blocks add ${(bonus.tax * 100).toFixed(1)}% to your taxes.`) : null),
@@ -59,7 +59,7 @@ function stores(ctx, body) {
       h('td.r', {}, input(r, 'sell')), h('td.r', {}, input(r, 'buy')));
   });
   const cap = game.cap ?? {};
-  body.replaceChildren(
+  fill(body, 
     h('p', {}, 'A merchant comes to your gates now and then once you have a market square. He buys what you hold above your sell mark and sells you what you are short of, up to your buy mark.'),
     h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Good'), h('th.r', {}, 'In store'), h('th.r', {}, 'Made'), h('th.r', {}, 'Used'), h('th.r', {}, 'Sells / buys at'), h('th.r', {}, 'Sell above'), h('th.r', {}, 'Buy up to'))), h('tbody', {}, ...rows)),
     h('p.dim', {}, `Food stores hold ${num(cap.food ?? 0)}, goods stores ${num(cap.goods ?? 0)}. What does not fit spoils or is lost. Build a granary or a storehouse for more.`));
@@ -81,7 +81,7 @@ function labour(ctx, body) {
     h('td', {}, BUILDINGS[g.type].name, g.n > 1 ? h('span.dim', {}, ` ×${g.n}`) : null, g.off ? h('span.bad', {}, ' (no road)') : null),
     h('td.r', {}, `${num(g.workers, 1)} / ${g.jobs}`),
     h('td.r', {}, h('span.seg', {}, ...PRIORITY.map((name, n) => h('button', { class: n === priorityOf(game, g.type) ? 'on' : '', onclick: () => { setPriority(game, g.type, n); ctx.dialogs.refresh(); } }, name))))));
-  body.replaceChildren(
+  fill(body, 
     h('div.grid2', {}, h('div', {}, h('div.stat', {}, h('span', {}, 'Adults who can work'), h('b', {}, round(r.workforce ?? 0))), h('div.stat', {}, h('span', {}, 'At work'), h('b', {}, round(r.employed ?? 0))), h('div.stat', {}, h('span', {}, 'Idle'), h('b', { class: (r.idle ?? 0) > 2 ? 'bad' : '' }, round(r.idle ?? 0))), h('div.stat', {}, h('span', {}, 'Jobs unfilled'), h('b', {}, round(r.jobsOpen ?? 0)))),
       h('p', {}, 'Food comes first, then the builders. When there are too few hands, the places set to High are staffed before the rest. Set a place to Off to send its workers elsewhere.')),
     h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Place'), h('th.r', {}, 'Workers'), h('th.r', {}, 'Priority'))), h('tbody', {}, ...rows)));
@@ -94,7 +94,7 @@ function blocksTab(ctx, body) {
   const rows = blocks.map((b) => h('tr', { style: { cursor: 'pointer' }, onclick: () => { ctx.dialogs.close(); ctx.inspector.show({ kind: 'block', id: b.id }); ctx.scene.focusOn(b.center[0], b.center[1], { zoom: 0.9 }); } },
     h('td', {}, h('b', {}, b.name)), h('td.r', {}, `${b.rating}`), h('td', {}, b.standing), h('td.r', {}, `${b.homes}`), h('td.r', {}, `${Math.round(b.fill * 100)}%`), h('td', {}, b.hearts.length ? b.hearts.map((x) => x.name).join(', ') : (b.crop ?? '—'))));
   const best = blocks.find((b) => b.q === 0 && b.core.length >= 4);
-  body.replaceChildren(
+  fill(body, 
     h('div.grid2', {},
       h('div', {}, h('h3', {}, 'The donut'), h('p', {}, 'A loop of streets with a ring of homes round the inside and, in the middle, a park or a building that serves them all. The closer the ring is to complete, and the better the heart, the higher the rating.'),
         h('p', { html: '<b>Hearts, best first:</b> village green, cathedral, chapel, market square, castle, tavern, healer, well, watchtower; or kitchen gardens, an orchard or a common.' })),
@@ -114,6 +114,7 @@ export function ledgerDialog(ctx) {
     title: 'The Ledger',
     icon: 'ledger',
     refresh: true,
+    tabs: true,
     width: 960,
     draw(body, { tabs }) {
       if (tabs) {

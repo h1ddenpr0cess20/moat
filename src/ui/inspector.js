@@ -7,7 +7,7 @@ import { HEARTS, blockAt, blockReport, qualityAt } from '../sim/blocks.js';
 import { covered } from '../sim/coverage.js';
 import { defenseOf, headcount, planCastle, startCastle, setPriority, toggleGate, demolish } from '../sim/game.js';
 import { priorityOf, jobsOf } from '../sim/economy.js';
-import { h, num, round } from './dom.js';
+import { fill, h, num, round } from './dom.js';
 import { icon } from './icons.js';
 
 /**
@@ -224,7 +224,7 @@ export function createInspector(ctx) {
       parts = showTile(sel.x, sel.y);
       ov.rect('select', { x: sel.x, y: sel.y, w: 1, d: 1 }, { color: '#ffe27a', width: 0.12, opacity: 0.9 });
     }
-    el.replaceChildren(...parts.filter(Boolean));
+    fill(el, parts);
     el.hidden = false;
   }
 

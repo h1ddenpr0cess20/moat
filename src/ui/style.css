@@ -151,8 +151,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .inspector p { margin: 6px 0; font-size: 13.5px; line-height: 1.4; color: #e6dcc0; }
 .inspector .x { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; padding: 0; display: grid; place-items: center; }
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 3px 12px; font-size: 13.5px; margin: 8px 0; }
-.kv span:nth-child(odd) { color: var(--text-dim); }
-.kv span:nth-child(even) { text-align: right; font-variant-numeric: tabular-nums; }
+.kv > span:nth-child(odd) { color: var(--text-dim); }
+.kv > span:nth-child(even) { text-align: right; font-variant-numeric: tabular-nums; }
+.parch .kv > span:nth-child(odd) { color: var(--ink-2); }
 .bar { height: 8px; background: rgba(0, 0, 0, 0.45); border-radius: 4px; overflow: hidden; border: 1px solid rgba(0, 0, 0, 0.6); }
 .bar i { display: block; height: 100%; background: linear-gradient(180deg, #a6dd6a, #5e9a30); }
 .bar.warn i { background: linear-gradient(180deg, #f2c75a, #b8861f); }
@@ -280,3 +281,5 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .plaque.good { border-color: #d9aa44; }
 .plaque.fine { background: linear-gradient(180deg, #d9aa44, #96691c); color: #2b1d08; border-color: #f0d070; box-shadow: 0 0 12px rgba(240, 200, 90, 0.55); }
 .plaque:hover { filter: brightness(1.2); }
+
+#ui.away > .hud, #ui.away > .dock, #ui.away > .options, #ui.away > .minimap, #ui.away > .inspector, #ui.away > .toasts, #ui.away > .labels, #ui.away > .steward { display: none; }

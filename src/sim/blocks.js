@@ -1,5 +1,6 @@
 import { BUILDINGS, PLOT_DEPTH, ZONE_ID } from '../catalog.js';
 import { DIRS, TILES } from '../config.js';
+import { network } from '../world/roads.js';
 import { idx, inb } from '../world/world.js';
 
 /**
@@ -127,6 +128,8 @@ function depths(world, tiles) {
 function measure(game, tiles) {
   const { world } = game;
   const depth = depths(world, tiles);
+  const { dist } = network(world);
+  const connected = tiles.some((t) => { const x = t % world.size, y = (t - x) / world.size; return DIRS.some(([dx, dy]) => inb(x + dx, y + dy) && dist[idx(x + dx, y + dy)] >= 0); });
   const ring = [], core = [];
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const t of tiles) {
@@ -200,7 +203,7 @@ function measure(game, tiles) {
     ring, core, homes: homes.size, shops: shops.size, cap, specials: [...specials.keys()], hearts, crop: crop === null ? null : CULTIVATED[crop].name,
     fill, closure, heart, rating, q: rating / 100, name, why, standing: standing(rating),
     // Ring plots still to be built, and the core's open ground, for the tips.
-    zoned, built, openCore: open,
+    zoned, built, openCore: open, connected,
   };
 }
 
@@ -281,6 +284,7 @@ export function blockReport(block) {
   }
   for (const h of block.hearts) perks.push({ icon: 'castle', text: `${h.name}: its services reach every door in the ring`, soft: true });
   if (block.crop) perks.push({ icon: 'leaf', text: `${block.crop}: worked ground at the heart`, soft: true });
+  if (!block.connected) tips.unshift('No street of this block joins the castle’s roads, so no one will build here. Lay a road from it to the town.');
   if (block.core.length < 4) tips.push('This block has no core. Make it larger, so there is a heart to put something in.');
   else {
     if (!block.hearts.length) tips.push('Put a Village Green, a well, a chapel or a tavern in the middle: that is what makes a donut.');

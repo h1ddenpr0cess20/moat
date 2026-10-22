@@ -1,6 +1,7 @@
 import { START } from '../catalog.js';
 import { mulberry32 } from '../rng.js';
 import { newWorld } from '../world/index.js';
+import { snapshot } from '../world/snapshot.js';
 
 /** The prices a merchant trades at, per unit; he pays 85% of it and sells at 115%. */
 export const PRICES = Object.freeze({ wood: 2, stone: 3, iron: 5, tools: 8, grain: 1.5, bread: 2, produce: 1.2, meat: 3, fish: 2.5, ale: 3, wool: 3, cloth: 6 });
@@ -14,7 +15,7 @@ export const defaultTrade = () => Object.fromEntries(Object.keys(PRICES).map((g)
  * sound) that something happened.
  */
 export function newGame({ seed = 'moat', difficulty = 'normal' } = {}) {
-  const world = newWorld(seed);
+  const world = snapshot(newWorld(seed));
   const game = {
     version: 1,
     seed: world.seedText,

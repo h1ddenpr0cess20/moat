@@ -96,7 +96,7 @@ export function createHud(ctx) {
   const extras = [
     ['ledger', 'ledger', 'The ledger: coin, stores, trade and labour'],
     ['bell', 'chronicle', 'The chronicle'],
-    ['menu', 'menu', 'Menu'],
+    ['menu', 'menu', 'Menu (F10)'],
   ];
   speed.append(h('span.sep'));
   for (const [ic, dlg, label] of extras) {

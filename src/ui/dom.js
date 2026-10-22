@@ -28,6 +28,9 @@ export function add(el, kids) {
   return el;
 }
 
+/** Replaces what is in `el` with `kids` (nothing, null and false are skipped). */
+export const fill = (el, ...kids) => { clear(el); return add(el, kids); };
+
 export const clear = (el) => { while (el.firstChild) el.firstChild.remove(); return el; };
 
 /** Whole numbers with thin separators: 12 400. */
