@@ -107,7 +107,8 @@ const begin = () => {
   title = null;
   ui.hide(false);
   camera.drift(0);
-  camera.focus(CENTER, CENTER + 3, { zoom: 2.3, yaw: 0.3 });
+  // A page opened with a camera of its own (for development) keeps it.
+  if (!['x', 'z', 'zoom', 'yaw', 'pitch'].some((k) => params.has(k))) camera.focus(CENTER, CENTER + 3, { zoom: 2.3, yaw: 0.3 });
   clock.set(p('speed', 1));
   if (!hasSave || game.week < 6) ui.steward.hint('welcome');
 };

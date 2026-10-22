@@ -204,6 +204,8 @@ export function createTerrain(GFX, world, materials, scene) {
     const map = new GFX.CanvasTexture(canvas);
     map.colorSpace = GFX.SRGBColorSpace;
     map.anisotropy = 8;
+    // The mesh's v runs down the chunk as the canvas's rows do: left flipped (the default), each chunk's ground ran backwards and met its neighbour in a seam.
+    map.flipY = false;
     // A bump of its own, shifted so the grain runs on across chunks.
     const bump = new GFX.CanvasTexture(tex.grass.bump.image);
     bump.wrapS = bump.wrapT = GFX.RepeatWrapping;

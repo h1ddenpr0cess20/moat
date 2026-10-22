@@ -177,7 +177,8 @@ export function createTrees(GFX, world, materials, scene) {
       group.add(g);
       return g;
     };
-    c.lod0 = wrap(b0, true);
+    // Trees take shadows but do not throw them. Near trees threw them and far ones could not, so a straight line of shade ran along every chunk border; the forest floor is painted dark under the woods instead.
+    c.lod0 = wrap(b0, false);
     c.lod1 = wrap(b1, false);
     if (c.lod0) c.lod0.visible = true;
     c.lod1.visible = !c.near;
