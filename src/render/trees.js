@@ -122,8 +122,9 @@ export function createTrees(GFX, world, materials, scene) {
         else if (r < 0.34) kind = T.birch[(x * 3 + y + k) % 3];
         else kind = T.oak[(x * 7 + y * 3 + k) % 6];
         const tint = [0.9 + 0.2 * hash2(x, y + k, 29), 0.9 + 0.2 * hash2(x + 1, y, 31), 0.9 + 0.2 * hash2(x, y, 37 + k)];
-        b0.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
-        b1.stamp(kind.lod1, wx, wy, wz, yaw, s, tint);
+        b0?.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
+        // Far off, a dense wood is drawn with at most two trees a tile, a little larger.
+        if (k < 2) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * (n > 2 ? 1.14 : 1), tint);
       }
     } else if (g === GROUND.ROCK || g === GROUND.ORE) {
       const list = g === GROUND.ORE ? T.ore : T.boulder;
@@ -133,14 +134,14 @@ export function createTrees(GFX, world, materials, scene) {
         const wy = heightAt(world_, wx, wz) - 0.04;
         const t = list[(x * 3 + y + k) % list.length];
         const s = 0.9 + 0.5 * hash2(x, y, 53 + k);
-        b0.stamp(t.lod0, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
+        b0?.stamp(t.lod0, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
         b1.stamp(t.lod1, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
       }
     } else if (orchard) {
       const wx = x + 0.5 + (hash2(x, y, 61) - 0.5) * 0.2, wz = y + 0.5 + (hash2(y, x, 67) - 0.5) * 0.2;
       const wy = heightAt(world_, wx, wz);
       const t = T.fruit[['spring', 'summer', 'autumn', 'winter'][season]][(x + y) % 2];
-      b0.stamp(t.lod0, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
+      b0?.stamp(t.lod0, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
       b1.stamp(t.lod1, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
     }
   };
@@ -151,7 +152,8 @@ export function createTrees(GFX, world, materials, scene) {
     const cx = i % CHUNKS, cy = Math.floor(i / CHUNKS);
     const c = chunks[i];
     disposeOf(c);
-    const b0 = new Batch(), b1 = new Batch();
+    // The full trees are only made for chunks near the camera (they are most of the memory); the light ones are always there.
+    const b0 = c.near ? new Batch() : null, b1 = new Batch();
     let orchard = false;
     for (let y = cy * CHUNK; y < (cy + 1) * CHUNK; y++) {
       for (let x = cx * CHUNK; x < (cx + 1) * CHUNK; x++) {
@@ -162,6 +164,7 @@ export function createTrees(GFX, world, materials, scene) {
       }
     }
     const wrap = (batch, shadows) => {
+      if (!batch) return null;
       const g = new GFX.Group();
       g.name = 'trees';
       for (const [name, acc] of batch.accs) {
@@ -177,7 +180,7 @@ export function createTrees(GFX, world, materials, scene) {
     };
     c.lod0 = wrap(b0, true);
     c.lod1 = wrap(b1, false);
-    c.lod0.visible = c.near;
+    if (c.lod0) c.lod0.visible = true;
     c.lod1.visible = !c.near;
     c.built = true;
     c.season = season;
@@ -209,17 +212,18 @@ export function createTrees(GFX, world, materials, scene) {
         if (n % 3 === 0) await new Promise((r) => setTimeout(r, 0));
       }
     },
-    /** Shows the full trees near the camera and the light ones far off. */
-    updateLod(cx, cz, near = 105) {
+    /** Makes the full trees for the chunks near the camera and drops them for those far off; at most `budget` chunks a call. */
+    updateLod(cx, cz, near = 45, budget = 2) {
+      let spent = 0;
       for (const c of chunks) {
-        if (!c.built) continue;
+        if (!c.built || spent >= budget) continue;
         const x = ((c.i % CHUNKS) + 0.5) * CHUNK, z = (Math.floor(c.i / CHUNKS) + 0.5) * CHUNK;
         const d = Math.hypot(x - cx, z - cz);
         const want = c.near ? d < near + 14 : d < near - 6;
         if (want !== c.near) {
           c.near = want;
-          c.lod0.visible = want;
-          c.lod1.visible = !want;
+          build(c.i, c.season);
+          spent++;
         }
       }
     },

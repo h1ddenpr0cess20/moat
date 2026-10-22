@@ -53,6 +53,7 @@ export async function createScene({ host, game, progress = () => {} }) {
   progress(0.64, 'Planting trees');
   await trees.buildAll(cal0.season, [CENTER, CENTER], (f) => progress(0.64 + f * 0.2, 'Planting trees'));
   progress(0.86, 'Laying the roads and raising the houses');
+  for (let k = 0; k < 12; k++) trees.updateLod(stage.target.x, stage.target.z, 45, 3);
   decals.refreshFields(cal0);
   decals.buildAll();
   buildings.buildAll();
@@ -111,7 +112,7 @@ export async function createScene({ host, game, progress = () => {} }) {
       decals.sync(cal, 3);
       buildings.sync(2);
       lodClock -= dt;
-      if (lodClock <= 0) { lodClock = 0.3; trees.updateLod(stage.target.x, stage.target.z, Math.max(40, Math.min(90, 26 + camera.distance * 0.9))); }
+      if (lodClock <= 0) { lodClock = 0.3; trees.updateLod(stage.target.x, stage.target.z, Math.max(30, Math.min(75, 16 + camera.distance * 0.75))); }
       emitClock -= dt;
       if (emitClock <= 0) { emitClock = 1.5; emitters = buildings.emitters(); }
       buildings.update(dt, 0.6 + 0.4 * Math.sin(time * 0.3));
