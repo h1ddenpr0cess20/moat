@@ -198,9 +198,9 @@ function plant(game, b, w, season) {
       if (!world.realm[i]) continue;
       if (world.tree[i] > 0 && world.tree[i] < 3) { young.push(i); continue; }
       if (world.tree[i] || world.ground[i] !== GROUND.GRASS || world.bld[i] || world.road[i] || world.zone[i] || (game.blockOf && game.blockOf[i] >= 0)) continue;
-      // Leave a margin of open ground beside every street and wall, so that what is planted never shuts a lot in.
+      // Leave a margin of open ground beside every wall, so that what is planted never shuts a building in.
       let crowded = false;
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (world.road[idx(x + dx, y + dy)] || world.bld[idx(x + dx, y + dy)]) { crowded = true; break; }
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) if (world.bld[idx(x + dx, y + dy)]) { crowded = true; break; }
       if (!crowded) free.push(i);
     }
   }
