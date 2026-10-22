@@ -1,6 +1,7 @@
 import { CENTER, TICK_SECONDS } from './config.js';
 import { startGame, step } from './sim/game.js';
 import { createScene } from './render/scene.js';
+import { createUI } from './ui/index.js';
 
 const params = new URLSearchParams(location.search);
 const host = document.getElementById('game');
@@ -25,15 +26,24 @@ stage.view.aim.pitch = p('pitch', 0.95);
 stage.view.step(1, true);
 if (params.has('tod')) { atmosphere.setMode('hold'); atmosphere.setTime(p('tod', 0.45)); }
 
-let speed = p('speed', 1);
+const clock = {
+  speed: p('speed', 1),
+  last: 1,
+  set(s) { if (s > 0) this.last = s; this.speed = s; },
+  toggle() { this.set(this.speed === 0 ? this.last : 0); },
+  cycle() { const order = [1, 2, 4]; this.set(order[(order.indexOf(this.speed) + 1) % order.length] ?? 1); },
+};
+
+const ui = createUI({ game, scene, root: document.getElementById('ui'), clock });
 let acc = 0;
 stage.run((dt) => {
-  if (speed > 0 && !game.gameOver) {
-    acc += dt * speed;
+  if (clock.speed > 0 && !game.gameOver) {
+    acc += dt * clock.speed;
     while (acc >= TICK_SECONDS) { acc -= TICK_SECONDS; step(game); }
   }
   scene.weekFrac = acc / TICK_SECONDS;
   scene.frame(dt);
+  ui.update(dt);
 });
-globalThis.moat = { game, scene, setSpeed: (s) => { speed = s; } };
+globalThis.moat = { game, scene, ui, clock };
 document.title = 'ready';

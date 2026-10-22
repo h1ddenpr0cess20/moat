@@ -6,6 +6,7 @@ import { network } from '../world/roads.js';
 import { idx } from '../world/world.js';
 import { ownedCount } from '../world/wards.js';
 import { calendar } from './calendar.js';
+import { qualityAt } from './blocks.js';
 import { covered } from './coverage.js';
 import { headcount } from './people.js';
 import { PRICES } from './state.js';
@@ -98,7 +99,7 @@ export function burn(game, b, depth = 0) {
     for (const o of [...world.buildings.values()]) {
       if (o.type === 'castle') continue;
       const d = Math.hypot(o.x + o.w / 2 - at[0], o.y + o.d / 2 - at[1]);
-      if (d < 3.2 && game.rnd() < 0.45 * (1 - 0.8 * covered(game, 'water', at[0], at[1]))) burn(game, o, depth + 1);
+      if (d < 3.2 && game.rnd() < 0.45 * (1 - 0.8 * covered(game, 'water', at[0], at[1])) * (1 - 0.5 * qualityAt(game, o.x + o.w / 2, o.y + o.d / 2))) burn(game, o, depth + 1);
     }
   }
 }
@@ -114,7 +115,7 @@ export function fires(game) {
     const cx = b.x + b.w / 2, cy = b.y + b.d / 2;
     let near = 0;
     for (const h of hot) if (h !== b && Math.hypot(h.x + h.w / 2 - cx, h.y + h.d / 2 - cy) < 5) near++;
-    const p = 0.00022 * f * (1 + 0.7 * near) * season * (1 - 0.85 * covered(game, 'water', cx, cy)) * (game.difficulty === 'peaceful' ? 0.5 : 1);
+    const p = 0.00022 * f * (1 + 0.7 * near) * season * (1 - 0.85 * covered(game, 'water', cx, cy)) * (1 - 0.3 * qualityAt(game, cx, cy)) * (game.difficulty === 'peaceful' ? 0.5 : 1);
     if (game.rnd() < p) { burn(game, b); break; }
   }
 }

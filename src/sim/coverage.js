@@ -1,6 +1,7 @@
 import { BUILDINGS, CASTLE_LEVELS } from '../catalog.js';
 import { CENTER, TILES } from '../config.js';
 import { idx } from '../world/world.js';
+import { computeBlocks, courtyardServes } from './blocks.js';
 
 /**
  * Who a building looks after: wells, chapels, taverns, healers, markets and
@@ -28,7 +29,8 @@ function stamp(map, cx, cy, radius, strength, size) {
 /** Works out the coverage maps, if buildings have changed since last time (or `force`). */
 export function computeCoverage(game, force = false) {
   const { world } = game;
-  if (!force && game.cover && game.coverVer === (world.bver ?? 0) && game.coverAle === (game.report.aleSat ?? 1)) return game.cover;
+  const blocksChanged = computeBlocks(game, force);
+  if (!force && !blocksChanged && game.cover && game.coverVer === (world.bver ?? 0) && game.coverAle === (game.report.aleSat ?? 1)) return game.cover;
   const maps = Object.fromEntries(COVER_KINDS.map((k) => [k, new Float32Array(TILES)]));
   const aleSat = game.report.aleSat ?? 1;
   for (const b of world.buildings.values()) {
@@ -48,6 +50,16 @@ export function computeCoverage(game, force = false) {
     }
     const g = GUARD[b.type];
     if (g) stamp(maps.security, cx, cy, g[0], g[1] * (0.5 + 0.5 * Math.min(1, b.eff || 0.5)), world.size);
+  }
+  // A block's heart serves every door of its ring, as strongly as the ring is built.
+  for (const block of game.blocks) {
+    const serves = courtyardServes(game, block);
+    const reach = 0.45 + 0.55 * block.closure;
+    for (const [kind, strength] of Object.entries(serves)) {
+      const map = maps[kind];
+      for (const t of block.ring) map[t] = Math.max(map[t], strength * reach);
+      for (const t of block.core) map[t] = Math.max(map[t], strength * reach);
+    }
   }
   stamp(maps.security, CENTER, CENTER, 20, 0.8 + CASTLE_LEVELS[game.castleLevel].defense / 60, world.size);
   game.cover = maps;

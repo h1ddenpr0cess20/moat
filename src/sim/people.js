@@ -28,7 +28,7 @@ export function foodFor(game, people) {
 }
 
 export function housingCap(game, { building = true } = {}) {
-  let cap = CASTLE_ROOMS;
+  let cap = CASTLE_ROOMS + (game.blockGain?.cap ?? 0);
   for (const b of game.world.buildings.values()) {
     const c = BUILDINGS[b.type]?.cap;
     if (c && (b.state === 'ready' || (building && b.state === 'building'))) cap += c;
@@ -67,6 +67,7 @@ export function mood(game) {
   h -= (game.tax - 0.1) * 70;
   const idle = r.workforce ? (r.idle ?? 0) / r.workforce : 0;
   if (idle > 0.2) h -= (idle - 0.2) * 40;
+  h += game.blockGain?.mood ?? 0;
   h -= game.shock;
   game.shock *= 0.93;
   game.happiness += (clamp(h, 0, 100) - game.happiness) * 0.25;

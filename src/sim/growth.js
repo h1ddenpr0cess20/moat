@@ -5,6 +5,7 @@ import { blocked } from '../world/roads.js';
 import { findLot } from '../world/zoning.js';
 import { idx, inb, touch } from '../world/world.js';
 import { calendar } from './calendar.js';
+import { qualityAt } from './blocks.js';
 import { covered } from './coverage.js';
 import { headcount, housingCap } from './people.js';
 import { completeAnnex } from './actions.js';
@@ -56,7 +57,7 @@ export function construction(game) {
 
 /** How good a spot is for a home or a shop: near what looks after it, and near the middle. */
 const valueAt = (game) => (x, y) => covered(game, 'water', x, y) * 0.8 + covered(game, 'faith', x, y) * 0.6 + covered(game, 'cheer', x, y) * 0.6 + covered(game, 'commerce', x, y) * 0.5
-  + covered(game, 'security', x, y) * 0.3 - Math.hypot(x - CENTER, y - CENTER) * 0.025;
+  + covered(game, 'security', x, y) * 0.3 + qualityAt(game, x, y) * 1.4 - Math.hypot(x - CENTER, y - CENTER) * 0.025;
 
 /** Starts a building of the zone's kind on the best plot there is. Returns it, or null. */
 export function spawn(game, zone, level) {
@@ -97,10 +98,12 @@ function upgrade(game, b, zone) {
   const def = BUILDINGS[next];
   const [cx, cy] = [b.x + b.w / 2, b.y + b.d / 2];
   const people = headcount(game);
+  // A fine block's houses rise sooner: the lord's bar for them is lower.
+  const q = qualityAt(game, cx, cy);
   const water = covered(game, 'water', cx, cy), faith = covered(game, 'faith', cx, cy), commerce = covered(game, 'commerce', cx, cy), cheer = covered(game, 'cheer', cx, cy);
   if (zone === 'res') {
-    if (b.level === 1 && !(water > 0.25 && game.happiness >= 55)) return false;
-    if (b.level === 2 && !(water > 0.4 && faith > 0.25 && commerce > 0.15 && game.happiness >= 62 && people >= 80)) return false;
+    if (b.level === 1 && !(water > 0.25 && game.happiness >= 55 - 8 * q)) return false;
+    if (b.level === 2 && !(water > 0.4 && faith > 0.25 && commerce > 0.15 && game.happiness >= 62 - 8 * q && people >= 80 - 25 * q)) return false;
   } else {
     if (b.level === 1 && !(people >= 25 && (commerce > 0.1 || cheer > 0.1 || water > 0.2))) return false;
     if (b.level === 2 && !(people >= 110 && commerce > 0.4 && game.happiness >= 58)) return false;

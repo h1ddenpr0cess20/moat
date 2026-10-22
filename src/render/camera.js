@@ -78,7 +78,7 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
   };
 
   const typing = (e) => /^(INPUT|TEXTAREA|SELECT)$/.test(e.target?.tagName ?? '') || e.target?.isContentEditable;
-  const KEYMAP = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', KeyQ: 'turnL', KeyE: 'turnR', KeyR: 'tiltUp', KeyF: 'tiltDown', Equal: 'in', NumpadAdd: 'in', Minus: 'out', NumpadSubtract: 'out' };
+  const KEYMAP = { ArrowUp: 'up', KeyW: 'up', ArrowDown: 'down', KeyS: 'down', ArrowLeft: 'left', KeyA: 'left', ArrowRight: 'right', KeyD: 'right', KeyQ: 'turnL', KeyE: 'turnR', KeyZ: 'tiltUp', KeyX: 'tiltDown', PageUp: 'tiltUp', PageDown: 'tiltDown', Equal: 'in', NumpadAdd: 'in', Minus: 'out', NumpadSubtract: 'out' };
 
   const onKeyDown = (e) => {
     fast = e.shiftKey;

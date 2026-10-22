@@ -1,6 +1,7 @@
 import { BUILDINGS, CASTLE_LEVELS, FARM_RADIUS, FARM_ZONES, FOODS, FOOD_PER_PERSON, FOOD_SPLIT, FUEL_PER_PERSON, GOODS, RESOURCES, ZONE_ID } from '../catalog.js';
 import { GROUND, TILES, WEEKS_PER_YEAR } from '../config.js';
 import { clamp, lerp } from '../rng.js';
+import { qualityAt } from './blocks.js';
 import { calendar, coldness } from './calendar.js';
 import { countNear, needsRoad } from '../world/buildings.js';
 import { accessOf, network, rootTiles, walkRoads } from '../world/roads.js';
@@ -381,12 +382,12 @@ function money(game) {
   const { world } = game;
   const r = game.report;
   const taxK = game.tax / 0.1;
-  const taxes = r.employed * 0.9 * taxK * (0.7 + 0.3 * clamp(game.happiness / 100));
+  const taxes = r.employed * 0.9 * taxK * (0.7 + 0.3 * clamp(game.happiness / 100)) * (1 + (game.blockGain?.tax ?? 0));
   // The shops can only sell what the town can buy.
   let capacity = 0;
   for (const b of world.buildings.values()) {
     const def = BUILDINGS[b.type];
-    if (def?.shop && b.state === 'ready' && b.connected) capacity += def.shop * (0.4 + 0.6 * Math.min(1, b.eff));
+    if (def?.shop && b.state === 'ready' && b.connected) capacity += def.shop * (0.4 + 0.6 * Math.min(1, b.eff)) * (1 + 0.3 * qualityAt(game, b.x + b.w / 2, b.y + b.d / 2));
   }
   const people = game.pop.children + game.pop.adults + game.pop.elders;
   const demand = people * 0.06 * (1 + 0.15 * ((r.variety ?? 1) - 1) + (r.aleSat > 0.5 ? 0.1 : 0));

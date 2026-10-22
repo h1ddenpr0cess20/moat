@@ -81,7 +81,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
       const glow = Math.max(L.night, 0.55 * overcast * (1 - L.night) * 0.3, L.dusk * 0.8);
       mat.glow.color.setScalar(Math.min(1, glow * 1.15));
       mat.flame.color.setScalar(0.85 + 0.15 * Math.sin(performance.now() * 0.02));
-      const snow = snowAt(inYearF);
+      const snow = week < 4 ? 0 : snowAt(inYearF);
       colorLeaves(materials, GFX, season, k);
       terrain.setSeason(season, k, snow);
       water.update(dt, { shine: 0.5 + 0.9 * L.day * (1 - 0.5 * overcast) });
