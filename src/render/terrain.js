@@ -3,6 +3,7 @@ import { tiled } from 'madness-engine/textures/painters';
 import { fbm, hash2, smoothstep } from '../rng.js';
 import { baseHeight } from '../world/generate.js';
 import { HV, SUB, idx } from '../world/world.js';
+import { freeGeometry } from './dispose.js';
 
 /**
  * The ground: a smooth heightfield cut into chunks the size of a ward, each
@@ -353,7 +354,7 @@ export function createTerrain(GFX, world, materials, scene) {
         const c = chunks[i];
         world.dirty.terrain.delete(i);
         const geometry = geometryFor(c.cx, c.cy);
-        c.mesh.geometry.dispose?.();
+        freeGeometry(c.mesh.geometry);
         c.mesh.geometry = geometry;
         c.snow.geometry = geometry;
         world.dirty.ground.add(i);

@@ -2,6 +2,7 @@ import { ZONES, ZONE_ID } from '../catalog.js';
 import { CHUNK, CHUNKS, ROAD } from '../config.js';
 import { HV, SUB, idx, inb } from '../world/world.js';
 import { rgb } from './mesher.js';
+import { freeGeometry } from './dispose.js';
 
 /**
  * What lies on the ground: roads (autotiled from an atlas, so every bend and
@@ -214,7 +215,7 @@ export function createDecals(GFX, world, materials, scene) {
   };
 
   const place = (slot, c, g, material, order) => {
-    if (c[slot]) { group.remove(c[slot]); c[slot].geometry.dispose?.(); c[slot] = null; }
+    if (c[slot]) { group.remove(c[slot]); freeGeometry(c[slot].geometry); c[slot] = null; }
     if (!g) return;
     const mesh = new GFX.Mesh(g, material);
     mesh.renderOrder = order;

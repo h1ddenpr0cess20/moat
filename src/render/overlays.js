@@ -4,6 +4,7 @@ import { footprint } from '../world/buildings.js';
 import { Batch } from './mesher.js';
 import { YAW } from './buildings.js';
 import { modelFor } from './models/index.js';
+import { freeGeometry } from './dispose.js';
 
 /**
  * What the lord's hand draws on the land: the tiles under the cursor, the
@@ -41,7 +42,7 @@ export function createOverlays(GFX, world, scene) {
     l.base = opacity;
     l.pulse = pulse;
     const geometry = make();
-    if (l.mesh) { group.remove(l.mesh); l.mesh.geometry.dispose?.(); l.mesh = null; }
+    if (l.mesh) { group.remove(l.mesh); freeGeometry(l.mesh.geometry); l.mesh = null; }
     if (!geometry) return;
     l.mesh = new GFX.Mesh(geometry, l.material);
     l.mesh.renderOrder = order;
@@ -147,7 +148,7 @@ export function createOverlays(GFX, world, scene) {
     clear(key) {
       const l = layers.get(key);
       if (!l) return;
-      if (l.mesh) { group.remove(l.mesh); l.mesh.geometry.dispose?.(); l.mesh = null; }
+      if (l.mesh) { group.remove(l.mesh); freeGeometry(l.mesh.geometry); l.mesh = null; }
       l.sig = '';
     },
     clearAll() { for (const key of layers.keys()) api.clear(key); },

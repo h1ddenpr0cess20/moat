@@ -3,6 +3,7 @@ import { heightAt } from '../world/world.js';
 import { CENTER } from '../config.js';
 import { Batch, Mesher } from './mesher.js';
 import { PALETTE } from './models/common.js';
+import { freeTree } from './dispose.js';
 
 /**
  * The bridges over the moat: a plank deck with rails and trestles, stone
@@ -123,7 +124,7 @@ export function createGates(GFX, world, materials, scene) {
   };
 
   const clear = () => {
-    for (const it of items) { group.remove(it.root); it.root.traverse((o) => o.geometry?.dispose?.()); }
+    for (const it of items) { group.remove(it.root); freeTree(it.root); }
     items = [];
   };
 

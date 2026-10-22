@@ -3,6 +3,7 @@ import { ZONE_ID } from '../catalog.js';
 import { hash2 } from '../rng.js';
 import { HV, SUB, heightAt, idx } from '../world/world.js';
 import { Batch, Mesher } from './mesher.js';
+import { freeTree } from './dispose.js';
 
 /**
  * The forests and what grows in them: oaks, birches and pines standing in the
@@ -44,10 +45,8 @@ function buildTemplates() {
       const R = 0.36 + rnd(1) * 0.1;
       blob(m, 0, 0.92, 0, R, R * 0.85, R, leaf, hi ? 1 : 0, v);
       blob(m, 0.2 * (rnd(2) - 0.5) * 2, 1.12, 0.18 * (rnd(3) - 0.5) * 2, R * 0.8, R * 0.7, R * 0.8, leaf, hi ? 1 : 0, v + 3);
-      if (hi) {
-        blob(m, -0.24, 0.84, 0.1, R * 0.62, R * 0.55, R * 0.62, leaf, 1, v + 5);
-        blob(m, 0.22, 0.82, -0.16, R * 0.6, R * 0.52, R * 0.6, leaf, 1, v + 7);
-      }
+      // One more lobe at the side is enough: each lobe is eighty triangles, and a wood has thousands of trees.
+      if (hi) blob(m, -0.22, 0.84, 0.12, R * 0.66, R * 0.58, R * 0.66, leaf, 1, v + 5);
     }));
   }
   for (let v = 0; v < 3; v++) {
@@ -123,8 +122,8 @@ export function createTrees(GFX, world, materials, scene) {
         else kind = T.oak[(x * 7 + y * 3 + k) % 6];
         const tint = [0.9 + 0.2 * hash2(x, y + k, 29), 0.9 + 0.2 * hash2(x + 1, y, 31), 0.9 + 0.2 * hash2(x, y, 37 + k)];
         b0?.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
-        // Far off, a dense wood is drawn with at most two trees a tile, a little larger.
-        if (k < 2) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * (n > 2 ? 1.14 : 1), tint);
+        // Far off, a wood is drawn thin and a little larger: about a tree to a tile, and a few tiles bare (the ground is painted as forest floor).
+        if (k < (n > 2 ? 2 : 1) && hash2(x, y, 77) < 0.72) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * 1.22, tint);
       }
     } else if (g === GROUND.ROCK || g === GROUND.ORE) {
       const list = g === GROUND.ORE ? T.ore : T.boulder;
@@ -146,7 +145,7 @@ export function createTrees(GFX, world, materials, scene) {
     }
   };
 
-  const disposeOf = (c) => { for (const k of ['lod0', 'lod1']) if (c[k]) { group.remove(c[k]); c[k].children.forEach((m) => m.geometry.dispose?.()); c[k] = null; } };
+  const disposeOf = (c) => { for (const k of ['lod0', 'lod1']) if (c[k]) { group.remove(c[k]); freeTree(c[k]); c[k] = null; } };
 
   const build = (i, season) => {
     const cx = i % CHUNKS, cy = Math.floor(i / CHUNKS);

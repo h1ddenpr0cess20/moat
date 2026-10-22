@@ -1,5 +1,6 @@
 import { CHUNK, CHUNKS, WATER_LEVEL } from '../config.js';
 import { HV, SUB } from '../world/world.js';
+import { freeGeometry } from './dispose.js';
 
 /**
  * The water: rivers, lakes and the moats, drawn as a flat sheet over every
@@ -67,7 +68,7 @@ export function createWater(GFX, world, materials, scene) {
 
   const make = (i) => {
     const cx = i % CHUNKS, cy = Math.floor(i / CHUNKS);
-    if (meshes[i]) { group.remove(meshes[i]); meshes[i].geometry.dispose?.(); meshes[i] = null; }
+    if (meshes[i]) { group.remove(meshes[i]); freeGeometry(meshes[i].geometry); meshes[i] = null; }
     const g = build(cx, cy);
     if (!g) return;
     const mesh = new GFX.Mesh(g, material);

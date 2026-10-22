@@ -3,6 +3,7 @@ import { heightAt } from '../world/world.js';
 import { Batch } from './mesher.js';
 import { modelFor } from './models/index.js';
 import { castleScaffold } from './models/castle.js';
+import { freeTree } from './dispose.js';
 
 /**
  * The buildings: each chunk's are stamped into a mesh a material, so a whole
@@ -39,7 +40,7 @@ export function createBuildings(GFX, world, materials, scene) {
   };
 
   const clear = (c) => {
-    if (c.group) { group.remove(c.group); c.group.traverse((o) => o.geometry?.dispose?.()); c.group = null; }
+    if (c.group) { group.remove(c.group); freeTree(c.group); c.group = null; }
     c.anims = []; c.smoke = []; c.lights = [];
   };
 
@@ -118,7 +119,7 @@ export function createBuildings(GFX, world, materials, scene) {
         scaffold.group = g;
       } else if (!on && scaffold.group) {
         scene.remove(scaffold.group);
-        scaffold.group.traverse((o) => o.geometry?.dispose?.());
+        freeTree(scaffold.group);
         scaffold.group = null;
       }
     },
