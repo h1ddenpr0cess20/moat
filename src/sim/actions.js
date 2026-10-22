@@ -1,0 +1,277 @@
+import { BUILDINGS, CASTLE_LEVELS, RANKS, ROADS, ZONES, ZONE_ID, annexCost, annexWork, canPay, costText, pay } from '../catalog.js';
+import { CENTER, ROAD, WARD } from '../config.js';
+import { addBuilding, check, removeBuilding } from '../world/buildings.js';
+import { blockPlan, BLOCK, setZone, zoneBlocked } from '../world/zoning.js';
+import { clearRoad, roadBlocked, setRoad } from '../world/roads.js';
+import { bordersRealm, carveMoat, computeMoat, gradeWard, ownedCount } from '../world/wards.js';
+import { idx, inb, touchAll } from '../world/world.js';
+import { PRICES } from './state.js';
+
+/**
+ * What the lord can do. Each action has a `plan` (what it would cost and
+ * whether it can be done, for the ghost under the cursor) and a doing, which
+ * takes the coin and changes the land. Roads and zones are done at once;
+ * buildings and moats take the builders time.
+ */
+
+const payAll = (game, cost) => {
+  pay(game.stock, cost);
+  for (const [r, n] of Object.entries(cost)) game.flows.used[r] = (game.flows.used[r] ?? 0) + n;
+};
+const addCost = (a, b, k = 1) => { for (const [r, n] of Object.entries(b)) a[r] = (a[r] ?? 0) + n * k; return a; };
+
+/** The tiles of a straight line from (x0, y0) along the longer way to (x1, y1). */
+export function lineTiles(x0, y0, x1, y1) {
+  const out = [];
+  if (Math.abs(x1 - x0) >= Math.abs(y1 - y0)) { const s = Math.sign(x1 - x0) || 1; for (let x = x0; x !== x1 + s; x += s) out.push([x, y0]); }
+  else { const s = Math.sign(y1 - y0) || 1; for (let y = y0; y !== y1 + s; y += s) out.push([x0, y]); }
+  return out;
+}
+
+/** The tiles of a rectangle between two corners. */
+export function rectTiles(x0, y0, x1, y1) {
+  const out = [];
+  for (let y = Math.min(y0, y1); y <= Math.max(y0, y1); y++) for (let x = Math.min(x0, x1); x <= Math.max(x0, x1); x++) out.push([x, y]);
+  return out;
+}
+
+// ---------------------------------------------------------------- roads
+
+export function planRoad(game, tiles, type = 'dirt') {
+  const { world } = game;
+  const cost = {};
+  const ok = [], bad = [];
+  let why = null;
+  for (const [x, y] of tiles) {
+    const reason = roadBlocked(world, x, y);
+    const here = inb(x, y) ? world.road[idx(x, y)] : 0;
+    const want = type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT;
+    if (reason === 'A bridge' || (here === want) || (here === ROAD.COBBLE && want === ROAD.DIRT)) continue;
+    if (reason) { bad.push([x, y]); why ??= reason; continue; }
+    ok.push([x, y]);
+    addCost(cost, ROADS[type].cost);
+  }
+  return { tiles: ok, blocked: bad, cost, afford: canPay(game.stock, cost), reason: ok.length ? null : why };
+}
+
+export function buildRoad(game, tiles, type = 'dirt', { free = false } = {}) {
+  const plan = planRoad(game, tiles, type);
+  if (!plan.tiles.length) return { ok: false, reason: plan.reason ?? 'Nothing to build', placed: 0 };
+  let placed = 0;
+  for (const [x, y] of plan.tiles) {
+    const c = ROADS[type].cost;
+    if (!free && !canPay(game.stock, c)) break;
+    const timber = setRoad(game.world, x, y, type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT);
+    if (timber < 0) continue;
+    if (!free) payAll(game, c);
+    game.stock.wood += timber;
+    placed++;
+  }
+  if (placed) { game.world.bver = (game.world.bver ?? 0) + 1; game.emit('road', { placed }); }
+  return { ok: placed > 0, placed, short: placed < plan.tiles.length, reason: placed ? null : 'Not enough coin' };
+}
+
+// ---------------------------------------------------------------- zones
+
+export function planZone(game, tiles, zone) {
+  const { world } = game;
+  const cost = {};
+  const ok = [];
+  let why = null;
+  for (const [x, y] of tiles) {
+    const reason = zoneBlocked(world, x, y);
+    if (reason) { why ??= reason; continue; }
+    if (world.zone[idx(x, y)] === ZONE_ID[zone]) continue;
+    ok.push([x, y]);
+  }
+  addCost(cost, { gold: ZONES[zone].cost }, ok.length);
+  return { tiles: ok, cost, afford: canPay(game.stock, cost), reason: ok.length ? null : why };
+}
+
+export function buildZone(game, tiles, zone, { free = false } = {}) {
+  const plan = planZone(game, tiles, zone);
+  if (!plan.tiles.length) return { ok: false, reason: plan.reason ?? 'Nothing to zone', placed: 0 };
+  let placed = 0;
+  for (const [x, y] of plan.tiles) {
+    if (!free && game.stock.gold < ZONES[zone].cost) break;
+    const timber = setZone(game.world, x, y, zone);
+    if (timber < 0) continue;
+    if (!free) payAll(game, { gold: ZONES[zone].cost });
+    game.stock.wood += timber;
+    placed++;
+  }
+  if (placed) game.emit('zone', { placed, zone });
+  return { ok: placed > 0, placed, reason: placed ? null : 'Not enough coin' };
+}
+
+export function eraseZones(game, tiles) {
+  let n = 0;
+  for (const [x, y] of tiles) if (setZone(game.world, x, y, null) >= 0) n++;
+  return n;
+}
+
+// ---------------------------------------------------------------- donut blocks
+
+export function planBlock(game, x0, y0, x1, y1, options = {}) {
+  const [ax, bx] = [Math.min(x0, x1), Math.max(x0, x1)], [ay, by] = [Math.min(y0, y1), Math.max(y0, y1)];
+  if (bx - ax + 1 < BLOCK.min || by - ay + 1 < BLOCK.min) return { ok: false, reason: `A block is at least ${BLOCK.min} tiles across`, roads: [], ring: [], core: [], cost: {} };
+  if (bx - ax + 1 > BLOCK.max || by - ay + 1 > BLOCK.max) return { ok: false, reason: `A block is at most ${BLOCK.max} tiles across`, roads: [], ring: [], core: [], cost: {} };
+  const plan = blockPlan(ax, ay, bx, by, options);
+  const type = options.road ?? 'dirt';
+  const roads = planRoad(game, plan.roads, type);
+  const ring = planZone(game, plan.ring, options.ring ?? 'res');
+  const core = plan.core.length ? planZone(game, plan.core, options.core === 'none' ? 'res' : options.core ?? 'res') : { tiles: [], cost: {} };
+  const cost = addCost(addCost(addCost({}, roads.cost), ring.cost), options.core === 'none' ? {} : core.cost);
+  const ok = roads.tiles.length + ring.tiles.length > 0;
+  return { ok, reason: ok ? null : 'Nothing can be built there', roads: roads.tiles, ring: ring.tiles, core: options.core === 'none' ? [] : core.tiles, cost, afford: canPay(game.stock, cost), rect: [ax, ay, bx, by] };
+}
+
+export function buildBlock(game, x0, y0, x1, y1, options = {}, { free = false } = {}) {
+  const plan = planBlock(game, x0, y0, x1, y1, options);
+  if (!plan.ok) return plan;
+  if (!free && !plan.afford) return { ...plan, ok: false, reason: 'Not enough coin or stone' };
+  buildRoad(game, plan.roads, options.road ?? 'dirt', { free });
+  buildZone(game, plan.ring, options.ring ?? 'res', { free });
+  if (options.core !== 'none' && plan.core.length) buildZone(game, plan.core, options.core ?? 'res', { free });
+  game.emit('block', { plan });
+  return plan;
+}
+
+// ---------------------------------------------------------------- buildings
+
+export function planBuilding(game, type, x, y, front) {
+  const def = BUILDINGS[type];
+  const c = check(game.world, type, x, y, front);
+  const reasons = [];
+  if (c.ok && def.rank && game.rank < def.rank) reasons.push(`Needs the rank of ${RANKS[def.rank].name}`);
+  if (c.ok && !canPay(game.stock, def.cost)) reasons.push('Not enough materials');
+  return { ...c, def, cost: def.cost, afford: canPay(game.stock, def.cost), ok: c.ok && reasons.length === 0, reason: c.reason ?? reasons[0] ?? null, rankLocked: Boolean(def.rank && game.rank < def.rank) };
+}
+
+export function placeBuilding(game, type, x, y, front, { free = false } = {}) {
+  const plan = planBuilding(game, type, x, y, front);
+  if (!plan.ok && !(free && plan.afford === false && !plan.rankLocked && plan.reason === 'Not enough materials')) return plan;
+  const def = BUILDINGS[type];
+  if (!free) payAll(game, def.cost);
+  const { rect } = plan;
+  const f = plan.front ?? front;
+  const { building, timber } = addBuilding(game.world, type, rect.x, rect.y, f, { state: free ? 'ready' : 'building', rect });
+  game.stock.wood += timber;
+  if (plan.gate) plan.gate.gatehouse = building.id;
+  game.world.bver = (game.world.bver ?? 0) + 1;
+  game.emit('placed', { building });
+  return { ...plan, building };
+}
+
+/** What a demolition gives back. */
+const refund = (b) => {
+  const cost = BUILDINGS[b.type]?.cost ?? {};
+  const k = b.state === 'building' ? 0.8 : 0.4;
+  return Object.fromEntries(Object.entries(cost).map(([r, n]) => [r, Math.floor(n * k)]));
+};
+
+export function demolish(game, x, y) {
+  const { world } = game;
+  if (!inb(x, y)) return { ok: false };
+  const i = idx(x, y);
+  const id = world.bld[i];
+  if (id) {
+    if (id === 1) return { ok: false, reason: 'The castle stands' };
+    const b = world.buildings.get(id);
+    const back = refund(b);
+    for (const [r, n] of Object.entries(back)) game.stock[r] += n;
+    for (const g of world.gates) if (g.gatehouse === id) g.gatehouse = 0;
+    removeBuilding(world, id);
+    game.emit('demolished', { building: b });
+    return { ok: true, what: BUILDINGS[b.type].name, back };
+  }
+  if (world.road[i] && world.road[i] !== ROAD.BRIDGE) { clearRoad(world, x, y); game.world.bver = (game.world.bver ?? 0) + 1; return { ok: true, what: 'Road' }; }
+  if (world.zone[i]) { setZone(world, x, y, null); return { ok: true, what: 'Zone' }; }
+  return { ok: false };
+}
+
+// ---------------------------------------------------------------- the moat
+
+export function planAnnex(game, wardId) {
+  const { world } = game;
+  const ward = world.wards[wardId];
+  const owned = ownedCount(world);
+  const cost = annexCost(owned, ward.stats.hardness);
+  const work = annexWork(owned);
+  const out = { ward, cost, work, ok: false, reason: null };
+  if (ward.owned) return { ...out, reason: 'Already yours' };
+  if (ward.dig) return { ...out, reason: 'The diggers are at work here' };
+  if (!bordersRealm(world, wardId)) return { ...out, reason: 'It must touch your realm' };
+  const digging = world.wards.find((w) => w.dig);
+  if (digging) return { ...out, reason: `The diggers are busy at ${digging.name}` };
+  const cap = CASTLE_LEVELS[game.castleLevel].wards;
+  if (owned >= cap) return { ...out, reason: `A ${CASTLE_LEVELS[game.castleLevel].name} can hold only ${cap} ${cap === 1 ? 'ward' : 'wards'}`, capped: true };
+  if (!canPay(game.stock, cost)) return { ...out, reason: `Needs ${costText(cost)}`, short: true };
+  return { ...out, ok: true };
+}
+
+export function startAnnex(game, wardId) {
+  const plan = planAnnex(game, wardId);
+  if (!plan.ok) return plan;
+  payAll(game, plan.cost);
+  plan.ward.dig = { progress: 0, weeks: plan.work.weeks, crew: plan.work.crew };
+  game.emit('annexStart', { ward: plan.ward });
+  game.note(`The diggers have begun the moat round ${plan.ward.name}.`, 'info', [plan.ward.gx * WARD + WARD / 2, plan.ward.gy * WARD + WARD / 2]);
+  return plan;
+}
+
+/** The moat is dug: the ward is the realm's, the old moat between is filled, the new one floods. */
+export function completeAnnex(game, ward) {
+  const { world } = game;
+  ward.owned = true;
+  ward.dig = null;
+  computeMoat(world);
+  gradeWard(world, ward.id);
+  carveMoat(world);
+  // Gatehouses whose gates are gone go with them.
+  const live = new Set(world.gates.map((g) => g.gatehouse).filter(Boolean));
+  for (const b of [...world.buildings.values()]) if (b.type === 'gatehouse' && !live.has(b.id)) removeBuilding(world, b.id);
+  world.netVersion = (world.netVersion ?? 0) + 1;
+  world.bver = (world.bver ?? 0) + 1;
+  touchAll(world);
+  game.emit('annexed', { ward });
+  game.note(`${ward.name} is part of the barony. The moat is dug and filling.`, 'good', [ward.gx * WARD + WARD / 2, ward.gy * WARD + WARD / 2]);
+}
+
+// ---------------------------------------------------------------- the castle
+
+export function planCastle(game) {
+  const next = CASTLE_LEVELS[game.castleLevel + 1];
+  if (!next) return { ok: false, reason: 'The castle is as grand as it will get' };
+  if (game.castleWork) return { ok: false, reason: 'The masons are already at work', next };
+  if (game.rank < next.rank) return { ok: false, reason: `Needs the rank of ${RANKS[next.rank].name}`, next, rankLocked: true };
+  if (!canPay(game.stock, next.cost)) return { ok: false, reason: `Needs ${costText(next.cost)}`, next, short: true };
+  return { ok: true, next };
+}
+
+export function startCastle(game) {
+  const plan = planCastle(game);
+  if (!plan.ok) return plan;
+  payAll(game, plan.next.cost);
+  game.castleWork = { level: game.castleLevel + 1, progress: 0, weeks: plan.next.weeks, crew: 8 + game.castleLevel * 4 };
+  game.note(`The masons have begun to raise the ${plan.next.name.toLowerCase()}.`, 'info', [CENTER, CENTER]);
+  game.emit('castleStart', {});
+  return plan;
+}
+
+// ---------------------------------------------------------------- the rest
+
+export function setTax(game, rate) { game.tax = Math.max(0, Math.min(0.3, rate)); }
+export function setPriority(game, type, n) { game.prio[type] = Math.max(0, Math.min(3, n)); }
+export function setTrade(game, res, rule) { if (PRICES[res]) game.trade[res] = { ...game.trade[res], ...rule }; }
+
+/** Raises or lowers a gate's drawbridge. Only a gatehouse has the windlass. */
+export function toggleGate(game, gate) {
+  const house = gate.gatehouse && game.world.buildings.get(gate.gatehouse);
+  if (!house || house.state !== 'ready') return { ok: false, reason: 'Needs a finished gatehouse' };
+  gate.open = !gate.open;
+  game.emit('gate', { gate });
+  game.note(gate.open ? 'The drawbridge is lowered.' : 'The drawbridge is raised.', 'info', gate.mid);
+  return { ok: true, open: gate.open };
+}
+

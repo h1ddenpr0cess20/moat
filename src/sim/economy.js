@@ -1,0 +1,471 @@
+import { BUILDINGS, CASTLE_LEVELS, FARM_RADIUS, FARM_ZONES, FOODS, FOOD_PER_PERSON, FOOD_SPLIT, FUEL_PER_PERSON, GOODS, RESOURCES, ZONE_ID } from '../catalog.js';
+import { GROUND, TILES, WEEKS_PER_YEAR } from '../config.js';
+import { clamp, lerp } from '../rng.js';
+import { calendar, coldness } from './calendar.js';
+import { countNear, needsRoad } from '../world/buildings.js';
+import { accessOf, network, rootTiles, walkRoads } from '../world/roads.js';
+import { coreTiles } from '../world/zoning.js';
+import { idx, touch } from '../world/world.js';
+
+/**
+ * The week's work: who is where, what they make, what everyone uses, what
+ * goes off, and the coin that comes in and goes out. Nothing here draws.
+ */
+
+/** The share of grown adults who can work. */
+const FIT = 0.9;
+/** The most of the workforce that building crews may take. */
+const CREW_SHARE = 0.55;
+/** Field tiles one farmhand looks after, and how many a farmstead can hold. */
+export const TILES_PER_HAND = 6;
+/** Wood in one level of a tile's trees. */
+const WOOD_PER_TREE = 14;
+
+const spend = (game, res, n) => { game.stock[res] -= n; game.flows.used[res] = (game.flows.used[res] ?? 0) + n; };
+const gain = (game, res, n) => { game.stock[res] += n; game.flows.made[res] = (game.flows.made[res] ?? 0) + n; };
+
+/** How much each kind of store holds. */
+export function capacity(game) {
+  const base = CASTLE_LEVELS[game.castleLevel].store;
+  let food = base.food, goods = base.goods;
+  for (const b of game.world.buildings.values()) {
+    if (b.state !== 'ready') continue;
+    const s = BUILDINGS[b.type]?.store;
+    if (!s) continue;
+    food += s.food ?? 0;
+    goods += s.goods ?? 0;
+  }
+  return { food, goods };
+}
+
+export const capFor = (cap, res) => (RESOURCES[res].store === 'food' ? cap.food : RESOURCES[res].store === 'goods' ? cap.goods : Infinity);
+
+const centerOf = (b) => [b.x + b.w / 2, b.y + b.d / 2];
+
+/** Which of the buildings has a road to the castle, and how far its goods must go to a store. Kept until roads or buildings change. */
+export function refresh(game, force = false) {
+  const { world } = game;
+  const ver = `${world.bver ?? 0}:${world.netVersion ?? 0}`;
+  if (!force && game.refreshVer === ver) return;
+  game.refreshVer = ver;
+  network(world);
+  const sources = [...rootTiles()];
+  for (const b of world.buildings.values()) {
+    if (b.state !== 'ready' || (b.type !== 'granary' && b.type !== 'storehouse')) continue;
+    const a = accessOf(world, b.x, b.y, b.w, b.d);
+    if (a) sources.push([a.x, a.y]);
+  }
+  game.store = walkRoads(world, sources);
+  for (const b of world.buildings.values()) {
+    if (b.type === 'castle') { b.connected = true; b.haul = 0; continue; }
+    const a = accessOf(world, b.x, b.y, b.w, b.d);
+    b.access = a;
+    b.connected = Boolean(a) || !needsRoad(b);
+    b.haul = a ? Math.max(0, game.store[idx(a.x, a.y)] >= 0 ? game.store[idx(a.x, a.y)] : a.d) : 99;
+  }
+  // Housing that people can live in: ready, and a road reaches it.
+  world.housing = [...world.buildings.values()].filter((b) => BUILDINGS[b.type]?.cap && b.state === 'ready');
+}
+
+/** How much of what a building makes gets as far as a store: the further it is, the less. */
+const haulK = (b) => clamp(1.1 - (b.haul ?? 0) / 70, 0.55, 1);
+
+/** Which fields each farmstead tends: the nearest first, as many as its hands can look after. */
+export function assignFields(game) {
+  const { world } = game;
+  const farms = [...world.buildings.values()].filter((b) => b.type === 'farmstead' && b.state === 'ready' && b.connected);
+  for (const f of farms) { f.fields = []; f.cx = f.x + f.w / 2; f.cy = f.y + f.d / 2; }
+  const ids = new Set(FARM_ZONES.map((z) => ZONE_ID[z]));
+  const cap = BUILDINGS.farmstead.jobs * TILES_PER_HAND;
+  game.untended = 0;
+  game.fieldTiles = 0;
+  for (let i = 0; i < TILES; i++) {
+    if (!ids.has(world.zone[i]) || world.bld[i] || !world.realm[i]) continue;
+    game.fieldTiles++;
+    const x = i % world.size + 0.5, y = Math.floor(i / world.size) + 0.5;
+    const options = farms.map((f) => [f, (x - f.cx) ** 2 + (y - f.cy) ** 2]).filter(([, d]) => d <= FARM_RADIUS * FARM_RADIUS).sort((a, b) => a[1] - b[1]);
+    const home = options.find(([f]) => f.fields.length < cap);
+    if (home) home[0].fields.push(i);
+    else game.untended++;
+  }
+  for (const f of farms) f.jobs = Math.max(1, Math.ceil(f.fields.length / TILES_PER_HAND));
+}
+
+export const jobsOf = (b) => (b.type === 'farmstead' ? (b.jobs ?? 1) : BUILDINGS[b.type]?.jobs ?? 0);
+export const priorityOf = (game, type) => game.prio[type] ?? (BUILDINGS[type]?.cat === 'food' ? 3 : 2);
+
+/**
+ * Shares out the people: the garrison first, then the workplaces of the
+ * highest priority (food, unless the lord says otherwise), then the building
+ * crews (up to just over half of what is left), then the rest by priority,
+ * the same share to each of equal priority. Fills in each building's
+ * `workers` and `eff`, and each site's `crewK`.
+ */
+export function allocate(game) {
+  const { world } = game;
+  const workforce = game.pop.adults * FIT;
+  let labor = workforce;
+  let employed = 0;
+
+  const castle = world.buildings.get(1);
+  const garrison = CASTLE_LEVELS[game.castleLevel].jobs;
+  const got = Math.min(labor, garrison);
+  castle.workers = got;
+  castle.eff = garrison ? got / garrison : 1;
+  labor -= got;
+  employed += got;
+
+  const places = [];
+  for (const b of world.buildings.values()) {
+    if (b.type !== 'castle') { b.workers = 0; b.eff = 0; }
+    const jobs = jobsOf(b);
+    if (b.type === 'castle' || b.state !== 'ready' || !jobs || !b.connected) continue;
+    places.push({ b, jobs, prio: priorityOf(game, b.type) });
+  }
+  let open = 0;
+  const staff = (prio) => {
+    const level = places.filter((p) => p.prio === prio);
+    const need = level.reduce((n, p) => n + p.jobs, 0);
+    if (!need) return;
+    const share = Math.min(1, labor / need);
+    for (const p of level) { p.b.workers = p.jobs * share; p.b.eff = share; }
+    labor -= need * share;
+    employed += need * share;
+    open += need * (1 - share);
+  };
+  staff(3);
+
+  // Crews work one site at a time, in the order the work was given: the moat first, then the castle, then the buildings.
+  let budget = Math.min(labor, workforce * CREW_SHARE);
+  let crewGiven = 0;
+  const crew = (site, need) => {
+    const take = Math.min(need, budget);
+    budget -= take;
+    crewGiven += take;
+    site.crewK = need ? take / need : 0;
+  };
+  for (const w of world.wards) if (w.dig) crew(w.dig, w.dig.crew);
+  if (game.castleWork) crew(game.castleWork, game.castleWork.crew);
+  for (const b of world.buildings.values()) if (b.state === 'building') crew(b, BUILDINGS[b.type].crew);
+  labor -= crewGiven;
+  employed += crewGiven;
+
+  staff(2);
+  staff(1);
+  game.report.workforce = workforce;
+  game.report.employed = employed;
+  game.report.idle = Math.max(0, labor);
+  game.report.jobsOpen = open;
+}
+
+function sourceTiles(world, b, from, radius) {
+  const [cx, cy] = centerOf(b);
+  const out = [];
+  const test = from === 'trees' ? (i) => world.tree[i] > 0 && world.realm[i]
+    : from === 'rock' ? (i) => world.ground[i] === GROUND.ROCK && world.amount[i] > 0 && world.realm[i]
+      : from === 'ore' ? (i) => world.ground[i] === GROUND.ORE && world.amount[i] > 0 && world.realm[i]
+        : (i) => world.ground[i] === GROUND.WATER || world.moat[i] === 1;
+  countNear(world, cx, cy, radius, (i) => { if (test(i)) out.push(i); return false; });
+  return out;
+}
+
+function work(game) {
+  const { world } = game;
+  const cal = calendar(game.week);
+  const mood = 0.85 + 0.3 * clamp(game.happiness / 100);
+  const hasTools = game.stock.tools > 0;
+  let toolUse = 0;
+
+  for (const b of world.buildings.values()) {
+    const def = BUILDINGS[b.type];
+    const w = def?.work;
+    b.note = '';
+    if (b.state !== 'ready' || !w) continue;
+    if (!b.connected) { b.note = 'No road reaches it'; continue; }
+    if (b.workers <= 0.01) { b.note = jobsOf(b) ? 'No one to work it' : ''; continue; }
+
+    if (w.kind === 'gather') {
+      const tiles = sourceTiles(world, b, w.from, w.radius);
+      let supply = 1;
+      if (w.from === 'water') supply = Math.min(1, tiles.length / 14);
+      else if (w.from === 'trees' && w.res === 'meat') supply = Math.min(1, tiles.length / 30);
+      else if (!tiles.length) supply = 0;
+      if (supply <= 0) { b.note = w.from === 'trees' ? 'No trees in reach' : w.from === 'rock' ? 'The rock is worked out' : w.from === 'ore' ? 'The ore is worked out' : 'No water in reach'; continue; }
+      let fuelK = 1;
+      if (w.fuel) {
+        const need = w.fuel * b.eff;
+        fuelK = need > 0 ? Math.min(1, game.stock.wood / need) : 1;
+        if (fuelK < 1) b.note = 'Short of fuel';
+        spend(game, 'wood', need * fuelK);
+      }
+      const toolK = w.tools ? (hasTools ? 1 : 0.6) : 1;
+      if (w.tools) toolUse += b.workers * 0.012;
+      const out = w.rate * b.workers * (w.season?.[cal.season] ?? 1) * toolK * haulK(b) * mood * supply * fuelK;
+      gain(game, w.res, out);
+      b.acc = (b.acc ?? 0) + out;
+      if (w.from === 'trees' && w.res === 'wood') {
+        while (b.acc >= WOOD_PER_TREE && tiles.length) {
+          b.acc -= WOOD_PER_TREE;
+          const i = tiles[Math.floor(game.rnd() * tiles.length)];
+          if (world.tree[i] > 0) { world.tree[i]--; touch(world, ['trees', 'ground'], i % world.size, Math.floor(i / world.size)); }
+        }
+      } else if (w.from === 'rock' || w.from === 'ore') {
+        while (b.acc >= 8 && tiles.length) {
+          b.acc -= 8;
+          const i = tiles[Math.floor(game.rnd() * tiles.length)];
+          world.amount[i] = Math.max(0, world.amount[i] - 8);
+          if (world.amount[i] === 0) { world.ground[i] = GROUND.GRASS; touch(world, ['ground', 'terrain'], i % world.size, Math.floor(i / world.size), i % world.size, Math.floor(i / world.size), 2); }
+        }
+      } else {
+        b.acc = 0;
+      }
+      if (!b.note) b.note = 'At work';
+    } else if (w.kind === 'make') {
+      let ratio = b.eff * haulK(b) * mood;
+      let wait = '';
+      for (const [r, n] of Object.entries(w.in)) {
+        const k = game.stock[r] / n;
+        if (k < ratio) { ratio = Math.max(0, k); wait = `Waiting for ${RESOURCES[r].name.toLowerCase()}`; }
+      }
+      const cap = game.cap;
+      for (const r of Object.keys(w.out)) if (game.stock[r] >= capFor(cap, r) * 0.95) { ratio = 0; wait = `${RESOURCES[r].name} stores are full`; }
+      if (w.fuel && ratio > 0) {
+        const need = w.fuel * ratio;
+        if (game.stock.wood < need) { ratio *= game.stock.wood / need; wait = 'Short of fuel'; }
+        spend(game, 'wood', w.fuel * ratio);
+      }
+      for (const [r, n] of Object.entries(w.in)) spend(game, r, n * ratio);
+      for (const [r, n] of Object.entries(w.out)) gain(game, r, n * ratio);
+      b.note = wait || 'At work';
+    }
+  }
+  if (toolUse) spend(game, 'tools', Math.min(game.stock.tools, toolUse));
+}
+
+/** Fields: sown in spring, growing through the summer, reaped in the autumn; pasture gives all year. */
+function farm(game) {
+  const { world } = game;
+  const cal = calendar(game.week);
+  const mood = 0.85 + 0.3 * clamp(game.happiness / 100);
+  const weatherK = game.weather.harvest;
+  const growing = cal.season <= 1;
+  for (const f of world.buildings.values()) {
+    if (f.type !== 'farmstead' || f.state !== 'ready' || !f.fields) continue;
+    const tended = Math.min(f.fields.length, Math.round(f.workers * TILES_PER_HAND + 0.001));
+    f.tended = tended;
+    f.note = f.workers > 0.01 ? (tended < f.fields.length ? `${f.fields.length - tended} fields lie untended` : 'At work') : 'No one to work it';
+    for (let n = 0; n < f.fields.length; n++) {
+      const i = f.fields[n];
+      const zone = world.zone[i];
+      const soil = 0.35 + 0.9 * (world.fert[i] / 255);
+      const on = n < tended;
+      if (zone === ZONE_ID.pasture) {
+        if (!on) continue;
+        gain(game, 'wool', 3.0 * soil / WEEKS_PER_YEAR * haulK(f) * mood);
+        if (cal.season === 2) gain(game, 'meat', 1.5 * soil / 12 * haulK(f) * mood * weatherK);
+        world.crop[i] = Math.min(255, world.crop[i] + 6);
+        continue;
+      }
+      if (growing) {
+        if (on) world.crop[i] = Math.min(255, world.crop[i] + 255 / 24);
+      } else if (cal.season === 2 && on) {
+        const ripe = world.crop[i] / 255;
+        const share = ripe / 12 * haulK(f) * mood * weatherK;
+        if (zone === ZONE_ID.wheat) gain(game, 'grain', 10 * soil * share);
+        else if (zone === ZONE_ID.veg) gain(game, 'produce', 11 * soil * share);
+        else if (zone === ZONE_ID.orchard) gain(game, 'produce', 7 * soil * share);
+      }
+    }
+  }
+  // The turn of the year clears the fields for sowing.
+  if (cal.inYear === 36) {
+    for (const f of world.buildings.values()) if (f.fields) for (const i of f.fields) if (world.zone[i] !== ZONE_ID.pasture) world.crop[i] = 0;
+    touch(world, 'flat', 0, 0, world.size, world.size, 0);
+  }
+  // Kitchen gardens: the land behind the houses.
+  if (game.week % 4 === 0 || game.gardens === undefined) {
+    const cores = coreTiles(world);
+    const kept = [];
+    let n = 0;
+    for (const i of cores) {
+      const x = i % world.size, y = Math.floor(i / world.size);
+      let near = false;
+      for (let dy = -3; dy <= 3 && !near; dy++) for (let dx = -3; dx <= 3; dx++) {
+        const b = world.buildings.get(world.bld[idx(Math.max(0, Math.min(world.size - 1, x + dx)), Math.max(0, Math.min(world.size - 1, y + dy)))]);
+        if (b && BUILDINGS[b.type]?.cap && b.state === 'ready') { near = true; break; }
+      }
+      if (near) { n++; kept.push(i); }
+    }
+    const same = world.cores && world.cores.size === kept.length && kept.every((i) => world.cores.has(i));
+    if (!same) {
+      world.cores = new Set(kept);
+      touch(world, 'flat', 0, 0, world.size, world.size, 0);
+    }
+    game.gardens = n;
+  }
+  if (cal.season <= 2) gain(game, 'produce', game.gardens * 0.1 * mood * (cal.season === 0 ? 0.4 : 1));
+}
+
+/** The people eat: a week's food from the three kinds, the quickest to spoil first. */
+function eat(game, people) {
+  const need = people * FOOD_PER_PERSON;
+  const take = { staple: 0, produce: 0, protein: 0 };
+  const order = ['produce', 'fish', 'bread', 'meat', 'grain'].filter((r) => FOODS.includes(r));
+  const supply = (group) => FOODS.filter((r) => RESOURCES[r].group === group).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  const draw = (group, want) => {
+    let got = 0;
+    for (const r of supply(group)) {
+      if (got >= want - 1e-9) break;
+      const value = RESOURCES[r].value;
+      const units = Math.min(game.stock[r], (want - got) / value);
+      if (units <= 0) continue;
+      spend(game, r, units);
+      got += units * value;
+    }
+    return got;
+  };
+  let eaten = 0;
+  for (const [group, share] of Object.entries(FOOD_SPLIT)) {
+    take[group] = draw(group, need * share);
+    eaten += take[group];
+  }
+  // What one kind could not give, another may.
+  for (const group of ['staple', 'produce', 'protein']) {
+    if (eaten >= need - 1e-9) break;
+    const more = draw(group, need - eaten);
+    take[group] += more;
+    eaten += more;
+  }
+  let groups = 0;
+  for (const [group, share] of Object.entries(FOOD_SPLIT)) if (take[group] >= need * share * 0.45) groups++;
+  return { sat: need > 0 ? clamp(eaten / need) : 1, groups, need };
+}
+
+/** Everyone eats, burns fuel, drinks and wears out what they own. */
+function consume(game) {
+  const people = game.pop.children + game.pop.adults + game.pop.elders;
+  const cold = coldness(game.week);
+  const food = eat(game, people);
+  const fuelNeed = people * lerp(FUEL_PER_PERSON.mild, FUEL_PER_PERSON.cold, cold) * game.weather.winter ** (cold > 0.9 ? 1 : 0);
+  const clothUse = Math.min(game.stock.cloth, people * 0.004 * (0.3 + cold));
+  spend(game, 'cloth', clothUse);
+  const fuelNeeded = fuelNeed * (1 - 0.15 * (clothUse > 0 ? 1 : 0) * cold);
+  const fuelGot = Math.min(game.stock.wood, fuelNeeded);
+  spend(game, 'wood', fuelGot);
+  const aleNeed = people * 0.012;
+  const aleGot = Math.min(game.stock.ale, aleNeed);
+  spend(game, 'ale', aleGot);
+  game.report.foodSat = food.sat;
+  game.report.variety = food.groups;
+  game.report.fuelSat = fuelNeeded > 0 ? clamp(fuelGot / fuelNeeded) : 1;
+  game.report.aleSat = aleNeed > 0 ? clamp(aleGot / aleNeed) : 1;
+  game.report.clothed = clothUse > 0 || cold === 0 ? 1 : 0;
+  game.report.foodNeed = food.need;
+}
+
+/** What goes off, and what the stores can't hold. */
+function spoil(game) {
+  const cap = game.cap;
+  for (const r of GOODS) {
+    if (r === 'gold') continue;
+    const rate = RESOURCES[r].spoil;
+    if (rate > 0) { const lost = game.stock[r] * rate; game.stock[r] -= lost; game.flows.used[r] = (game.flows.used[r] ?? 0) + lost; }
+    const limit = capFor(cap, r);
+    if (game.stock[r] > limit) { game.flows.used[r] = (game.flows.used[r] ?? 0) + (game.stock[r] - limit); game.stock[r] = limit; }
+    if (game.stock[r] < 0) game.stock[r] = 0;
+  }
+}
+
+/** Coin: taxes and the shops, less what the buildings, the garrison and the king cost. */
+function money(game) {
+  const { world } = game;
+  const r = game.report;
+  const taxK = game.tax / 0.1;
+  const taxes = r.employed * 0.9 * taxK * (0.7 + 0.3 * clamp(game.happiness / 100));
+  // The shops can only sell what the town can buy.
+  let capacity = 0;
+  for (const b of world.buildings.values()) {
+    const def = BUILDINGS[b.type];
+    if (def?.shop && b.state === 'ready' && b.connected) capacity += def.shop * (0.4 + 0.6 * Math.min(1, b.eff));
+  }
+  const people = game.pop.children + game.pop.adults + game.pop.elders;
+  const demand = people * 0.06 * (1 + 0.15 * ((r.variety ?? 1) - 1) + (r.aleSat > 0.5 ? 0.1 : 0));
+  const shops = Math.min(capacity, demand) * 1.7 * taxK;
+  let upkeep = CASTLE_LEVELS[game.castleLevel].jobs * 0.9 + game.castleLevel * 1.2;
+  for (const b of world.buildings.values()) {
+    if (b.state !== 'ready') continue;
+    const u = BUILDINGS[b.type]?.upkeep;
+    if (u) upkeep += u * (0.5 + 0.5 * Math.min(1, b.eff || 0));
+  }
+  gain(game, 'gold', taxes + shops);
+  const pay = Math.min(upkeep, game.stock.gold);
+  spend(game, 'gold', pay);
+  r.taxes = taxes;
+  r.shops = shops;
+  r.upkeep = upkeep;
+  r.income = taxes + shops - upkeep;
+  r.shopCapacity = capacity;
+}
+
+/**
+ * How many people the barony's food could keep for a year: what the tended
+ * fields, the boats, the hunters and the kitchen gardens will bring in, with
+ * the mills' bread counted, and half of what is in store.
+ */
+export function estimateFood(game) {
+  const { world } = game;
+  const mood = 0.85 + 0.3 * clamp(game.happiness / 100);
+  const cal = calendar(game.week);
+  let grain = 0, produce = 0, other = 0, millCap = 0;
+  for (const b of world.buildings.values()) {
+    if (b.state !== 'ready' || !b.connected) continue;
+    const def = BUILDINGS[b.type];
+    if (b.type === 'farmstead' && b.fields) {
+      const tended = Math.min(b.fields.length, Math.round(b.workers * TILES_PER_HAND + 0.001));
+      for (let n = 0; n < tended; n++) {
+        const i = b.fields[n];
+        const soil = 0.35 + 0.9 * (world.fert[i] / 255);
+        const z = world.zone[i];
+        // A crop sown late will not be a full one: how ripe this one will be by the harvest.
+        const ripe = cal.season <= 1 ? clamp((world.crop[i] + (24 - cal.inYear) * (255 / 24)) / 255) : 1;
+        if (z === ZONE_ID.wheat) grain += 10 * soil * ripe;
+        else if (z === ZONE_ID.veg) produce += 11 * soil * ripe;
+        else if (z === ZONE_ID.orchard) produce += 7 * soil * ripe;
+        else if (z === ZONE_ID.pasture) other += 1.5 * soil * RESOURCES.meat.value;
+      }
+    } else if (def?.work?.kind === 'gather' && (def.work.res === 'fish' || def.work.res === 'meat')) {
+      const sea = def.work.season ? def.work.season.reduce((a, c) => a + c, 0) / 4 : 1;
+      other += def.work.rate * b.workers * 48 * sea * RESOURCES[def.work.res].value * 0.8;
+    } else if (b.type === 'mill') millCap += def.work.in.grain * b.eff * 48;
+  }
+  grain *= game.weather.harvest;
+  produce *= game.weather.harvest;
+  const bread = Math.min(grain, millCap) * (RESOURCES.bread.value / 1 - 1);
+  const gardens = (game.gardens ?? 0) * 0.1 * 36 * mood;
+  const stock = FOODS.reduce((n, f) => n + game.stock[f] * RESOURCES[f].value, 0);
+  const annual = (grain + bread + produce + other + gardens) * mood * 0.8 + stock * 0.5;
+  game.report.foodSupport = annual / (FOOD_PER_PERSON * 48);
+  game.report.foodAnnual = annual;
+  game.report.foodStock = stock;
+}
+
+/** The week's work, start to end. */
+export function weekWork(game) {
+  game.flows = { made: {}, used: {} };
+  game.cap = capacity(game);
+  refresh(game);
+  assignFields(game);
+  allocate(game);
+  work(game);
+  farm(game);
+  estimateFood(game);
+  consume(game);
+  spoil(game);
+  money(game);
+  const cal = calendar(game.week);
+  game.report.cal = cal;
+  const need = (game.report.foodNeed || 1);
+  const foodStock = FOODS.reduce((n, f) => n + game.stock[f] * RESOURCES[f].value, 0);
+  game.report.foodWeeks = foodStock / need;
+}
+
