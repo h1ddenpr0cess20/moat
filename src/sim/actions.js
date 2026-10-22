@@ -38,6 +38,7 @@ export function rectTiles(x0, y0, x1, y1) {
 // ---------------------------------------------------------------- roads
 
 export function planRoad(game, tiles, type = 'dirt') {
+  if (type === 'bridge') return planBridge(game, tiles);
   const { world } = game;
   const cost = {};
   const ok = [], bad = [];
@@ -46,7 +47,7 @@ export function planRoad(game, tiles, type = 'dirt') {
     const reason = roadBlocked(world, x, y);
     const here = inb(x, y) ? world.road[idx(x, y)] : 0;
     const want = type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT;
-    if (reason === 'A bridge' || (here === want) || (here === ROAD.COBBLE && want === ROAD.DIRT)) continue;
+    if (reason === 'A bridge' || (here === want) || (here === ROAD.COBBLE && want === ROAD.DIRT) || here === ROAD.SPAN) continue;
     if (reason) { bad.push([x, y]); why ??= reason; continue; }
     ok.push([x, y]);
     addCost(cost, ROADS[type].cost);
@@ -54,20 +55,73 @@ export function planRoad(game, tiles, type = 'dirt') {
   return { tiles: ok, blocked: bad, cost, afford: canPay(game.stock, cost), reason: ok.length ? null : why };
 }
 
+/** Natural water the lord may bridge: a river or lake inside the realm, never the moat. */
+const spanWater = (world, x, y) => inb(x, y) && world.ground[idx(x, y)] === GROUND.WATER && world.realm[idx(x, y)] === 1 && !world.moat[idx(x, y)] && !world.bld[idx(x, y)];
+/** The longest bridge: tiles of water in a row. */
+export const MAX_SPAN = 6;
+
+/**
+ * A bridge over water, along a straight line of tiles from one bank to the
+ * other: dry tiles are laid as dirt road, water tiles as a plank span. Both
+ * ends must be on land, the water must be the realm's own, and a span is at
+ * most six tiles. `spans` are the water tiles; `tiles` is everything to lay.
+ */
+function planBridge(game, tiles) {
+  const { world } = game;
+  const out = { tiles: [], spans: [], blocked: [], cost: {}, afford: false, reason: null };
+  const water = tiles.map(([x, y]) => spanWater(world, x, y));
+  if (!water.some(Boolean)) return { ...out, blocked: tiles.filter(([x, y]) => roadBlocked(world, x, y)), reason: 'A bridge needs water to cross' };
+  if (water[0] || water[water.length - 1]) return { ...out, blocked: tiles.filter((_, k) => water[k]), reason: 'Both ends of a bridge must be on dry land' };
+  let run = 0;
+  for (const w of water) { run = w ? run + 1 : 0; if (run > MAX_SPAN) return { ...out, blocked: tiles.filter((_, k) => water[k]), reason: `Too long to span: ${MAX_SPAN} tiles of water at most` }; }
+  for (let k = 0; k < tiles.length; k++) {
+    const [x, y] = tiles[k];
+    const here = world.road[idx(x, y)];
+    if (water[k]) {
+      if (here === ROAD.SPAN) continue;
+      out.tiles.push([x, y]); out.spans.push([x, y]);
+      addCost(out.cost, ROADS.bridge.cost);
+      continue;
+    }
+    const reason = roadBlocked(world, x, y);
+    if (here || reason === 'A bridge') continue;
+    if (reason) { out.blocked.push([x, y]); out.reason ??= reason; continue; }
+    out.tiles.push([x, y]);
+    addCost(out.cost, ROADS.dirt.cost);
+  }
+  if (out.blocked.length) return { ...out, tiles: [], spans: [], cost: {}, reason: out.reason };
+  out.afford = canPay(game.stock, out.cost);
+  if (!out.tiles.length) out.reason = 'Already built';
+  return out;
+}
+
 export function buildRoad(game, tiles, type = 'dirt', { free = false } = {}) {
   const plan = planRoad(game, tiles, type);
   if (!plan.tiles.length) return { ok: false, reason: plan.reason ?? 'Nothing to build', placed: 0 };
-  let placed = 0;
+  let placed = 0, spans = 0;
+  const isSpan = new Set((plan.spans ?? []).map(([x, y]) => idx(x, y)));
+  if (type === 'bridge' && !free && !plan.afford) return { ok: false, placed: 0, reason: 'Not enough timber or gold for the bridge' };
   for (const [x, y] of plan.tiles) {
-    const c = ROADS[type].cost;
+    const span = isSpan.has(idx(x, y));
+    const c = span ? ROADS.bridge.cost : ROADS[type === 'bridge' ? 'dirt' : type].cost;
     if (!free && !canPay(game.stock, c)) break;
-    const timber = setRoad(game.world, x, y, type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT);
-    if (timber < 0) continue;
+    let timber = 0;
+    if (span) {
+      const i = idx(x, y);
+      game.world.road[i] = ROAD.SPAN;
+      touch(game.world, ['flat', 'ground', 'water'], x, y, x, y, 1);
+      game.world.netVersion = (game.world.netVersion ?? 0) + 1;
+      spans++;
+    } else {
+      timber = setRoad(game.world, x, y, type === 'cobble' ? ROAD.COBBLE : ROAD.DIRT);
+      if (timber < 0) continue;
+    }
     if (!free) payAll(game, c);
     game.stock.wood += timber;
     placed++;
   }
   if (placed) { game.world.bver = (game.world.bver ?? 0) + 1; game.emit('road', { placed }); }
+  if (spans) game.emit('bridge', { spans });
   return { ok: placed > 0, placed, short: placed < plan.tiles.length, reason: placed ? null : 'Not enough coin' };
 }
 
@@ -185,7 +239,13 @@ export function demolish(game, x, y) {
     game.emit('demolished', { building: b });
     return { ok: true, what: BUILDINGS[b.type].name, back };
   }
-  if (world.road[i] && world.road[i] !== ROAD.BRIDGE) { clearRoad(world, x, y); game.world.bver = (game.world.bver ?? 0) + 1; return { ok: true, what: 'Road' }; }
+  if (world.road[i] && world.road[i] !== ROAD.BRIDGE) {
+    const span = world.road[i] === ROAD.SPAN;
+    clearRoad(world, x, y);
+    game.world.bver = (game.world.bver ?? 0) + 1;
+    if (span) { touch(world, ['water'], x, y, x, y, 1); game.emit('bridge', { spans: 0 }); }
+    return { ok: true, what: span ? 'Bridge' : 'Road' };
+  }
   if (world.zone[i]) { setZone(world, x, y, null); return { ok: true, what: 'Zone' }; }
   // Land of the realm's own can be cleared of its woods and its bare rock: the timber and the stone come to the stores.
   if (world.realm[i] && world.tree[i] > 0) {

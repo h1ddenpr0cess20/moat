@@ -33,7 +33,7 @@ function treasury(ctx, body) {
   const checks = game.rank + 1 >= RANKS.length ? [] : [
     need.pop ? [`${need.pop} people`, headcount(game) >= need.pop] : null,
     need.wards ? [`${need.wards} wards`, ownedCount(game.world) >= need.wards] : null,
-    need.castle ? [`A ${['', 'stone keep', 'castle', 'citadel'][need.castle]}`, game.castleLevel >= need.castle] : null,
+    need.castle ? [`A ${['', 'stone keep', 'castle', 'citadel'][need.castle - 1]}`, game.castleLevel >= need.castle - 1] : null,
     need.building ? [`A ${BUILDINGS[need.building].name.toLowerCase()}`, [...game.world.buildings.values()].some((b) => b.type === need.building && b.state === 'ready')] : null,
   ].filter(Boolean);
   fill(body, 

@@ -54,8 +54,8 @@ export function createToolbar(ctx) {
     const o = tools.opts;
     if (t === 'road') {
       put(
-        h('div.row', {}, ...Object.entries(ROADS).map(([id, r]) => opt([h('span', { html: icon('road', 18) }), h('span', {}, r.name), h('small.dim', {}, ` ${Object.entries(r.cost).map(([k, n]) => `${n} ${k}`).join(' + ')} a tile`)], o.road === id, () => tools.set('road', { road: id }), { title: r.desc }))),
-        h('div.hint', { html: 'Drag along the ground to lay a road. Houses, shops and farms need a street to front on.' }));
+        h('div.row', {}, ...Object.entries(ROADS).map(([id, r]) => opt([h('span', { html: icon('road', 18) }), h('span', {}, r.name), h('small.dim', {}, ` ${Object.entries(r.cost).map(([k, n]) => `${n} ${k === 'wood' ? 'timber' : k}`).join(' + ')} a ${id === 'bridge' ? 'span' : 'tile'}`)], o.road === id, () => tools.set('road', { road: id }), { title: r.desc }))),
+        h('div.hint', { html: o.road === 'bridge' ? '<b>Bridge.</b> Drag in a straight line from one bank to the other: up to six tiles of water, both ends on dry land. The moat is crossed only at the gates.' : 'Drag along the ground to lay a road. Houses, shops and farms need a street to front on. Rivers and lakes need a <b>Bridge</b>.' }));
     } else if (t === 'zone') {
       put(
         h('div.row', {}, ...Object.entries(ZONES).map(([id, z]) => opt([h('span.swatch', { style: { background: z.color } }), z.name], o.zone === id, () => tools.set('zone', { zone: id }), { title: z.desc })), opt([h('span', { html: icon('demolish', 16) }), 'Clear zones'], o.zone === 'clear', () => tools.set('zone', { zone: 'clear' }))),

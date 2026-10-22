@@ -86,3 +86,41 @@ test('zones cost coin and need open land', () => {
   const outside = buildZone(game, rectTiles(2, 2, 4, 4), 'res');
   assert.equal(outside.ok, false, 'no zoning outside the moat');
 });
+
+test('bridges cross a river inside the realm, but not the moat, and not too far', async () => {
+  const { GROUND: G } = await import('../src/config.js');
+  const { planRoad, demolish } = await import('../src/sim/game.js');
+  const game = startGame({ seed: 'moat' });
+  const { world } = game;
+  // An open row of eleven tiles in the realm to run a stream across (three tiles wide, in the middle).
+  const { roadBlocked } = await import('../src/world/roads.js');
+  let y = null, x0 = null;
+  for (let yy = CENTER - 12; yy <= CENTER - 6 && y === null; yy++) for (let xx = 94; xx <= 105 && y === null; xx++) {
+    if (Array.from({ length: 12 }, (_, k) => roadBlocked(world, xx + k, yy)).every((r) => !r)) { y = yy; x0 = xx; }
+  }
+  assert.ok(y !== null, 'an open row');
+  const wx = x0 + 5;
+  for (let x = wx; x <= wx + 2; x++) world.ground[idx(x, y)] = G.WATER;
+  game.stock.wood = 100; game.stock.gold = 100;
+  assert.equal(planRoad(game, lineTiles(x0, y, x0 + 11, y), 'dirt').tiles.length < 11, true, 'a road cannot cross the water');
+  const over = buildRoad(game, lineTiles(x0, y, x0 + 11, y), 'bridge');
+  assert.ok(over.ok, over.reason);
+  for (let x = wx; x <= wx + 2; x++) assert.equal(world.road[idx(x, y)], ROAD.SPAN);
+  assert.equal(game.stock.gold, 100 - (3 * 3 + 9), 'three spans at three gold, nine dry tiles at one');
+  assert.ok(game.stock.wood >= 100 - 3 * 4, 'the spans cost timber (felled trees give some back)');
+  // A bridge needs water, and both ends on land.
+  assert.match(planRoad(game, lineTiles(x0, y, x0 + 3, y), 'bridge').reason, /needs water/);
+  assert.match(planRoad(game, lineTiles(wx, y, x0 + 11, y), 'bridge').reason, /dry land/);
+  // Too long a span.
+  for (let x = x0 + 1; x <= x0 + 9; x++) world.ground[idx(x, y)] = G.WATER;
+  world.road[idx(wx, y)] = 0; world.road[idx(wx + 1, y)] = 0; world.road[idx(wx + 2, y)] = 0;
+  assert.match(planRoad(game, lineTiles(x0, y, x0 + 11, y), 'bridge').reason, /Too long/);
+  // It can be taken down.
+  world.ground[idx(wx, y)] = G.WATER;
+  world.road[idx(wx, y)] = ROAD.SPAN;
+  assert.equal(demolish(game, wx, y).what, 'Bridge');
+  assert.equal(world.road[idx(wx, y)], ROAD.NONE);
+  // The moat is crossed only at the gates.
+  const moatTile = [CENTER - 4, CENTER];
+  assert.equal(planRoad(game, lineTiles(moatTile[0] - 3, moatTile[1], moatTile[0] + 3, moatTile[1]), 'bridge').tiles.length, 0);
+});

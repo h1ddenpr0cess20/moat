@@ -163,11 +163,12 @@ export function createTools(ctx) {
     },
 
     road(p, e) {
-      if (!p) { overlays.clear('main'); overlays.clear('bad'); tip.hide(); return; }
+      if (!p) { overlays.clear('main'); overlays.clear('bad'); overlays.clear('ring'); tip.hide(); return; }
       const [x, y] = tileOf(p);
       const tiles = drag ? lineTiles(drag.start[0], drag.start[1], x, y) : [[x, y]];
       const plan = planRoad(game, tiles, tools.opts.road);
       overlays.fill('main', plan.tiles, { color: plan.afford ? TINTS.road : TINTS.bad, opacity: 0.55 });
+      overlays.fill('ring', plan.spans ?? [], { color: plan.afford ? TINTS.sight : TINTS.bad, opacity: 0.7 });
       overlays.fill('bad', plan.blocked, { color: TINTS.bad, opacity: 0.45 });
       const what = ROADS[tools.opts.road].name;
       tip.show(plan.tiles.length ? `<b>${what}</b> · ${plan.tiles.length} tile${plan.tiles.length === 1 ? '' : 's'}<br>${costHtml(plan.cost)}${plan.afford ? '' : '<br><span class="bad">Not enough in the treasury</span>'}` : `<span class="bad">${plan.reason ?? 'Nothing to build here'}</span>`, e.clientX, e.clientY);

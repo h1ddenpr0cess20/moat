@@ -89,6 +89,7 @@ export async function createScene({ host, game, progress = () => {} }) {
     game.on('demolished', ({ building: b }) => { if (b.type === 'gatehouse') gates.refresh(); }),
     game.on('fire', ({ at, building: b }) => { fx.burn(at[0], at[1]); if (b.type === 'gatehouse') gates.refresh(); }),
     game.on('annexed', () => gates.refresh()),
+    game.on('bridge', () => gates.refresh()),
     game.on('castleStart', () => buildings.setCastleWork(true, castleY())),
   ];
   buildings.setCastleWork(Boolean(game.castleWork), castleY());

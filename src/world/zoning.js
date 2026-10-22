@@ -102,7 +102,7 @@ export function findLot(world, zone, size, rnd, value = () => 0) {
   let best = null, bestScore = -Infinity;
   const free = (x, y) => inb(x, y) && world.zone[idx(x, y)] === zid && !world.bld[idx(x, y)] && !world.road[idx(x, y)] && !blocked(world, x, y);
   for (let i = 0; i < TILES; i++) {
-    if (dist[i] < 0 || world.road[i] === ROAD.BRIDGE) continue;
+    if (dist[i] < 0 || world.road[i] === ROAD.BRIDGE || world.road[i] === ROAD.SPAN) continue;
     const rx = i % world.size, ry = Math.floor(i / world.size);
     for (let k = 0; k < 4; k++) {
       const fx = rx + DIRS[k][0], fy = ry + DIRS[k][1];

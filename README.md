@@ -29,13 +29,13 @@ Node 22.12 or later. The game needs a browser with WebGPU or WebGL 2.
 | Time | Space pauses, Tab speeds up |
 | Pages | M realm map · L ledger · H chronicle · C castle · F10 menu |
 
-A year is 48 weeks, starting in March. People need **food** (grain or bread, vegetables and fruit, meat or fish: a table with all three is a happier one), **firewood** in the cold months, **homes**, and **work**. Lay roads, zone housing, market, fields, orchards and pasture, and put farmsteads, woodcutters, quarries and mills where they are wanted. The steward gives hints, once, as they matter.
+A year is 48 weeks, starting in March. People need **food** (grain or bread, vegetables and fruit, meat or fish: a table with all three is a happier one), **firewood** in the cold months, **homes**, and **work**. Lay roads (and **bridges** over rivers and lakes: drag from bank to bank, up to six tiles of water; the moat is crossed only at the gates), zone housing, market, fields, orchards and pasture, and put farmsteads, woodcutters, quarries and mills where they are wanted. The steward gives hints, once, as they matter.
 
 Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them. The king's collector wants tribute. Rank rises from Baron to Duke as the barony grows.
 
 ### The moat and the realm
 
-The map is seven by seven **wards**. You own the one the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards.
+The map is seven by seven **wards**. You own the one the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards. To raise it, press **C** and choose *Begin the work*: each tier needs a rank (Viscount, Earl, Marquess, which come with population, wards and a chapel) and a pile of timber, stone, iron and gold.
 
 ### Donut blocks and courtyard bonuses
 

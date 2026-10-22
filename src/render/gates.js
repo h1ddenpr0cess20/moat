@@ -1,6 +1,6 @@
 import { CASTLE_BRIDGE } from '../world/wards.js';
 import { heightAt } from '../world/world.js';
-import { CENTER } from '../config.js';
+import { CENTER, ROAD } from '../config.js';
 import { Batch, Mesher } from './mesher.js';
 import { PALETTE } from './models/common.js';
 import { freeTree } from './dispose.js';
@@ -42,9 +42,8 @@ function rails(m, x0, x1, y, width, { posts = 0.7, h = 0.4 } = {}) {
 }
 
 /** The fixed parts of a bridge `len` long (local x from 0 at the inner end): abutments, trestles, deck and rails where the leaf is not. */
-function fixedBridge(len, leaf, y, depth) {
+function fixedBridge(len, leaf, y, depth, w = 2) {
   const m = new Mesher();
-  const w = 2;
   // Stone footings at each end, down into the bank.
   for (const x of [0, len]) m.box('stone', x - 0.25, y - depth, -w / 2 - 0.15, x + 0.25, y - 0.05, w / 2 + 0.15, STONE[0], { skip: ['bottom'] });
   // Trestles into the water.
@@ -103,14 +102,14 @@ export function createGates(GFX, world, materials, scene) {
   };
 
   /** One bridge from a world point (the inner end) outward along (dx, dz). */
-  const bridge = (sx, sz, dx, dz, len, { leaf = null, hinge = 0 } = {}) => {
+  const bridge = (sx, sz, dx, dz, len, { leaf = null, hinge = 0, width = 2 } = {}) => {
     const ex = sx + dx * len, ez = sz + dz * len;
     const y = (heightAt(world, sx, sz) + heightAt(world, ex, ez)) / 2 + 0.07;
     const root = new GFX.Group();
     root.position.set(sx, y, sz);
     root.rotation.y = yawOut(dx, dz);
     const fixed = new GFX.Group();
-    meshes(fixedBridge(len, leaf, 0, 1.6), fixed);
+    meshes(fixedBridge(len, leaf, 0, 1.6, width), fixed);
     root.add(fixed);
     let pivot = null;
     if (leaf) {
@@ -143,6 +142,19 @@ export function createGates(GFX, world, materials, scene) {
       it.angle = hasHouse && !g.open ? 1.4 : 0;
       if (it.pivot) it.pivot.rotation.z = it.angle;
       items.push(it);
+    }
+    // The lord's own bridges over rivers and lakes: each straight run of span tiles, with a tile of bank at either end.
+    const seen = new Set();
+    const span = (x, y) => x >= 0 && y >= 0 && x < world.size && y < world.size && world.road[y * world.size + x] === ROAD.SPAN;
+    for (let y = 0; y < world.size; y++) {
+      for (let x = 0; x < world.size; x++) {
+        if (!span(x, y) || seen.has(y * world.size + x)) continue;
+        const horizontal = span(x + 1, y) || !span(x, y + 1);
+        let n = 0;
+        while (horizontal ? span(x + n, y) : span(x, y + n)) { seen.add((horizontal ? y : y + n) * world.size + (horizontal ? x + n : x)); n++; }
+        const it = horizontal ? bridge(x - 1, y + 0.5, 1, 0, n + 2, { width: 1.05 }) : bridge(x + 0.5, y - 1, 0, 1, n + 2, { width: 1.05 });
+        items.push(it);
+      }
     }
     // The castle's own, from the courtyard gate to the far bank, always down.
     const cb = CASTLE_BRIDGE;

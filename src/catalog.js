@@ -131,6 +131,7 @@ export const RANKS = Object.freeze([
 /** Roads, and what they cost a tile. */
 export const ROADS = Object.freeze({
   dirt: { name: 'Dirt Road', cost: { gold: 1 }, desc: 'Beaten earth. Cheap, and it turns to mud in the rain.' },
+  bridge: { name: 'Bridge', cost: { wood: 4, gold: 3 }, desc: 'A plank bridge over a river or a lake: drag from one bank to the other, up to six tiles of water, in a straight line. Both ends must be on dry land. The moat is crossed only at the gates.' },
   cobble: { name: 'Cobbled Road', cost: { stone: 1, gold: 1 }, desc: 'Setts laid in sand. Dry in all weathers, and a good address.' },
 });
 
