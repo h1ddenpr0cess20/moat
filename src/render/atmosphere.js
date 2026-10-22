@@ -40,6 +40,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
   const backdrop = stage.scene.children.find((o) => o.renderOrder === -1 && o.material?.side === GFX.BackSide);
   stage.renderer.domElement.style.transition = 'filter 1.5s linear';
   let overcast = 0;
+  let slow = 0, first = true;
   const state = { night: 0, day: 1, rain: false, snow: 0, season: 1, tod: 0.4 };
 
   const atm = {
@@ -82,12 +83,16 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
       mat.glow.color.setScalar(Math.min(1, glow * 1.15));
       mat.flame.color.setScalar(0.85 + 0.15 * Math.sin(performance.now() * 0.02));
       const snow = week < 4 ? 0 : snowAt(inYearF);
-      colorLeaves(materials, GFX, season, k);
-      terrain.setSeason(season, k, snow);
+      // The year turns slowly: the leaves, the ground and the roofs need touching up a few times a second, not every frame.
+      slow += dt;
+      if (slow > 0.25 || first) {
+        slow = 0; first = false;
+        colorLeaves(materials, GFX, season, k);
+        terrain.setSeason(season, k, snow);
+        for (const name of ['thatch', 'tile', 'slate']) mat[name].emissive.setRGB(0.12 * snow * L.day, 0.13 * snow * L.day, 0.15 * snow * L.day);
+      }
       water.update(dt, { shine: 0.5 + 0.9 * L.day * (1 - 0.5 * overcast) });
       fx.tint(L.night);
-      // Roofs go pale under snow.
-      for (const name of ['thatch', 'tile', 'slate']) mat[name].emissive.setRGB(0.12 * snow * L.day, 0.13 * snow * L.day, 0.15 * snow * L.day);
       const key = `${season}:${Math.round(L.night * 4)}:${Math.round(overcast * 3)}`;
       if (key !== filmKey) {
         filmKey = key;

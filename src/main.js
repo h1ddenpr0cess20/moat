@@ -55,15 +55,17 @@ const { stage, camera, atmosphere } = scene;
 
 // ------------------------------------------------------------ settings
 
-const QUALITY = { low: { ratio: 1, shadows: false }, medium: { ratio: 1.25, shadows: true }, high: { ratio: 2, shadows: true } };
+const QUALITY = { low: { ratio: 1, shadows: false, map: 1024 }, medium: { ratio: 1, shadows: true, map: 1024 }, high: { ratio: 2, shadows: true, map: 2048 } };
 const flow = {
-  quality: prefs.read()?.quality ?? (matchMedia('(pointer: coarse)').matches ? 'medium' : 'high'),
+  quality: prefs.read()?.quality ?? 'medium',
   setQuality(id) {
     const q = QUALITY[id] ?? QUALITY.high;
     flow.quality = id;
     stage.renderer.setPixelRatio(Math.min(globalThis.devicePixelRatio || 1, q.ratio));
     stage.renderer.setSize(host.clientWidth || 1, host.clientHeight || 1);
     stage.key.castShadow = q.shadows;
+    // The shadow map is sized once, before the first frame is drawn with it.
+    if (!flow.mapSized) { flow.mapSized = true; stage.key.shadow.mapSize.set(q.map, q.map); }
     prefs.write({ quality: id });
   },
   savedAt: () => { const t = savedAt.read(); return saveStore.read() && t ? new Date(t).toLocaleString() : saveStore.read() ? 'some time ago' : null; },
