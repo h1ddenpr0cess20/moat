@@ -1,4 +1,4 @@
-import { CHUNK, CHUNKS, GROUND } from '../config.js';
+import { CHUNK, CHUNKS, GROUND, WARDS } from '../config.js';
 import { ZONE_ID } from '../catalog.js';
 import { hash2 } from '../rng.js';
 import { HV, SUB, heightAt, idx } from '../world/world.js';
@@ -12,6 +12,9 @@ import { freeTree } from './dispose.js';
  * set of the same trees is shown instead. Leaves are materials the seasons
  * colour, so a tree is built once and is green in summer and bare in winter.
  */
+
+/** The share of tiles that keep a tree in the far wood: less on a bigger map, which has more of it to hold. */
+const FAR_KEEP = Math.min(0.72, 0.72 * Math.pow(7 / WARDS, 0.8));
 
 const LEAF = ['leafA', 'leafB', 'leafC'];
 const TRUNK = ['#6a4a2c', '#5a3e26', '#74532f'];
@@ -123,7 +126,7 @@ export function createTrees(GFX, world, materials, scene) {
         const tint = [0.9 + 0.2 * hash2(x, y + k, 29), 0.9 + 0.2 * hash2(x + 1, y, 31), 0.9 + 0.2 * hash2(x, y, 37 + k)];
         b0?.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
         // Far off, a wood is drawn thin and a little larger: about a tree to a tile, and a few tiles bare (the ground is painted as forest floor).
-        if (k < (n > 2 ? 2 : 1) && hash2(x, y, 77) < 0.72) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * 1.22, tint);
+        if (k < (n > 2 ? 2 : 1) && hash2(x, y, 77) < FAR_KEEP) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * 1.22, tint);
       }
     } else if (g === GROUND.ROCK || g === GROUND.ORE) {
       const list = g === GROUND.ORE ? T.ore : T.boulder;

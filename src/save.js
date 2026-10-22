@@ -1,4 +1,4 @@
-import { ROAD } from './config.js';
+import { ROAD, WARDS } from './config.js';
 import { mulberry32 } from './rng.js';
 import { newGame } from './sim/state.js';
 import { prime } from './sim/game.js';
@@ -56,6 +56,7 @@ export function serialize(game) {
   for (const k of HEIGHTS) maps[k] = runs(world[k], world.base[k], 1000);
   return {
     v: SAVE_VERSION,
+    mapWards: WARDS,
     seed: game.seed,
     difficulty: game.difficulty,
     week: game.week,
@@ -89,6 +90,7 @@ export function serialize(game) {
 /** A game from a save: the land from its seed, then the saved changes on it. */
 export function deserialize(data) {
   if (!data || data.v !== SAVE_VERSION) throw new Error('This save is from another version of the game.');
+  if ((data.mapWards ?? 7) !== WARDS) throw new Error('This save was made on a map of another size.');
   const game = newGame({ seed: data.seed, difficulty: data.difficulty });
   const { world } = game;
   // Wards first: the moat and the realm follow from which are owned.

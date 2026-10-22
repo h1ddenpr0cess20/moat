@@ -76,7 +76,7 @@ export function realmDialog(ctx, { ward: initial = null } = {}) {
       c.setLineDash(w.owned || w.id === selected ? [] : reach ? [8, 5] : [3, 5]);
       c.strokeRect(x + 1.5, y + 1.5, S - 3, S - 3);
       c.setLineDash([]);
-      c.font = `italic ${w.owned ? 700 : 400} 13px Palatino, Georgia, serif`;
+      c.font = `italic ${w.owned ? 700 : 400} ${Math.max(10, Math.round(13 * 7 / WARDS + 3))}px Palatino, Georgia, serif`;
       c.textAlign = 'center';
       c.fillStyle = w.owned ? '#2b1d08' : 'rgba(43,29,18,0.82)';
       c.strokeStyle = 'rgba(240,228,190,0.8)'; c.lineWidth = 3;

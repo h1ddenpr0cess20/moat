@@ -35,7 +35,9 @@ Merchants come to the gates once you have a market square. Raiders come too, fro
 
 ### The moat and the realm
 
-The map is seven by seven **wards**. You own the one the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards. To raise it, press **C** and choose *Begin the work*: each tier needs a rank (Viscount, Earl, Marquess, which come with population, wards and a chapel) and a pile of timber, stone, iron and gold.
+The map is a grid of **wards** of 30 × 30 tiles: 7 × 7 for a Small map, 9 × 9 for Medium (the default) or 11 × 11 for Large, chosen on the title screen. Larger maps take longer to make and use more memory; a save keeps the size it was made at.
+
+You own the ward the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards. To raise it, press **C** and choose *Begin the work*: each tier needs a rank (Viscount, Earl, Marquess, which come with population, wards and a chapel) and a pile of timber, stone, iron and gold.
 
 ### Donut blocks and courtyard bonuses
 

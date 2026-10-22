@@ -1,5 +1,5 @@
 import { saveSlot } from 'madness-engine/storage';
-import { CENTER, TICK_SECONDS } from './config.js';
+import { CENTER, MAP_SIZES, SIZE_NAME, TICK_SECONDS, WARDS } from './config.js';
 import { createSound } from './audio/index.js';
 import { createScene } from './render/scene.js';
 import { deserialize, serialize } from './save.js';
@@ -30,11 +30,12 @@ const loading = {
 
 const difficulty = params.get('difficulty') ?? 'normal';
 const saved = saveStore.read();
+try { localStorage.setItem('moat.wards', String(WARDS)); } catch { /* no storage, no memory of the size */ }
 let game = null;
 let hasSave = false;
 if (saved) {
   try {
-    if (params.has('load') || !params.has('new')) { game = deserialize(saved); hasSave = true; }
+    if ((saved.mapWards ?? 7) === WARDS && (params.has('load') || !params.has('new'))) { game = deserialize(saved); hasSave = true; }
   } catch (err) { console.warn('moat: the save could not be read', err); }
 }
 if (!game) game = startGame({ seed: params.get('seed') || randomSeed(), difficulty });
@@ -119,10 +120,10 @@ function showTitle({ canContinue }) {
   clock.set(0);
   camera.drift(0.035);
   title = createTitle({
-    seed: game.seed, difficulty: game.difficulty, canContinue,
+    seed: game.seed, difficulty: game.difficulty, size: SIZE_NAME, sizes: MAP_SIZES, canContinue,
     onBegin: begin,
     onContinue: () => { if (started) { title.remove(); title = null; ui.hide(false); camera.drift(0); clock.set(clock.last); } else begin(); },
-    onNew: (seed, level) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&play=1`; },
+    onNew: (seed, level, size) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&size=${size}&play=1`; },
   });
   document.body.append(title.el);
 }
