@@ -22,9 +22,9 @@ function yard(m, rnd, width, z, { gate = 0 } = {}) {
   }
 }
 
-/** A path of flat stones from the door to the front of the plot. */
+/** A path of flat stones from the door to the front of the plot. The snow lies 0.012 over the ground, so the stones stand well clear of that plane, or they fight it for every pixel. */
 function path(m, x, z0, z1) {
-  m.box('stone', x - 0.09, 0, z0, x + 0.09, 0.012, z1, '#9a9282', { skip: ['bottom'] });
+  m.box('stone', x - 0.09, 0, z0, x + 0.09, 0.03, z1, '#9a9282', { skip: ['bottom'] });
 }
 
 /** The standard small house: walls, timber, roof, chimney, door and windows. All four faces are done. */

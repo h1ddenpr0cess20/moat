@@ -58,8 +58,8 @@ export function ironmine(m, v) {
   m.box('wood', -0.4, 0.5, -0.23, 0.4, 0.6, -0.03, PALETTE.wood[1], { skip: ['bottom'] });
   m.box('glow', -0.03, 0.4, -0.03, 0.03, 0.46, 0.0, '#ffb45a', { skip: ['bottom'] });
   // Rails out of it, an ore cart on them.
-  for (const x of [-0.12, 0.12]) m.box('metal', x - 0.012, 0.0, -0.1, x + 0.012, 0.025, 1.0, '#4a4a50', { skip: ['bottom'] });
-  for (let i = 0; i < 8; i++) m.box('wood', -0.2, 0, -0.05 + i * 0.13, 0.2, 0.02, 0.0 + i * 0.13, PALETTE.wood[1], { skip: ['bottom'] });
+  for (const x of [-0.12, 0.12]) m.box('metal', x - 0.012, 0.0, -0.1, x + 0.012, 0.03, 1.0, '#4a4a50', { skip: ['bottom'] });
+  for (let i = 0; i < 8; i++) m.box('wood', -0.2, 0, -0.05 + i * 0.13, 0.2, 0.026, 0.0 + i * 0.13, PALETTE.wood[1], { skip: ['bottom'] });
   m.at(0, 0.03, 0.5, () => {
     m.box('metal', -0.17, 0.05, -0.17, 0.17, 0.22, 0.17, '#4a4540', { skip: ['bottom'] });
     for (let i = 0; i < 6; i++) m.sphere('stone', (rnd() - 0.5) * 0.2, 0.22, (rnd() - 0.5) * 0.2, 0.06, 0.05, 0.06, pickFrom(rnd, ['#7a4a32', '#4a3a32', '#8a5a3a']), { detail: 0 });
