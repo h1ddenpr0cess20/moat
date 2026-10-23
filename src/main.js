@@ -29,6 +29,7 @@ const loading = {
 // ------------------------------------------------------------ which game
 
 const difficulty = params.get('difficulty') ?? 'normal';
+const disasters = params.get('disasters') !== '0';
 const saved = saveStore.read();
 try { localStorage.setItem('moat.wards', String(WARDS)); } catch { /* no storage, no memory of the size */ }
 let game = null;
@@ -38,7 +39,7 @@ if (saved) {
     if ((saved.mapWards ?? 7) === WARDS && (params.has('load') || !params.has('new'))) { game = deserialize(saved); hasSave = true; }
   } catch (err) { console.warn('moat: the save could not be read', err); }
 }
-if (!game) game = startGame({ seed: params.get('seed') || randomSeed(), difficulty });
+if (!game) game = startGame({ seed: params.get('seed') || randomSeed(), difficulty, disasters });
 
 // Development: play a bot's hand first, to see a town.
 const pre = +(params.get('bot') ?? 0);
@@ -120,10 +121,10 @@ function showTitle({ canContinue }) {
   clock.set(0);
   camera.drift(0.035);
   title = createTitle({
-    seed: game.seed, difficulty: game.difficulty, size: SIZE_NAME, sizes: MAP_SIZES, canContinue,
+    seed: game.seed, difficulty: game.difficulty, disasters: game.disasters, size: SIZE_NAME, sizes: MAP_SIZES, canContinue,
     onBegin: begin,
     onContinue: () => { if (started) { title.remove(); title = null; ui.hide(false); camera.drift(0); clock.set(clock.last); } else begin(); },
-    onNew: (seed, level, size) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&size=${size}&play=1`; },
+    onNew: (seed, level, size, on) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&size=${size}&disasters=${on ? 1 : 0}&play=1`; },
   });
   document.body.append(title.el);
 }

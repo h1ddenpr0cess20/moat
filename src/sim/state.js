@@ -14,12 +14,14 @@ export const defaultTrade = () => Object.fromEntries(Object.keys(PRICES).map((g)
  * standing orders. `emit` tells whoever is listening (the interface, the
  * sound) that something happened.
  */
-export function newGame({ seed = 'moat', difficulty = 'normal' } = {}) {
+export function newGame({ seed = 'moat', difficulty = 'normal', disasters = true } = {}) {
   const world = snapshot(newWorld(seed));
   const game = {
     version: 1,
     seed: world.seedText,
     difficulty,
+    /** Fires, plague and raiders: off, the barony only has the weather and the king to answer to. */
+    disasters,
     world,
     week: 0,
     stock: { ...START.stock },
