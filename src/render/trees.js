@@ -32,7 +32,7 @@ function blob(m, x, y, z, rx, ry, rz, mat, detail, seed) {
 }
 
 /** The trees, made once: `{ lod0, lod1 }` for each kind and variant, each a template of parts by material. */
-function buildTemplates() {
+export function buildTemplates() {
   const out = { oak: [], birch: [], pine: [], fruit: {}, boulder: [], ore: [] };
   const make = (fn) => {
     const hi = new Mesher(), lo = new Mesher();
@@ -92,30 +92,30 @@ function buildTemplates() {
     }));
   }
   // Outcrops: a heap of knocked-about rock, a big one with smaller ones and chips against its foot, each variant its own colour and shape.
-  const GREY = [['#8f8a80', '#7c776e', '#a29c90'], ['#a29c90', '#8a857a', '#96907f'], ['#7c776e', '#6c675e', '#8f8a80'], ['#96907f', '#a8a190', '#807a70']];
+  const GREY = [['#7a756b', '#6a655d', '#8a8478'], ['#8a8478', '#756f66', '#7f796c'], ['#6a655d', '#5c5851', '#7a756b'], ['#7f796c', '#8c8676', '#6e695f']];
   const DARK = [['#5e5a52', '#4e4a44', '#6c675e'], ['#6c675e', '#58544c', '#625c54'], ['#4e4a44', '#5e5a52', '#403c38'], ['#625c54', '#6c675e', '#54504a']];
   for (let v = 0; v < 4; v++) {
     out.boulder.push(make((m, hi) => {
-      const c = GREY[v], d = hi ? 1 : 0;
-      m.rock('stone', 0, 0.1, 0, 0.3 + 0.05 * v, 0.2 + 0.03 * v, 0.26 + 0.04 * v, c[0], { detail: 1, rough: 0.22, seed: v, cuts: 5 });
-      m.rock('stone', 0.27 + 0.03 * v, 0.04, 0.12, 0.15, 0.11, 0.13, c[1], { detail: d, rough: 0.2, seed: v + 4, cuts: 3 });
-      m.rock('stone', -0.2, 0.03, -0.24 + 0.04 * v, 0.12, 0.09, 0.11, c[2], { detail: d, rough: 0.2, seed: v + 8, cuts: 3 });
-      if (hi) m.rock('stone', 0.1, 0.01, 0.3, 0.06, 0.04, 0.05, c[0], { detail: 0, rough: 0.2, seed: v + 12, cuts: 2 });
+      const c = GREY[v], d = hi ? 1 : 0, D = hi ? 2 : 1;
+      m.rock('rock', 0, 0.1, 0, 0.3 + 0.05 * v, 0.2 + 0.03 * v, 0.26 + 0.04 * v, c[0], { detail: D, rough: 0.3, seed: v, cuts: 5 });
+      m.rock('rock', 0.27 + 0.03 * v, 0.04, 0.12, 0.15, 0.11, 0.13, c[1], { detail: d, rough: 0.28, seed: v + 4, cuts: 3 });
+      m.rock('rock', -0.2, 0.03, -0.24 + 0.04 * v, 0.12, 0.09, 0.11, c[2], { detail: d, rough: 0.28, seed: v + 8, cuts: 3 });
+      if (hi) m.rock('rock', 0.1, 0.01, 0.3, 0.06, 0.04, 0.05, c[0], { detail: 0, rough: 0.2, seed: v + 12, cuts: 2 });
     }));
     out.ore.push(make((m, hi) => {
-      const c = DARK[v], d = hi ? 1 : 0;
+      const c = DARK[v], d = hi ? 1 : 0, D = hi ? 2 : 1;
       // Iron shows as rust-brown seams and stains through dark rock, not as lumps stuck on it.
       const seams = (dir, lump, grain) => {
         const s = Math.abs(Math.sin((dir[0] * 3.1 + dir[1] * 5.3 - dir[2] * 2.2 + v) * 2.6 + lump * 4));
         const w = Math.max(0, 1 - s * 7) * 0.9 + Math.max(0, grain - 0.72) * 2;
-        return w > 0.08 ? { col: '#b4623a', w: Math.min(1, w) } : null;
+        return w > 0.08 ? { col: '#8a4a2e', w: Math.min(1, w) } : null;
       };
       const tint = (dir, lump, grain) => { const t = seams(dir, lump, grain); return t ? mix(c[0], t.col, t.w) : c[0]; };
-      m.rock('stone', 0, 0.1, 0, 0.27 + 0.04 * v, 0.2 + 0.03 * v, 0.23 + 0.04 * v, c[0], { detail: 1, rough: 0.2, seed: v + 20, cuts: 5, colorFn: tint });
-      m.rock('stone', -0.24, 0.03, 0.1, 0.13, 0.1, 0.12, c[1], { detail: d, rough: 0.2, seed: v + 24, cuts: 3, colorFn: (dir, l, g) => { const t = seams(dir, l, g); return t ? mix(c[1], t.col, t.w) : c[1]; } });
+      m.rock('rock', 0, 0.1, 0, 0.27 + 0.04 * v, 0.2 + 0.03 * v, 0.23 + 0.04 * v, c[0], { detail: D, rough: 0.28, seed: v + 20, cuts: 5, lichen: 0.15, colorFn: tint });
+      m.rock('rock', -0.24, 0.03, 0.1, 0.13, 0.1, 0.12, c[1], { detail: d, rough: 0.26, seed: v + 24, cuts: 3, lichen: 0.15, colorFn: (dir, l, g) => { const t = seams(dir, l, g); return t ? mix(c[1], t.col, t.w) : c[1]; } });
       for (let k = 0; k < 3; k++) {
         const a = k * 2.3 + v, r = 0.2 + 0.03 * hash2(k, v, 5);
-        m.rock('stone', Math.cos(a) * r, 0.05 + 0.03 * k, Math.sin(a) * r * 0.9, 0.07, 0.05, 0.06, k % 2 ? '#a65a35' : '#8e4a2e', { detail: 0, rough: 0.18, seed: k + v * 5, cuts: 3, base: 0.3 });
+        m.rock('rock', Math.cos(a) * r, 0.05 + 0.03 * k, Math.sin(a) * r * 0.9, 0.07, 0.05, 0.06, k % 2 ? '#7a4630' : '#69392a', { detail: 0, rough: 0.18, seed: k + v * 5, cuts: 3, base: 0.3 });
       }
     }));
   }

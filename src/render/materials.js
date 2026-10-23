@@ -24,6 +24,8 @@ export function createMaterials(GFX) {
   const mat = {
     plaster: textured(tex.stucco, { bumpScale: 0.9 }),
     stone: textured(tex.stone, { bumpScale: 1.4, roughness: 0.95 }),
+    // Natural rock: the scree the hills are painted from, with no mortar lines in it.
+    rock: textured(tex.scree, { bumpScale: 1.8, roughness: 0.96 }),
     timber: textured(tex.timber, { bumpScale: 1.1 }),
     wood: textured(tex.planks, { bumpScale: 0.8, roughness: 0.85 }),
     siding: textured(tex.clapboard, { bumpScale: 1.0 }),

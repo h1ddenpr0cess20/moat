@@ -6,6 +6,7 @@ import { Batch } from 'madness-engine/mesher';
 import { modelFor } from './render/models/index.js';
 import { lightAt, paintDay, paintReflections } from './render/sky.js';
 import { BUILDINGS } from './catalog.js';
+import { buildTemplates } from './render/trees.js';
 
 /**
  * A page for looking at the models by themselves, on flat ground:
@@ -42,7 +43,8 @@ let x = 0;
 const level = +(params.get('level') ?? 0);
 const building = +(params.get('building') ?? -1);
 const smoke = [];
-for (const type of types) {
+const rocks = params.get('rocks') ? buildTemplates() : null;
+for (const type of rocks ? [] : types) {
   const def = type === 'castle' ? { size: [6, 6], level: 0 } : BUILDINGS[type];
   if (!def) continue;
   const lv = level >= 0 && params.has('level') ? level : def.level || 1;
@@ -51,6 +53,9 @@ for (const type of types) {
   batch.stamp(t.parts, x + w / 2, 0, 0, 0);
   smoke.push(...t.smoke.map((s) => [x + w / 2 + s[0], s[1], s[2]]));
   x += w + 1.4;
+}
+if (rocks) {
+  for (const kind of params.get('rocks').split(',')) for (let v = 0; v < 4; v++) { batch.stamp(rocks[kind][v].lod0, x, 0, 0, 0); x += 1.1; }
 }
 for (const [name, acc] of batch.accs) {
   const g = acc.geometry(GFX);
