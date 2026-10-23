@@ -55,7 +55,7 @@ for (const type of rocks ? [] : types) {
   x += w + 1.4;
 }
 if (rocks) {
-  for (const kind of params.get('rocks').split(',')) for (let v = 0; v < 4; v++) { batch.stamp(rocks[kind][v].lod0, x, 0, 0, 0); x += 1.1; }
+  for (const kind of params.get('rocks').split(',')) for (const t of rocks[kind].slice(0, +(params.get('n') ?? 4))) { batch.stamp(t[params.get('lod') === '1' ? 'lod1' : 'lod0'], x, 0, 0, 0); x += +(params.get('gap') ?? 1.1); }
 }
 for (const [name, acc] of batch.accs) {
   const g = acc.geometry(GFX);
