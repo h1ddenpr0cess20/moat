@@ -65,6 +65,9 @@ export function createSound({ game, scene }) {
       crickets: mk({ source: 'sine', freq: 4300, filters: [{ type: 'bandpass', freq: 4300, q: 6 }] }),
     };
     music.start();
+    // Whatever stops the context, try to start it again.
+    const ctx = audio.ctx;
+    ctx.addEventListener('statechange', () => { if (ctx.state !== 'running' && !document.hidden) ctx.resume().catch(() => {}); });
   }
 
   const music = createMusic(audio, {
@@ -74,9 +77,11 @@ export function createSound({ game, scene }) {
     },
   });
 
+  // The browser may suspend the sound (a tab put away, a laptop asleep, a phone call) and only a click or key lets it go on: every one brings it back, not just the first, and so does coming back to the tab.
   const wakeUp = () => { audio.wake(); };
-  addEventListener('pointerdown', wakeUp, { once: true });
-  addEventListener('keydown', wakeUp, { once: true });
+  addEventListener('pointerdown', wakeUp);
+  addEventListener('keydown', wakeUp);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && audio.ctx) wakeUp(); });
 
   // What the game tells the sound.
   game.on('built', () => { if (ok('built', 0.4)) SFX.built(); });
