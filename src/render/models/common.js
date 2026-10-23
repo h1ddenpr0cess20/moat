@@ -37,10 +37,10 @@ export const rngFor = (variant, salt = 0) => mulberry32((variant + 1) * 7919 + s
  */
 export function faces(x0, z0, x1, z1, y0, y1) {
   return {
-    front: { P: [x0, y0, z1], U: [1, 0, 0], V: [0, 1, 0], N: [0, 0, 1], w: x1 - x0, h: y1 - y0 },
-    back: { P: [x1, y0, z0], U: [-1, 0, 0], V: [0, 1, 0], N: [0, 0, -1], w: x1 - x0, h: y1 - y0 },
-    right: { P: [x1, y0, z1], U: [0, 0, -1], V: [0, 1, 0], N: [1, 0, 0], w: z1 - z0, h: y1 - y0 },
-    left: { P: [x0, y0, z0], U: [0, 0, 1], V: [0, 1, 0], N: [-1, 0, 0], w: z1 - z0, h: y1 - y0 },
+    front: { P: [x0, y0, z1], U: [1, 0, 0], V: [0, 1, 0], N: [0, 0, 1], w: x1 - x0, h: y1 - y0, holes: [] },
+    back: { P: [x1, y0, z0], U: [-1, 0, 0], V: [0, 1, 0], N: [0, 0, -1], w: x1 - x0, h: y1 - y0, holes: [] },
+    right: { P: [x1, y0, z1], U: [0, 0, -1], V: [0, 1, 0], N: [1, 0, 0], w: z1 - z0, h: y1 - y0, holes: [] },
+    left: { P: [x0, y0, z0], U: [0, 0, 1], V: [0, 1, 0], N: [-1, 0, 0], w: z1 - z0, h: y1 - y0, holes: [] },
   };
 }
 
@@ -65,6 +65,8 @@ export const LAYER = Object.freeze({ glass: 0.006, glow: 0.011, frame: 0.016, sh
 /** A window on a face: glass in a timber frame, with a lit pane over it that shows at night, and shutters if asked. */
 export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow = true, frame = PALETTE.timber } = {}) {
   const t = 0.028;
+  const reach = w / 2 + t + (shutters ? 0.09 : 0);
+  f.holes?.push([u - reach, u + reach, v - t, v + h + t]);
   panel(m, 'glass', f, u - w / 2, v, u + w / 2, v + h, LAYER.glass, PALETTE.glass);
   if (glow) panel(m, 'glow', f, u - w / 2 + 0.012, v + 0.012, u + w / 2 - 0.012, v + h - 0.012, LAYER.glow, PALETTE.warm);
   // The frame: four thin bars and a mullion, the sides and the mullion cut to fit between the top and bottom bars.
@@ -87,6 +89,7 @@ export function windowOn(m, f, u, v, w, h, { shutters = null, sill = true, glow 
 
 /** A door on a face: planks, a lintel, a stone step, an iron ring. */
 export function doorOn(m, f, u, w, h, col, { step = true } = {}) {
+  f.holes?.push([u - w / 2 - 0.035, u + w / 2 + 0.035, 0, h + 0.04]);
   panel(m, 'wood', f, u - w / 2, 0, u + w / 2, h, 0.012, col);
   panel(m, 'trim', f, u - w / 2 - 0.035, h, u + w / 2 + 0.035, h + 0.04, 0.016, PALETTE.timber, { uvScale: 2 });
   panel(m, 'trim', f, u - w / 2 - 0.035, 0, u - w / 2, h, 0.016, PALETTE.timber, { uvScale: 2 });
@@ -101,14 +104,27 @@ function bounds(f, u0, u1, v0, v1, o0, o1) {
   return [Math.min(a[0], b[0]), Math.min(a[1], b[1]), Math.min(a[2], b[2]), Math.max(a[0], b[0]), Math.max(a[1], b[1]), Math.max(a[2], b[2])];
 }
 
+/** The half-timbering waits for the rest of its model, so that it can leave the windows and doors alone: `modelFor` draws it once the model is done. */
+const timberLater = [];
+export function drawTimber() {
+  for (const draw of timberLater.splice(0)) draw();
+}
+
 /**
  * Half-timbering on a face: posts at `cols` along it, rails at the given
- * heights, and a brace in some of the panels. The beams stand a hair proud, and
+ * heights, and braces in the end panels of each storey, rising toward the
+ * middle of the wall, the same on both sides. The beams stand a hair proud, and
  * they are cut to meet square, the posts and braces stopping at the rails and
  * the posts, because two beams that overlap with their faces in one plane flicker
- * where they cross.
+ * where they cross. No post or brace runs across a window or a door (`f.holes`,
+ * which the windows and doors put there), and a brace is only put in a panel
+ * whose shape suits one.
  */
-export function halfTimber(m, f, { cols = 4, rails = null, brace = true, thick = 0.032, col = PALETTE.timber, rnd = Math.random, skip = [], capped = true } = {}) {
+export function halfTimber(m, f, { cols = 4, rails = null, brace = true, thick = 0.032, col = PALETTE.timber, skip = [], capped = true } = {}) {
+  timberLater.push(() => drawHalfTimber(m, f, { cols, rails, brace, thick, col, skip, capped }));
+}
+
+function drawHalfTimber(m, f, { cols, rails, brace, thick, col, skip, capped }) {
   const r = thick / 2;
   const hs = [...(rails ?? [0, f.h])];
   // A rail right at the eaves would poke through the roof: keep it just under.
@@ -117,25 +133,31 @@ export function halfTimber(m, f, { cols = 4, rails = null, brace = true, thick =
   for (let i = 0; i < hs.length; i++) hs[i] = Math.min(Math.max(hs[i], r), f.h - r);
   const off = 0.01;
   const beam = (a, b) => m.beam('trim', at(f, a[0], a[1], off), at(f, b[0], b[1], off), thick, col, { uvScale: 2 });
+  // Does anything cut in the wall lie across this rectangle (u0..u1, v0..v1)?
+  const blocked = (u0, u1, v0, v1) => (f.holes ?? []).some(([a, b, c, d]) => a < u1 && b > u0 && c < v1 && d > v0);
   // Nothing is quite flush with the corners of the wall: a beam end in the plane of the next wall would fight it.
   const e = 0.004;
   for (const v of hs) beam([e, v], [f.w - e, v]);
   const post = (c) => e + r + ((f.w - 2 * (e + r)) * c) / cols;
   for (let c = 0; c <= cols; c++) {
-    for (let k = 0; k + 1 < hs.length; k++) beam([post(c), hs[k] + r], [post(c), hs[k + 1] - r]);
-  }
-  if (!brace) return;
-  for (let c = 0; c < cols; c++) {
     for (let k = 0; k + 1 < hs.length; k++) {
+      if (c > 0 && c < cols && blocked(post(c) - r, post(c) + r, hs[k] + r, hs[k + 1] - r)) continue;
+      beam([post(c), hs[k] + r], [post(c), hs[k + 1] - r]);
+    }
+  }
+  if (!brace || cols < 2) return;
+  for (let k = 0; k + 1 < hs.length; k++) {
+    for (const c of [0, cols - 1]) {
       if (skip.some(([sc, sr]) => sc === c && sr === k)) continue;
-      if (rnd() < 0.55) continue;
-      const flip = rnd() < 0.5;
       // The clear panel between the posts and rails, and a brace across it that stops short of them.
       const u0 = post(c) + r, u1 = post(c + 1) - r, v0 = hs[k] + r, v1 = hs[k + 1] - r;
       const dx = u1 - u0, dy = v1 - v0, len = Math.hypot(dx, dy);
+      if (dx / dy < 0.55 || dx / dy > 1.8 || blocked(u0, u1, v0, v1)) continue;
       const cs = dx / len, sn = dy / len;
       const cut = Math.max(r * (1 + sn) / cs, r * (1 + cs) / sn);
       if (len - 2 * cut < thick) continue;
+      // Both end braces rise toward the middle: the left one leans like /, the right one like \.
+      const flip = c !== 0;
       const sx = flip ? -1 : 1, x0 = flip ? u1 : u0, x1 = flip ? u0 : u1;
       beam([x0 + sx * cs * cut, v0 + sn * cut], [x1 - sx * cs * cut, v1 - sn * cut]);
     }

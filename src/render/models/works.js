@@ -17,7 +17,7 @@ function rubble(m, rnd, cx, cz, r, n = 8, cols = GREYS) {
   for (let i = 0; i < n; i++) {
     const a = rnd() * 6.28, d = rnd() * r;
     const s = 0.05 + rnd() * 0.08;
-    m.sphere('stone', cx + Math.cos(a) * d, s * 0.5, cz + Math.sin(a) * d, s * 1.3, s, s, pickFrom(rnd, cols), { detail: 0, jitter: 0.2 });
+    m.rock('stone', cx + Math.cos(a) * d, s * 0.4, cz + Math.sin(a) * d, s * 1.3, s, s * 1.1, pickFrom(rnd, cols), { detail: 0, rough: 0.35, seed: i + Math.floor(cx * 10) });
   }
 }
 
@@ -50,7 +50,7 @@ export function quarry(m, v) {
 export function ironmine(m, v) {
   const { rnd } = v;
   // The hill with the mouth of the mine in it.
-  m.sphere('stone', -0.1, -0.3, -0.85, 1.35, 1.0, 0.8, '#6c675e', { detail: 2, jitter: 0.3 });
+  m.rock('stone', -0.1, -0.3, -0.85, 1.35, 1.0, 0.8, '#6c675e', { detail: 2, rough: 0.16, seed: 3, base: 0.5 });
   rubble(m, rnd, 0.7, -0.4, 0.6, 12, ['#5e5a52', '#6c675e', '#7a4a32', '#8a4a30']);
   // The mouth: two props and a lintel round the dark.
   m.box('plain', -0.3, 0, -0.2, 0.3, 0.5, -0.05, '#0c0a08', { skip: ['bottom', 'back'] });

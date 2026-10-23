@@ -1,6 +1,6 @@
 import { BUILDINGS } from '../../catalog.js';
 import { Mesher } from '../mesher.js';
-import { PALETTE, barrel, crate, logPile, pickFrom, rngFor } from './common.js';
+import { PALETTE, barrel, crate, drawTimber, logPile, pickFrom, rngFor } from './common.js';
 import * as castle from './castle.js';
 import * as civic from './civic.js';
 import * as farm from './farm.js';
@@ -94,6 +94,7 @@ export function modelFor(type, { level = 1, variant = 0, building = false, progr
   const v = { w, d, level, variant, rnd: rngFor(variant % 8, type.length), progress: building ? (stage + 0.5) / 4 : 1, type };
   const fn = building ? underConstruction : MODELS[type] ?? placeholder;
   const extra = fn(m, v) ?? {};
+  drawTimber();
   const out = { parts: m.finish(), smoke: extra.smoke ?? [], anim: extra.anim ?? [], lights: extra.lights ?? [], height: extra.height ?? 1.6 };
   cache.set(key, out);
   return out;
