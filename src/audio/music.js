@@ -108,7 +108,8 @@ export function createMusic(audio, { getState }) {
     const state = getState();
     if (last !== state.season && drone) { last = state.season; drone.set({ freq: NOTE(MODES[state.season].root - 24) }); }
     if (state.silent) return;
-    while (next < ctx.currentTime + 0.7) {
+    // Far enough ahead that a timer the browser slows down (a tab in the background, a frame that takes long) does not leave a gap.
+    while (next < ctx.currentTime + 3) {
       if (next < ctx.currentTime) next = ctx.currentTime + 0.1;
       if (rest > 0) { rest -= 0.5; next = Math.max(next, ctx.currentTime) + 0.5; continue; }
       const len = scheduleBar(next, state);
@@ -116,8 +117,8 @@ export function createMusic(audio, { getState }) {
       bar++;
       if (phrase.bar >= 8) {
         phrase = null;
-        // A phrase of eight bars, then a long rest, mostly.
-        if (hash2(seed, bar, 12) < 0.7) rest = 6 + hash2(seed, bar, 13) * 14;
+        // A phrase of eight bars, then a short rest, sometimes: long ones sounded as if the music had stopped.
+        if (hash2(seed, bar, 12) < 0.5) rest = 2 + hash2(seed, bar, 13) * 5;
       }
     }
     if (drone) drone.set({ gain: state.droneGain });

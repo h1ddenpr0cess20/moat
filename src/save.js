@@ -2,7 +2,7 @@ import { ROAD, WARDS } from './config.js';
 import { mulberry32 } from './rng.js';
 import { newGame } from './sim/state.js';
 import { prime } from './sim/game.js';
-import { computeMoat } from './world/wards.js';
+import { clearMoatTrees, computeMoat } from './world/wards.js';
 import { HEIGHTS, MAPS } from './world/snapshot.js';
 import { idx, touchAll } from './world/world.js';
 
@@ -102,6 +102,8 @@ export function deserialize(data) {
   }
   for (const k of MAPS) apply(world[k], data.maps[k]);
   for (const k of HEIGHTS) apply(world[k], data.maps[k], 1000);
+  // A save from before the moat kept its trees out of the water may still have some in it.
+  clearMoatTrees(world);
   // The bridges the moat makes are the map's own: the road map must keep them.
   for (const g of world.gates) for (const [x, y] of g.tiles) if (x >= 0 && y >= 0 && x < world.size && y < world.size) world.road[idx(x, y)] = ROAD.BRIDGE;
   world.bld.fill(0);

@@ -22,9 +22,9 @@ function yard(m, rnd, width, z, { gate = 0 } = {}) {
   }
 }
 
-/** A path of flat stones from the door to the front of the plot. */
+/** A path of flat stones from the door to the front of the plot. The snow lies 0.012 over the ground, so the stones stand well clear of that plane, or they fight it for every pixel. */
 function path(m, x, z0, z1) {
-  m.box('stone', x - 0.09, 0, z0, x + 0.09, 0.012, z1, '#9a9282', { skip: ['bottom'] });
+  m.box('stone', x - 0.09, 0, z0, x + 0.09, 0.03, z1, '#9a9282', { skip: ['bottom'] });
 }
 
 /** The standard small house: walls, timber, roof, chimney, door and windows. All four faces are done. */
@@ -103,8 +103,10 @@ export function house(m, v) {
   windowOn(m, g.back, 0.78, 0.22, 0.2, 0.19, { shutters: shut });
   const top = chimney(m, left ? 0.55 : -0.55, -0.35, 0.9, 1.78, { w: 0.2 });
   const top2 = rnd() < 0.4 ? chimney(m, left ? -0.5 : 0.5, -0.35, 0.9, 1.7, { w: 0.18 }) : null;
-  yard(m, rnd, 1.9, 0.94, { gate: left ? -0.45 : 0.45 });
-  path(m, left ? -0.45 : 0.45, 0.45, 0.94);
+  // The path and the gate of the yard are where the door is.
+  const doorX = 1.56 * (left ? 0.3 : 0.7) - 0.78;
+  yard(m, rnd, 1.9, 0.94, { gate: doorX });
+  path(m, doorX, 0.45, 0.94);
   if (rnd() < 0.5) barrel(m, left ? 0.85 : -0.85, 0.1, 0.25);
   return { smoke: top2 ? [top, top2] : [top] };
 }
@@ -205,7 +207,7 @@ export function shop(m, v) {
   crate(m, 0.7, 0.09, 0.62, 0.13);
   barrel(m, -0.92, 0.09, 0.3);
   sack(m, -0.9, 0.09, 0.55);
-  path(m, -0.4, 0.36, 0.95);
+  path(m, 1.56 * 0.28 - 0.78, 0.36, 0.95);
   return { smoke: [top] };
 }
 

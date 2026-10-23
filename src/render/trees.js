@@ -84,14 +84,26 @@ function buildTemplates() {
       }
     }));
   }
+  // Outcrops: a heap of knocked-about rock, a big one with smaller ones and chips against its foot, each variant its own colour and shape.
+  const GREY = [['#8f8a80', '#7c776e', '#a29c90'], ['#a29c90', '#8a857a', '#96907f'], ['#7c776e', '#6c675e', '#8f8a80'], ['#96907f', '#a8a190', '#807a70']];
+  const DARK = [['#5e5a52', '#4e4a44', '#6c675e'], ['#6c675e', '#58544c', '#625c54'], ['#4e4a44', '#5e5a52', '#403c38'], ['#625c54', '#6c675e', '#54504a']];
   for (let v = 0; v < 4; v++) {
     out.boulder.push(make((m, hi) => {
-      m.sphere('stone', 0, 0.12, 0, 0.28 + 0.06 * v, 0.19, 0.24 + 0.04 * v, ['#8f8a80', '#a29c90', '#7c776e', '#96907f'][v], { detail: hi ? 1 : 0, jitter: 0.3, seed: v });
-      m.sphere('stone', 0.22, 0.07, 0.1, 0.14, 0.1, 0.12, '#8a857a', { detail: 0, jitter: 0.25 });
+      const c = GREY[v], d = hi ? 1 : 0;
+      m.rock('stone', 0, 0.1, 0, 0.3 + 0.05 * v, 0.2 + 0.03 * v, 0.26 + 0.04 * v, c[0], { detail: 1, rough: 0.34, seed: v });
+      m.rock('stone', 0.27 + 0.03 * v, 0.04, 0.12, 0.15, 0.11, 0.13, c[1], { detail: d, rough: 0.3, seed: v + 4 });
+      m.rock('stone', -0.2, 0.03, -0.24 + 0.04 * v, 0.12, 0.09, 0.11, c[2], { detail: d, rough: 0.3, seed: v + 8 });
+      if (hi) m.rock('stone', 0.1, 0.01, 0.3, 0.06, 0.04, 0.05, c[0], { detail: 0, rough: 0.25, seed: v + 12 });
     }));
     out.ore.push(make((m, hi) => {
-      m.sphere('stone', 0, 0.12, 0, 0.26 + 0.05 * v, 0.19, 0.22 + 0.04 * v, ['#5e5a52', '#6c675e', '#4e4a44', '#625c54'][v], { detail: hi ? 1 : 0, jitter: 0.3, seed: v });
-      for (let k = 0; k < 4; k++) m.sphere('stone', Math.cos(k * 1.9) * 0.14, 0.2 + 0.02 * k, Math.sin(k * 1.9) * 0.12, 0.05, 0.04, 0.05, '#c0663a', { detail: 0 });
+      const c = DARK[v], d = hi ? 1 : 0;
+      m.rock('stone', 0, 0.1, 0, 0.27 + 0.04 * v, 0.2 + 0.03 * v, 0.23 + 0.04 * v, c[0], { detail: 1, rough: 0.36, seed: v + 20 });
+      m.rock('stone', -0.24, 0.03, 0.1, 0.13, 0.1, 0.12, c[1], { detail: d, rough: 0.3, seed: v + 24 });
+      // Veins of copper in the face: small hard-edged lumps set into it.
+      for (let k = 0; k < 4; k++) {
+        const a = k * 1.9 + v, r = 0.17 + 0.03 * hash2(k, v, 5);
+        m.rock('stone', Math.cos(a) * r, 0.14 + 0.05 * k * 0.4, Math.sin(a) * r * 0.9, 0.06, 0.045, 0.055, k % 2 ? '#c0663a' : '#a8532f', { detail: 0, rough: 0.3, seed: k + v * 5, base: 0.2 });
+      }
     }));
   }
   return out;

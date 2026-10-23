@@ -144,3 +144,19 @@ test('a bridge may start on marshy bank: low ground counts as part of the span',
   assert.equal(plan.reason, null, plan.reason);
   assert.ok(plan.spans.length >= 4, 'two water tiles and the marshy banks either side');
 });
+
+test('no tree stands in a moat, however many wards are dug round', () => {
+  const game = startGame({ seed: 'oxmere' });
+  const { world } = game;
+  const drowned = () => {
+    let n = 0;
+    for (let i = 0; i < world.tree.length; i++) if (world.tree[i] && world.moat[i] === 1) n++;
+    return n;
+  };
+  assert.equal(drowned(), 0);
+  // Woods in the way of the next moat: plant every tile of the ring round the home ward, then take the ward beside it.
+  world.tree.fill(1);
+  const next = world.wards.find((w) => !w.owned && bordersRealm(world, w.id));
+  completeAnnex(game, next);
+  assert.equal(drowned(), 0);
+});

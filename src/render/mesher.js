@@ -273,6 +273,35 @@ export class Mesher {
     return this;
   }
 
+  /**
+   * A rock: an icosphere knocked out of shape by broad lumps and smaller chips
+   * (`rough`), flat shaded so each face catches the light on its own, with a
+   * flat base (`base`, how far down it is cut as a share of `ry`) to sit in the
+   * ground. Faces that look up are lighter and those that look down darker, and
+   * each is a little different from the next, as stone is. `o.seed` makes
+   * another rock of the same size.
+   */
+  rock(mat, cx, cy, cz, rx, ry, rz, col, o = {}) {
+    const g = icosphere(o.detail ?? 1);
+    const seed = o.seed ?? 0, rough = o.rough ?? 0.3, base = o.base ?? 0.45;
+    const pts = g.verts.map((v) => {
+      const lump = hash(v[0] * 2.3 + seed, v[1] * 2.3 - seed * 0.7, v[2] * 2.3 + seed * 1.9) - 0.5;
+      const chip = hash(v[0] * 9.1 + seed * 3.1, v[1] * 9.1, v[2] * 9.1 - seed) - 0.5;
+      const k = 1 + rough * (1.3 * lump + 0.55 * chip);
+      return [cx + v[0] * k * rx, cy + Math.max(v[1] * k, -base) * ry, cz + v[2] * k * rz];
+    });
+    for (const [a, b, c] of g.faces) {
+      const A = pts[a], B = pts[b], C = pts[c];
+      const n = norm(cross(sub(B, A), sub(C, A)));
+      // The flat base is in the ground: nothing to draw, and the bases of rocks heaped together would only lie over each other.
+      if (n[1] < -0.95) continue;
+      const own = hash((A[0] + B[0] + C[0]) * 5 + seed, (A[1] + B[1] + C[1]) * 5, (A[2] + B[2] + C[2]) * 5);
+      const shade = (0.7 + 0.34 * Math.max(0, Math.min(1, n[1] * 0.5 + 0.5))) * (0.9 + 0.2 * own);
+      this.tri(mat, A, B, C, o.colorFn ? o.colorFn(n, own) : col, { ...o, shade, normals: undefined });
+    }
+    return this;
+  }
+
   /** A square beam from point a to point b, `t` thick. */
   beam(mat, a, b, t, col, o = {}) {
     const d = sub(b, a);

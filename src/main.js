@@ -149,6 +149,7 @@ stage.run((dt) => {
     while (acc >= TICK_SECONDS) { acc -= TICK_SECONDS; step(game); }
   }
   scene.weekFrac = acc / TICK_SECONDS;
+  scene.paused = started && !title && clock.speed === 0;
   scene.frame(dt);
   ui.update(dt);
   sound.update(dt);

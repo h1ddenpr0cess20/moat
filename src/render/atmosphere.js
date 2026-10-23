@@ -40,7 +40,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
   const backdrop = stage.scene.children.find((o) => o.renderOrder === -1 && o.material?.side === GFX.BackSide);
   stage.renderer.domElement.style.transition = 'filter 1.5s linear';
   let overcast = 0;
-  let slow = 0, first = true;
+  let slow = 0, first = true, flicker = 0;
   const state = { night: 0, day: 1, rain: false, snow: 0, season: 1, tod: 0.4 };
 
   const atm = {
@@ -58,6 +58,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
       const yearT = inYearF / WEEKS_PER_YEAR;
       const season = Math.floor(inYearF / 12);
       const k = (inYearF % 12) / 12;
+      flicker += dt;
       if (mode === 'auto') clock = (clock + dt / DAY) % 1;
       else clock = { day: 0.45, dusk: 0.74, night: 0.0 }[mode] ?? clock;
       const maxElev = 0.7 + 0.3 * Math.cos(Math.PI * 2 * (yearT - 0.4));
@@ -81,7 +82,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
       // Windows light up as it gets dark, and early on dull days.
       const glow = Math.max(L.night, 0.55 * overcast * (1 - L.night) * 0.3, L.dusk * 0.8);
       mat.glow.color.setScalar(Math.min(1, glow * 1.15));
-      mat.flame.color.setScalar(0.85 + 0.15 * Math.sin(performance.now() * 0.02));
+      mat.flame.color.setScalar(0.85 + 0.15 * Math.sin(flicker * 20));
       const snow = week < 4 ? 0 : snowAt(inYearF);
       // The year turns slowly: the leaves, the ground and the roofs need touching up a few times a second, not every frame.
       slow += dt;
