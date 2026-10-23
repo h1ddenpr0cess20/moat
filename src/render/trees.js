@@ -16,6 +16,9 @@ import { freeTree } from './dispose.js';
 /** The share of tiles that keep a tree in the far wood: less on a bigger map, which has more of it to hold. */
 const FAR_KEEP = Math.min(0.72, 0.72 * Math.pow(7 / WARDS, 0.8));
 
+/** The share of trees that are drawn. The wood the simulation counts is untouched; a quarter fewer standing in it keeps the draw light. */
+const TREE_KEEP = 0.75;
+
 const LEAF = ['leafA', 'leafB', 'leafC'];
 const TRUNK = ['#6a4a2c', '#5a3e26', '#74532f'];
 
@@ -151,6 +154,7 @@ export function createTrees(GFX, world, materials, scene) {
       const n = world_.tree[i];
       const alt = world_.h[(y * SUB + 1) * HV + x * SUB + 1];
       for (let k = 0; k < n; k++) {
+        if (hash2(x * 3 + k, y, 53) >= TREE_KEEP) continue;
         const fx = 0.12 + 0.76 * hash2(x * 3 + k, y, 11), fz = 0.12 + 0.76 * hash2(y * 3 + k, x, 13);
         const wx = x + fx, wz = y + fz;
         const wy = heightAt(world_, wx, wz) - 0.02;
