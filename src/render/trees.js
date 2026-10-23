@@ -16,6 +16,9 @@ import { freeTree } from './dispose.js';
 /** The share of tiles that keep a tree in the far wood: less on a bigger map, which has more of it to hold. */
 const FAR_KEEP = Math.min(0.72, 0.72 * Math.pow(7 / WARDS, 0.8));
 
+/** The share of trees that are drawn. The wood the simulation counts is untouched; a quarter fewer standing in it keeps the draw light. */
+const TREE_KEEP = 0.75;
+
 const LEAF = ['leafA', 'leafB', 'leafC'];
 const TRUNK = ['#6a4a2c', '#5a3e26', '#74532f'];
 
@@ -58,11 +61,11 @@ export function buildTemplates() {
       }
       const R = 0.34 + rnd(1) * 0.1, D = hi ? 2 : 1;
       blob(m, lean, 0.96, 0, R, R * 0.8, R, leaf, D, v);
-      blob(m, 0.2 * (rnd(2) - 0.5) * 2, 1.14, 0.18 * (rnd(3) - 0.5) * 2, R * 0.78, R * 0.66, R * 0.78, leaf, D, v + 3);
-      blob(m, -0.24, 0.86, 0.14, R * 0.62, R * 0.52, R * 0.62, leaf, hi ? 2 : 0, v + 5);
+      blob(m, 0.2 * (rnd(2) - 0.5) * 2, 1.14, 0.18 * (rnd(3) - 0.5) * 2, R * 0.78, R * 0.66, R * 0.78, leaf, hi ? 1 : 0, v + 3);
+      blob(m, -0.24, 0.86, 0.14, R * 0.62, R * 0.52, R * 0.62, leaf, hi ? 1 : 0, v + 5);
       if (hi) {
-        blob(m, 0.25, 0.84, -0.18, R * 0.58, R * 0.5, R * 0.58, leaf, 2, v + 7);
-        blob(m, 0.02, 0.74, 0.27, R * 0.5, R * 0.42, R * 0.5, leaf, 1, v + 9);
+        blob(m, 0.25, 0.84, -0.18, R * 0.58, R * 0.5, R * 0.58, leaf, 1, v + 7);
+        blob(m, 0.02, 0.74, 0.27, R * 0.5, R * 0.42, R * 0.5, leaf, 0, v + 9);
       }
     }));
   }
@@ -77,13 +80,13 @@ export function buildTemplates() {
       }
       const D = hi ? 2 : 1;
       blob(m, lean, 1.1, 0, 0.25, 0.34, 0.25, 'leafB', D, v, 0.3);
-      blob(m, lean + 0.13, 0.84, 0.06, 0.2, 0.24, 0.2, 'leafB', hi ? 2 : 0, v + 2, 0.3);
-      if (hi) blob(m, lean - 0.12, 0.8, -0.07, 0.18, 0.22, 0.18, 'leafB', 2, v + 4, 0.3);
+      blob(m, lean + 0.13, 0.84, 0.06, 0.2, 0.24, 0.2, 'leafB', hi ? 1 : 0, v + 2, 0.3);
+      if (hi) blob(m, lean - 0.12, 0.8, -0.07, 0.18, 0.22, 0.18, 'leafB', 1, v + 4, 0.3);
     }));
   }
   for (let v = 0; v < 4; v++) {
     out.pine.push(make((m, hi) => {
-      const tiers = hi ? 6 : 4, sides = hi ? 12 : 7;
+      const tiers = hi ? 5 : 3, sides = hi ? 10 : 6;
       m.cylinder('bark', 0, -0.05, 0, 0.035, 0.06, 0.5, hi ? 6 : 4, '#5a3e26', { smooth: hi });
       for (let t = 0; t < tiers; t++) {
         const f = t / (tiers - 1);
@@ -109,14 +112,14 @@ export function buildTemplates() {
   const DARK = [['#5e5a52', '#4e4a44', '#6c675e'], ['#6c675e', '#58544c', '#625c54'], ['#4e4a44', '#5e5a52', '#403c38'], ['#625c54', '#6c675e', '#54504a']];
   for (let v = 0; v < 4; v++) {
     out.boulder.push(make((m, hi) => {
-      const c = GREY[v], d = hi ? 1 : 0, D = hi ? 2 : 1;
+      const c = GREY[v], d = 0, D = hi ? 1 : 0;
       m.rock('rock', 0, 0.1, 0, 0.3 + 0.05 * v, 0.2 + 0.03 * v, 0.26 + 0.04 * v, c[0], { detail: D, rough: 0.3, seed: v, cuts: 5 });
       m.rock('rock', 0.27 + 0.03 * v, 0.04, 0.12, 0.15, 0.11, 0.13, c[1], { detail: d, rough: 0.28, seed: v + 4, cuts: 3 });
       m.rock('rock', -0.2, 0.03, -0.24 + 0.04 * v, 0.12, 0.09, 0.11, c[2], { detail: d, rough: 0.28, seed: v + 8, cuts: 3 });
       if (hi) m.rock('rock', 0.1, 0.01, 0.3, 0.06, 0.04, 0.05, c[0], { detail: 0, rough: 0.2, seed: v + 12, cuts: 2 });
     }));
     out.ore.push(make((m, hi) => {
-      const c = DARK[v], d = hi ? 1 : 0, D = hi ? 2 : 1;
+      const c = DARK[v], d = 0, D = hi ? 1 : 0;
       // Iron shows as rust-brown seams and stains through dark rock, not as lumps stuck on it.
       const seams = (dir, lump, grain) => {
         const s = Math.abs(Math.sin((dir[0] * 3.1 + dir[1] * 5.3 - dir[2] * 2.2 + v) * 2.6 + lump * 4));
@@ -126,7 +129,7 @@ export function buildTemplates() {
       const tint = (dir, lump, grain) => { const t = seams(dir, lump, grain); return t ? mix(c[0], t.col, t.w) : c[0]; };
       m.rock('rock', 0, 0.1, 0, 0.27 + 0.04 * v, 0.2 + 0.03 * v, 0.23 + 0.04 * v, c[0], { detail: D, rough: 0.28, seed: v + 20, cuts: 5, lichen: 0.15, colorFn: tint });
       m.rock('rock', -0.24, 0.03, 0.1, 0.13, 0.1, 0.12, c[1], { detail: d, rough: 0.26, seed: v + 24, cuts: 3, lichen: 0.15, colorFn: (dir, l, g) => { const t = seams(dir, l, g); return t ? mix(c[1], t.col, t.w) : c[1]; } });
-      for (let k = 0; k < 3; k++) {
+      for (let k = 0; k < (hi ? 3 : 1); k++) {
         const a = k * 2.3 + v, r = 0.2 + 0.03 * hash2(k, v, 5);
         m.rock('rock', Math.cos(a) * r, 0.05 + 0.03 * k, Math.sin(a) * r * 0.9, 0.07, 0.05, 0.06, k % 2 ? '#7a4630' : '#69392a', { detail: 0, rough: 0.18, seed: k + v * 5, cuts: 3, base: 0.3 });
       }
@@ -151,6 +154,7 @@ export function createTrees(GFX, world, materials, scene) {
       const n = world_.tree[i];
       const alt = world_.h[(y * SUB + 1) * HV + x * SUB + 1];
       for (let k = 0; k < n; k++) {
+        if (hash2(x * 3 + k, y, 53) >= TREE_KEEP) continue;
         const fx = 0.12 + 0.76 * hash2(x * 3 + k, y, 11), fz = 0.12 + 0.76 * hash2(y * 3 + k, x, 13);
         const wx = x + fx, wz = y + fz;
         const wy = heightAt(world_, wx, wz) - 0.02;
