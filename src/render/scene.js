@@ -103,10 +103,14 @@ export async function createScene({ host, game, progress = () => {} }) {
     GFX, stage, camera, viewDef, materials, terrain, water, trees, decals, buildings, gates, fx, overlays, atmosphere,
     /** Where, in the sun's day, the game is: how far through the current week (0 to 1). */
     weekFrac: 0,
+    /** The game stands still: the world's own motion stops. */
+    paused: false,
     focusOn(x, z, opts) { camera.focus(x, z, opts); },
     /** Once a frame. */
     frame(dt) {
-      time += dt;
+      // The world's own motion (the sails, the smoke, the weather, the water, the sun) stops with the game; the camera, the gates and the lord's overlays go on.
+      const live = scene.paused ? 0 : dt;
+      time += live;
       camera.update(dt);
       const cal = calendar(game.week);
       terrain.sync(1);
@@ -118,13 +122,13 @@ export async function createScene({ host, game, progress = () => {} }) {
       if (lodClock <= 0) { lodClock = 0.3; trees.updateLod(stage.target.x, stage.target.z, Math.max(22, Math.min(55, 8 + camera.distance * 0.55))); }
       emitClock -= dt;
       if (emitClock <= 0) { emitClock = 1.5; emitters = buildings.emitters(); }
-      buildings.update(dt, 0.6 + 0.4 * Math.sin(time * 0.3));
+      buildings.update(live, 0.6 + 0.4 * Math.sin(time * 0.3));
       gates.update(dt);
       overlays.update(dt);
       const frac = Math.min(1, scene.weekFrac);
-      atmosphere.update(dt, { week: game.week, frac, near: [stage.target.x, stage.target.y + 8, stage.target.z] });
+      atmosphere.update(live, { week: game.week, frac, near: [stage.target.x, stage.target.y + 8, stage.target.z] });
       const cold = cal.season === 3 ? 1.7 : cal.season === 2 ? 1.2 : 0.8;
-      fx.update(dt, { emitters, near: [stage.target.x, stage.target.z], reach: 20 + 4 * camera.distance, rate: 0.5 * cold, wind: [0.35, 0.12], time });
+      fx.update(live, { emitters, near: [stage.target.x, stage.target.z], reach: 20 + 4 * camera.distance, rate: 0.5 * cold, wind: [0.35, 0.12], time });
     },
     dispose() { for (const off of unsubscribe) off(); camera.dispose(); },
   };
