@@ -1,4 +1,4 @@
-import { CASTLE, CENTER, DIRS, GROUND, HOME_WARD, MOAT_BANK, MOAT_HALF, ROAD, SIZE, WARD, WARDS } from '../config.js';
+import { CASTLE, CENTER, DIRS, GROUND, HOME_WARD, MOAT_BANK, MOAT_HALF, ROAD, SIZE, WARD, WARDS, WATER_LEVEL } from '../config.js';
 import { mulberry32, pick, smoothstep, lerp } from '../rng.js';
 import { PLATEAU } from './generate.js';
 import { HV, SUB, castleNorm, idx, tileRange, touchAll } from './world.js';
@@ -247,7 +247,21 @@ export function carveMoat(world) {
     }
     world.h[i] = h;
   }
+  clearMoatTrees(world);
   touchAll(world);
+}
+
+/** Trees do not stand in the water: the woods a new moat is dug through (the ward's own, or its neighbour's) lose the trees the water reaches. */
+export function clearMoatTrees(world) {
+  for (let y = 0; y < world.size; y++) {
+    for (let x = 0; x < world.size; x++) {
+      const i = idx(x, y);
+      if (!world.tree[i] || !world.moat[i]) continue;
+      let wet = world.moat[i] === 1;
+      for (let j = 0; j <= SUB && !wet; j++) for (let k = 0; k <= SUB; k++) if (world.h[(y * SUB + j) * HV + x * SUB + k] < WATER_LEVEL + 0.04) { wet = true; break; }
+      if (wet) world.tree[i] = 0;
+    }
+  }
 }
 
 /** Smooths the ground inside a ward the lord has taken, so there is somewhere flat to build. */
