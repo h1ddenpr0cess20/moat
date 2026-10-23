@@ -2,7 +2,7 @@ import { CHUNK, CHUNKS, GROUND, WARDS } from '../config.js';
 import { ZONE_ID } from '../catalog.js';
 import { hash2 } from '../rng.js';
 import { HV, SUB, heightAt, idx } from '../world/world.js';
-import { Batch, Mesher } from './mesher.js';
+import { Batch, Mesher } from 'madness-engine/mesher';
 import { freeTree } from './dispose.js';
 
 /**

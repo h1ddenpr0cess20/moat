@@ -1,9 +1,8 @@
 import { CHUNK, CHUNKS } from '../config.js';
 import { heightAt } from '../world/world.js';
-import { Batch } from './mesher.js';
+import { Batch } from 'madness-engine/mesher';
 import { castsShadow } from './materials.js';
-import { modelFor } from './models/index.js';
-import { castleScaffold } from './models/castle.js';
+import { castleScaffold, modelFor } from './models/index.js';
 import { freeTree } from './dispose.js';
 
 /**

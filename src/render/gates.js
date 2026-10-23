@@ -1,9 +1,9 @@
 import { CASTLE_BRIDGE } from '../world/wards.js';
 import { heightAt } from '../world/world.js';
 import { CENTER, ROAD } from '../config.js';
-import { Batch, Mesher } from './mesher.js';
+import { Batch, Mesher } from 'madness-engine/mesher';
 import { castsShadow } from './materials.js';
-import { PALETTE } from './models/common.js';
+import { PALETTE } from 'madness-engine/buildings/common';
 import { freeTree } from './dispose.js';
 
 /**
