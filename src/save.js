@@ -59,6 +59,7 @@ export function serialize(game) {
     mapWards: WARDS,
     seed: game.seed,
     difficulty: game.difficulty,
+    disasters: game.disasters,
     week: game.week,
     stock: game.stock,
     pop: game.pop,
@@ -91,7 +92,7 @@ export function serialize(game) {
 export function deserialize(data) {
   if (!data || data.v !== SAVE_VERSION) throw new Error('This save is from another version of the game.');
   if ((data.mapWards ?? 7) !== WARDS) throw new Error('This save was made on a map of another size.');
-  const game = newGame({ seed: data.seed, difficulty: data.difficulty });
+  const game = newGame({ seed: data.seed, difficulty: data.difficulty, disasters: data.disasters !== false });
   const { world } = game;
   // Wards first: the moat and the realm follow from which are owned.
   for (const [id, owned, dig] of data.wards) { world.wards[id].owned = Boolean(owned); world.wards[id].dig = dig; }

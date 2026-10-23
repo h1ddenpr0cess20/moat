@@ -5,6 +5,7 @@ import { removeBuilding } from '../world/buildings.js';
 import { network } from '../world/roads.js';
 import { idx } from '../world/world.js';
 import { ownedCount } from '../world/wards.js';
+import { setZone } from '../world/zoning.js';
 import { calendar } from './calendar.js';
 import { qualityAt } from './blocks.js';
 import { covered } from './coverage.js';
@@ -93,6 +94,9 @@ export function burn(game, b, depth = 0) {
   if (!world.buildings.has(b.id) || b.type === 'castle') return;
   const at = [b.x + b.w / 2, b.y + b.d / 2];
   removeBuilding(world, b.id);
+  // The people's own plots stay zoned, so the lot is built on again.
+  const zone = BUILDINGS[b.type].auto;
+  if (zone) for (let y = b.y; y < b.y + b.d; y++) for (let x = b.x; x < b.x + b.w; x++) setZone(world, x, y, zone);
   for (const g of world.gates) if (g.gatehouse === b.id) g.gatehouse = 0;
   world.netVersion = (world.netVersion ?? 0) + 1;
   game.emit('fire', { at, building: b });
@@ -107,6 +111,7 @@ export function burn(game, b, depth = 0) {
 }
 
 export function fires(game) {
+  if (!game.disasters) return;
   const { world } = game;
   const cal = calendar(game.week);
   const season = cal.season === 1 ? 1.5 : cal.season === 3 ? 0.8 : 1;
@@ -123,7 +128,7 @@ export function fires(game) {
 }
 
 export function plague(game) {
-  if (game.plague > 0) return;
+  if (!game.disasters || game.plague > 0) return;
   const people = headcount(game);
   if (people < 45) return;
   const p = 0.0016 * (people / 100) * (1 - 0.65 * (game.report.care?.health ?? 0)) * (1 + Math.max(0, 70 - game.health) * 0.02);
@@ -165,6 +170,7 @@ function nearest(game, gate, n) {
 }
 
 export function raids(game) {
+  if (!game.disasters) return;
   const { world } = game;
   if (game.week === game.nextRaid - 1 && game.nextRaid !== Infinity) {
     const gates = world.gates.length ? world.gates : null;
