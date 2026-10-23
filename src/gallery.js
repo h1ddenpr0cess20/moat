@@ -2,7 +2,7 @@ import * as GFX from 'madness-engine/gfx';
 import { createStage } from 'madness-engine/stage';
 import { defineView } from 'madness-engine/view';
 import { castsShadow, createMaterials, colorLeaves } from './render/materials.js';
-import { Batch } from './render/mesher.js';
+import { Batch } from 'madness-engine/mesher';
 import { modelFor } from './render/models/index.js';
 import { lightAt, paintDay, paintReflections } from './render/sky.js';
 import { BUILDINGS } from './catalog.js';

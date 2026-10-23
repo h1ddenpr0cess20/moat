@@ -1,7 +1,7 @@
 import { ZONES, ZONE_ID } from '../catalog.js';
 import { CHUNK, CHUNKS, ROAD } from '../config.js';
 import { HV, SUB, heightAt, idx, inb } from '../world/world.js';
-import { rgb } from './mesher.js';
+import { rgb } from 'madness-engine/mesher';
 import { freeGeometry } from './dispose.js';
 
 /**

@@ -1,7 +1,7 @@
 import { WATER_LEVEL } from '../config.js';
 import { heightAt } from '../world/world.js';
 import { footprint } from '../world/buildings.js';
-import { Batch } from './mesher.js';
+import { Batch } from 'madness-engine/mesher';
 import { YAW } from './buildings.js';
 import { modelFor } from './models/index.js';
 import { freeGeometry } from './dispose.js';
