@@ -10,8 +10,16 @@ import { icon } from './icons.js';
  */
 
 const HINTS = {
-  welcome: { text: 'My lord, the hamlet is yours. Slide the map with <b>WASD</b> or the <b>right button</b>, turn it with <b>Q</b> and <b>E</b>, and draw in with the wheel. The people want <b>homes along streets</b>, <b>fields</b> and <b>firewood</b>.', next: 'block' },
-  block: { text: 'The best way to build a town is the <b>donut block</b>. Take the <b>Blocks</b> tool (<b>4</b>), choose <b>Open ★</b> for the core, and click on open ground to stamp a street loop with a ring of plots. Join one of its streets to the castle’s roads.', after: 14 },
+  welcome: {
+    text: 'My lord, the hamlet is yours. Slide the map with <b>WASD</b> or the <b>right button</b>, turn it with <b>Q</b> and <b>E</b>, and draw in with the wheel. The people want <b>homes along streets</b>, <b>fields</b> and <b>firewood</b>.',
+    touch: 'My lord, the hamlet is yours. Slide the map with a <b>finger</b>, and <b>pinch</b> and <b>twist</b> with two to draw in and turn it. Tap anything to look at it. The people want <b>homes along streets</b>, <b>fields</b> and <b>firewood</b>.',
+    next: 'block',
+  },
+  block: {
+    text: 'The best way to build a town is the <b>donut block</b>. Take the <b>Blocks</b> tool (<b>4</b>), choose <b>Open ★</b> for the core, and click on open ground to stamp a street loop with a ring of plots. Join one of its streets to the castle’s roads.',
+    touch: 'The best way to build a town is the <b>donut block</b>. Take the <b>Blocks</b> tool, choose <b>Open ★</b> for the core, and tap open ground to stamp a street loop with a ring of plots. Join one of its streets to the castle’s roads. While a tool is in hand, two fingers move the map; <b>Done</b> puts it down.',
+    after: 14,
+  },
   blockMade: { text: 'A ring of homes will grow round it. Now give it a <b>heart</b>: with the <b>Build</b> tool, set a <b>Village Green</b> in the middle, with a <b>well</b> beside it. A good heart serves every door in the ring, and the block earns a courtyard bonus.' },
   heart: { text: 'A courtyard! The plaque over the block shows its rating. It climbs as the ring fills, and as the heart grows: taxes, rooms, mood and safety all improve. Make another, and join it to the first.' },
   food: { text: 'The stores are running thin. <b>Zone wheat</b> near a farmstead before the spring, and put a few hands on the plough: a hungry town does not stay.' },
@@ -38,7 +46,7 @@ export function createSteward(ctx) {
     slot.write([...seen]);
     el.replaceChildren(
       h('div.portrait', { html: icon('crown', 22) }),
-      h('div.words', { html: hint.text }),
+      h('div.words', { html: (globalThis.matchMedia?.('(pointer: coarse)').matches && hint.touch) || hint.text }),
       h('button.btn.small.skip', { onclick: () => { el.hidden = true; clearTimeout(hideT); next(); } }, 'Thank you'));
     el.hidden = false;
     ctx.sfx('open');

@@ -1,4 +1,5 @@
 import { FOODS, RANKS, RESOURCES } from '../catalog.js';
+import { defenseOf, threatOf } from '../sim/events.js';
 import { calendar } from '../sim/calendar.js';
 import { headcount, housingCap } from '../sim/game.js';
 import { HOME_WARD } from '../config.js';
@@ -84,9 +85,22 @@ export function createHud(ctx) {
       + (game.blockGain?.mood > 0.2 ? `<div class="row"><span>Courtyard blocks</span><span class="good">+${game.blockGain.mood.toFixed(1)}</span></div>` : '')
       + (game.tax > 0.1 ? `<div class="row"><span>Taxes</span><span class="bad">−${((game.tax - 0.1) * 70).toFixed(0)}</span></div>` : '');
   });
+  // Raiders on the road: a chip that counts down the weeks, and says how the walls would stand. A click looks at the gate.
+  const threat = chip('threat', icon('sword', 20), () => {
+    const g = game.raidGate;
+    const d = defenseOf(game, g), s = threatOf(game);
+    return `<b>Raiders on the road</b><div class="row"><span>Coming to</span><span>${g ? ['the north', 'the east', 'the south', 'the west'][g.dir] + ' gate' : 'the castle'}</span></div>`
+      + `<div class="row"><span>Your defence</span><span class="${d >= s * 1.3 ? 'good' : d < s ? 'bad' : ''}">${num(d, 0)}</span></div>`
+      + `<div class="row"><span>Their strength, about</span><span>${num(s, 0)}</span></div>`
+      + `<div class="dim">Towers, barracks and a gatehouse (with its bridge raised) hold them. Click to look at the gate.</div>`;
+  });
+  threat.classList.add('threat');
+  threat.addEventListener('click', () => { const g = game.raidGate; if (g?.mid) ctx.scene.focusOn(g.mid[0], g.mid[1], { zoom: 1.2 }); });
   el.append(bar);
 
   const speed = h('div.panel.speed');
+  const paused = h('span.paused', {}, 'Paused');
+  speed.append(paused);
   const speedButtons = SPEEDS.map((s) => {
     const b = h('button', { 'aria-label': s.label, html: icon(s.icon, 18), onclick: () => ctx.clock.set(s.id) });
     tip.attach(b, () => `${s.label} <span class="dim">[${s.key}]</span>`);
@@ -138,9 +152,17 @@ export function createHud(ctx) {
       const weeks = r.foodWeeks ?? 99;
       set('food', num(FOODS.reduce((n, f) => n + game.stock[f], 0)), { sub: weeks > 60 ? '' : `${num(weeks, 0)} wk`, low: weeks < 4, warn: weeks < 8 });
       set('pop', `${round(headcount(game))}`, { sub: `/${housingCap(game)}`, low: false, warn: headcount(game) >= housingCap(game) });
+      // Idle hands are worth a glance: they are what workshops and smallholdings are for.
+      const idle = Math.round(r.idle ?? 0);
+      chips.pop.refs.delta.textContent = idle >= 3 ? `${idle} idle` : '';
+      chips.pop.refs.delta.className = idle >= 3 ? 'd down' : 'd';
+      const raidIn = game.disasters && Number.isFinite(game.nextRaid) ? game.nextRaid - game.week : Infinity;
+      threat.hidden = !(raidIn > 0 && raidIn <= 3);
+      if (!threat.hidden) set('threat', `${raidIn} wk`, { low: defenseOf(game, game.raidGate) < threatOf(game) });
       set('mood', `${Math.round(game.happiness)}`, { low: game.happiness < 38, warn: game.happiness < 52 });
       chips.mood.firstChild.innerHTML = icon(faceOf(game.happiness), 20);
       for (const [s, b] of speedButtons) b.classList.toggle('on', ctx.clock.speed === s.id);
+      paused.hidden = ctx.clock.speed !== 0;
     },
   };
   return hud;

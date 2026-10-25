@@ -45,20 +45,29 @@ export function createToolbar(ctx) {
   let buildCat = 'food';
   const put = (...kids) => add(options, kids);
 
+  const touch = () => globalThis.matchMedia?.('(pointer: coarse)').matches ?? false;
   const render = () => {
     const t = tools.current;
     for (const [id, b] of buttons) b.classList.toggle('on', id === t);
     options.hidden = t === 'select';
+    // On a small screen the steward steps aside while a tool is in hand, to leave the land to work on.
+    options.parentNode?.classList.toggle('tooling', t !== 'select');
     options.replaceChildren();
     if (t === 'select') return;
     const o = tools.opts;
+    // The buttons along the foot of the bar: what the tool in hand can do, and a way to put it down, for a finger has
+    // no right button and no Esc.
+    const actions = [];
     if (t === 'road') {
       put(
         h('div.row', {}, ...Object.entries(ROADS).map(([id, r]) => opt([h('span', { html: icon('road', 18) }), h('span', {}, r.name), h('small.dim', {}, ` ${Object.entries(r.cost).map(([k, n]) => `${n} ${k === 'wood' ? 'timber' : k}`).join(' + ')} a ${id === 'bridge' ? 'span' : 'tile'}`)], o.road === id, () => tools.set('road', { road: id }), { title: r.desc }))),
         h('div.hint', { html: o.road === 'bridge' ? '<b>Bridge.</b> Drag in a straight line from one bank to the other: up to six tiles of water, both ends on dry land. The moat is crossed only at the gates.' : 'Drag along the ground to lay a road. Houses, shops and farms need a street to front on. Rivers and lakes need a <b>Bridge</b>.' }));
     } else if (t === 'zone') {
       put(
-        h('div.row', {}, ...Object.entries(ZONES).map(([id, z]) => opt([h('span.swatch', { style: { background: z.color } }), z.name], o.zone === id, () => tools.set('zone', { zone: id }), { title: z.desc })), opt([h('span', { html: icon('demolish', 16) }), 'Clear zones'], o.zone === 'clear', () => tools.set('zone', { zone: 'clear' }))),
+        // In three rows: what the town builds on, what it works, what it farms.
+        ...[['Town', ['res', 'market']], ['Work', ['craft', 'croft']], ['Farms', ['wheat', 'veg', 'orchard', 'pasture']]].map(([label, ids]) => h('div.row', {}, h('span.label', {}, label),
+          ...ids.map((id) => opt([h('span.swatch', { style: { background: ZONES[id].color } }), ZONES[id].name], o.zone === id, () => tools.set('zone', { zone: id }), { title: ZONES[id].desc })),
+          label === 'Farms' ? opt([h('span', { html: icon('demolish', 16) }), 'Clear zones'], o.zone === 'clear', () => tools.set('zone', { zone: 'clear' })) : null)),
         h('div.hint', { html: o.zone === 'clear' ? 'Drag over zoned land to clear it.' : `<b>${ZONES[o.zone].name}.</b> ${ZONES[o.zone].desc}` }));
     } else if (t === 'block') {
       const b = o.block;
@@ -88,11 +97,19 @@ export function createToolbar(ctx) {
         return c;
       }));
       const cur = o.build.type;
-      put(tabs, cards, h('div.hint', { html: cur ? `<b>${BUILDINGS[cur].name}.</b> Click on the land to build. <b>R</b> turns it${o.build.front === null ? ' (it faces the nearest street by itself)' : ''}. Right-click or Esc to stop.` : 'Choose a building, then click on the land.' }),
-        ctx.tools.pendingTouch ? h('button.btn.gold', { onclick: () => tools.commit() }, 'Place it here') : null);
+      put(tabs, cards, h('div.hint', { html: cur ? `<b>${BUILDINGS[cur].name}.</b> ${touch() ? 'Tap the land to set it down, then <b>Place it here</b>.' : 'Click on the land to build. <b>R</b> turns it.'}${o.build.front === null ? ' It faces the nearest street by itself.' : ''}` : `Choose a building, then ${touch() ? 'tap' : 'click on'} the land.` }));
+      if (cur) {
+        const front = o.build.front;
+        actions.push(h('button.btn.small', { onclick: () => tools.set('build', { build: { front: front === null ? 0 : front === 3 ? null : front + 1 } }), title: 'Turn it [R]', html: `${icon('rotate', 16)} ${front === null ? 'Facing the street' : `Facing ${['north', 'east', 'south', 'west'][front]}`}` }));
+      }
+      if (ctx.tools.pendingTouch) actions.push(h('button.btn.gold', { onclick: () => tools.commit() }, 'Place it here'));
     } else if (t === 'demolish') {
       put(h('div.hint', { html: 'Click a building, road, zone, tree or outcrop to clear it. Drag to clear many (buildings are only cleared by a click). Buildings give back some of what they cost, trees give timber, and rock gives stone.' }));
     }
+    put(h('div.row.actions-row', {},
+      touch() ? h('span.hint', {}, 'Two fingers slide, pinch and turn the map.') : null,
+      ...actions,
+      h('button.btn.small', { onclick: () => tools.cancel(), title: 'Put the tool down [Esc]', html: `${icon('close', 14)} Done` })));
   };
 
   tools.onChange(render);
