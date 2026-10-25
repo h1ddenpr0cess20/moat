@@ -1,5 +1,6 @@
 import { CHUNK, CHUNKS, GROUND, SIZE, WARD, WATER_LEVEL } from '../config.js';
 import { tiled } from 'madness-engine/textures/painters';
+import { FARM_ZONES, ZONE_ID } from '../catalog.js';
 import { fbm, hash2, smoothstep } from '../rng.js';
 import { baseHeight } from '../world/generate.js';
 import { HV, SUB, idx } from '../world/world.js';
@@ -24,6 +25,9 @@ const PAD = 2;
 const DATA = CHUNK + PAD * 2;
 
 const lerp = (a, b, t) => a + (b - a) * t;
+
+/** The zones that are ploughed ground, painted as earth under the crops. */
+const FIELD_IDS = new Set(FARM_ZONES.map((z) => ZONE_ID[z]));
 
 let blotCache = null;
 /** One tile of low-frequency noise (64 tiles across), shared by every chunk. */
@@ -78,7 +82,7 @@ function gather(world, cx, cy) {
       bank[k] = world.moat[t] === 2 ? 1 : 0;
       water[k] = g === GROUND.WATER || world.moat[t] === 1 ? 1 : 0;
       bld[k] = world.bld[t] ? 1 : 0;
-      field[k] = world.zone[t] >= 3 ? 1 : 0;
+      field[k] = FIELD_IDS.has(world.zone[t]) ? 1 : 0;
     }
   }
   for (let j = 1; j < DATA - 1; j++) {
@@ -103,11 +107,20 @@ function gather(world, cx, cy) {
   return { x0, y0, forest, rock, fert, sand, bank, dirt, water, H, S, hs };
 }
 
-/** Paints a chunk's ground. `sources` are the luminance arrays of the engine's grass, dirt and rock textures. */
-function paint(world, cx, cy, sources, canvas) {
+/**
+ * Paints a chunk's ground. `sources` are the luminance arrays of the engine's grass, dirt and rock textures.
+ * `box` ([x0, y0, x1, y1] in tiles) paints only the ground round those tiles, for a change that touched a few.
+ */
+function paint(world, cx, cy, sources, canvas, box = null) {
   const d = gather(world, cx, cy);
   const ctx = canvas.getContext('2d');
-  const image = ctx.createImageData(SIDE, SIDE);
+  // A tile's look blends into its neighbours two tiles out (the soft edges, the trodden earth round a wall).
+  const B = 2;
+  const toPx = (t) => Math.max(0, Math.min(SIDE, Math.floor((t - (cx * CHUNK - MARGIN)) * PX / B) * B));
+  const [px0, py0, px1, py1] = box ? [toPx(box[0] - 2), toPx(box[1] - 2), toPx(box[2] + 3), toPx(box[3] + 3)] : [0, 0, SIDE, SIDE];
+  if (px1 <= px0 || py1 <= py0) return;
+  const W = px1 - px0;
+  const image = ctx.createImageData(W, py1 - py0);
   const out = image.data;
   const blot = blotTable();
   const grass = sources.grass, dirtL = sources.dirt, rockL = sources.rock;
@@ -128,10 +141,9 @@ function paint(world, cx, cy, sources, canvas) {
     const k = j * d.hs + i;
     return (arr[k] * (1 - fu) + arr[k + 1] * fu) * (1 - fv) + (arr[k + d.hs] * (1 - fu) + arr[k + d.hs + 1] * fu) * fv;
   };
-  const B = 2;
   const attr = new Float32Array(6);
-  for (let by = 0; by < SIDE; by += B) {
-    for (let bx = 0; bx < SIDE; bx += B) {
+  for (let by = py0; by < py1; by += B) {
+    for (let bx = px0; bx < px1; bx += B) {
       // What the tiles say changes slowly, so it is looked up once for each block of pixels.
       const mx = wx0 + (bx + B / 2) * inv, mz = wy0 + (by + B / 2) * inv;
       attr[0] = tileAt(d.forest, mx, mz); attr[1] = tileAt(d.rock, mx, mz); attr[2] = tileAt(d.fert, mx, mz);
@@ -179,13 +191,13 @@ function paint(world, cx, cy, sources, canvas) {
           // A line of foam where the water meets the shore.
           const foam = smoothstep(0.09, 0.0, Math.abs(h - WATER_LEVEL + 0.02)) * 0.45 * (1 - wRock);
           r = lerp(r, COLORS.foam[0], foam); g = lerp(g, COLORS.foam[1], foam); bl = lerp(bl, COLORS.foam[2], foam);
-          const o = (py * SIDE + px) * 4;
+          const o = ((py - py0) * W + px - px0) * 4;
           out[o] = r > 255 ? 255 : r; out[o + 1] = g > 255 ? 255 : g; out[o + 2] = bl > 255 ? 255 : bl; out[o + 3] = 255;
         }
       }
     }
   }
-  ctx.putImageData(image, 0, 0);
+  ctx.putImageData(image, px0, py0);
 }
 
 /** The seasons' tints on the ground: spring, summer, autumn, winter. */
@@ -347,6 +359,7 @@ export function createTerrain(GFX, world, materials, scene) {
       }
       world.dirty.ground.clear();
       world.dirty.terrain.clear();
+      world.groundBox?.clear();
     },
 
     /** Redraws what has changed in the land, a chunk or two at a time. */
@@ -359,6 +372,8 @@ export function createTerrain(GFX, world, materials, scene) {
         freeGeometry(c.mesh.geometry);
         c.mesh.geometry = geometry;
         c.snow.geometry = geometry;
+        // The heights have changed, and the ground over them is painted again: only round what changed, for every
+        // change of height is touched with a box of ground. Without one (the whole map at once), the whole chunk is.
         world.dirty.ground.add(i);
         spent += 0.2;
         if (spent >= budget) return;
@@ -366,10 +381,13 @@ export function createTerrain(GFX, world, materials, scene) {
       for (const i of [...world.dirty.ground]) {
         const c = chunks[i];
         world.dirty.ground.delete(i);
+        const box = world.groundBox?.get(i) ?? null;
+        world.groundBox?.delete(i);
         if (!c.painted) continue;
-        paint(world, c.cx, c.cy, sources, c.canvas);
+        paint(world, c.cx, c.cy, sources, c.canvas, box);
         c.map.needsUpdate = true;
-        spent += 1;
+        // A few tiles' worth of painting is cheap; a whole chunk is the budget's full share.
+        spent += box ? Math.min(1, ((box[2] - box[0] + 5) * (box[3] - box[1] + 5)) / (SPAN * SPAN)) : 1;
         if (spent >= budget) return;
       }
     },

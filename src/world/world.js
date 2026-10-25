@@ -64,10 +64,22 @@ export function touch(world, kinds, x0, y0, x1 = x0, y1 = y0, margin = 1) {
   const c0 = Math.max(0, Math.floor((x0 - margin) / CHUNK)), c1 = Math.min(CHUNKS - 1, Math.floor((x1 + margin) / CHUNK));
   const r0 = Math.max(0, Math.floor((y0 - margin) / CHUNK)), r1 = Math.min(CHUNKS - 1, Math.floor((y1 + margin) / CHUNK));
   for (let r = r0; r <= r1; r++) for (let c = c0; c <= c1; c++) for (const k of list) world.dirty[k].add(c + r * CHUNKS);
+  // The ground is repainted only where it changed: each chunk keeps the box of tiles touched since it was last painted.
+  if (list.includes('ground')) {
+    world.groundBox ??= new Map();
+    for (let r = r0; r <= r1; r++) {
+      for (let c = c0; c <= c1; c++) {
+        const i = c + r * CHUNKS, box = world.groundBox.get(i);
+        const nb = [x0 - margin, y0 - margin, x1 + margin, y1 + margin];
+        world.groundBox.set(i, box ? [Math.min(box[0], nb[0]), Math.min(box[1], nb[1]), Math.max(box[2], nb[2]), Math.max(box[3], nb[3])] : nb);
+      }
+    }
+  }
 }
 
 export function touchAll(world, kinds = KINDS) {
   for (let i = 0; i < CHUNKS * CHUNKS; i++) for (const k of kinds) world.dirty[k].add(i);
+  if (kinds.includes('ground')) world.groundBox?.clear();
 }
 
 /** The height of the land at world (x, z): the same triangles the ground is drawn with. */

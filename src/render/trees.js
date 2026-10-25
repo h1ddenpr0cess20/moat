@@ -1,23 +1,23 @@
-import { CHUNK, CHUNKS, GROUND, WARDS } from '../config.js';
+import { CHUNK, CHUNKS, GROUND } from '../config.js';
 import { ZONE_ID } from '../catalog.js';
 import { hash2 } from '../rng.js';
 import { HV, SUB, heightAt, idx } from '../world/world.js';
-import { Batch, Mesher } from 'madness-engine/mesher';
-import { freeTree } from './dispose.js';
+import { Mesher, partGeometry } from 'madness-engine/mesher';
+import { freeInstances } from './dispose.js';
 
 /**
  * The forests and what grows in them: oaks, birches and pines standing in the
  * woodland tiles, boulders on the outcrops, fruit trees in the orchards. Each
- * chunk's trees are stamped into a few meshes; far from the camera a cheaper
- * set of the same trees is shown instead. Leaves are materials the seasons
- * colour, so a tree is built once and is green in summer and bare in winter.
+ * kind of tree is made once and sits on the graphics card once; a chunk only
+ * lists where its copies stand (eight numbers a tree), and draws every copy of
+ * a kind in one call. Far from the camera a cheaper set of the same trees is
+ * shown instead; both sets are kept, so the camera moving only swaps which is
+ * shown. Leaves are materials the seasons colour, so a tree is built once and
+ * is green in summer and bare in winter.
  */
 
-/** The share of tiles that keep a tree in the far wood: less on a bigger map, which has more of it to hold. */
-const FAR_KEEP = Math.min(0.72, 0.72 * Math.pow(7 / WARDS, 0.8));
-
-/** The share of trees that are drawn. The wood the simulation counts is untouched; a quarter fewer standing in it keeps the draw light. */
-const TREE_KEEP = 0.75;
+/** The share of tiles that keep a tree in the far wood: about one tree to a tile, a few tiles bare. */
+const FAR_KEEP = 0.72;
 
 const LEAF = ['leafA', 'leafB', 'leafC'];
 const TRUNK = ['#6a4a2c', '#5a3e26', '#74532f'];
@@ -138,9 +138,30 @@ export function buildTemplates() {
   return out;
 }
 
+/** Where the copies of each tree in a chunk stand, gathered before they are made into meshes. */
+class Planting {
+  constructor() { this.lists = new Map(); }
+  /** The same arguments as the mesher's `Batch.stamp`. */
+  stamp(template, x, y, z, yaw = 0, scale = 1, tint = null) {
+    let list = this.lists.get(template);
+    if (!list) { list = []; this.lists.set(template, list); }
+    list.push(x, y, z, yaw, scale, tint ? tint[0] : 1, tint ? tint[1] : 1, tint ? tint[2] : 1);
+  }
+}
+
 export function createTrees(GFX, world, materials, scene) {
   const { mat } = materials;
   const T = buildTemplates();
+  // Each template's parts as indexed geometry, made the first time a tree of it is planted and kept for good.
+  const geometries = new Map();
+  const partsOf = (template) => {
+    let parts = geometries.get(template);
+    if (!parts) {
+      parts = Object.entries(template).filter(([name]) => mat[name]).map(([name, part]) => [name, partGeometry(GFX, part)]);
+      geometries.set(template, parts);
+    }
+    return parts;
+  };
   const group = new GFX.Group();
   group.name = 'trees';
   scene.add(group);
@@ -154,7 +175,6 @@ export function createTrees(GFX, world, materials, scene) {
       const n = world_.tree[i];
       const alt = world_.h[(y * SUB + 1) * HV + x * SUB + 1];
       for (let k = 0; k < n; k++) {
-        if (hash2(x * 3 + k, y, 53) >= TREE_KEEP) continue;
         const fx = 0.12 + 0.76 * hash2(x * 3 + k, y, 11), fz = 0.12 + 0.76 * hash2(y * 3 + k, x, 13);
         const wx = x + fx, wz = y + fz;
         const wy = heightAt(world_, wx, wz) - 0.02;
@@ -166,7 +186,7 @@ export function createTrees(GFX, world, materials, scene) {
         else if (r < 0.34) kind = T.birch[(x * 3 + y + k) % 3];
         else kind = T.oak[(x * 7 + y * 3 + k) % 6];
         const tint = [0.9 + 0.2 * hash2(x, y + k, 29), 0.9 + 0.2 * hash2(x + 1, y, 31), 0.9 + 0.2 * hash2(x, y, 37 + k)];
-        b0?.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
+        b0.stamp(kind.lod0, wx, wy, wz, yaw, s, tint);
         // Far off, a wood is drawn thin and a little larger: about a tree to a tile, and a few tiles bare (the ground is painted as forest floor).
         if (k < (n > 2 ? 2 : 1) && hash2(x, y, 77) < FAR_KEEP) b1.stamp(kind.lod1, wx, wy, wz, yaw, s * 1.22, tint);
       }
@@ -178,26 +198,25 @@ export function createTrees(GFX, world, materials, scene) {
         const wy = heightAt(world_, wx, wz) - 0.04;
         const t = list[(x * 3 + y + k) % list.length];
         const s = 0.9 + 0.5 * hash2(x, y, 53 + k);
-        b0?.stamp(t.lod0, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
+        b0.stamp(t.lod0, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
         b1.stamp(t.lod1, wx, wy, wz, hash2(x, y, 59) * 6.28, s);
       }
     } else if (orchard) {
       const wx = x + 0.5 + (hash2(x, y, 61) - 0.5) * 0.2, wz = y + 0.5 + (hash2(y, x, 67) - 0.5) * 0.2;
       const wy = heightAt(world_, wx, wz);
       const t = T.fruit[['spring', 'summer', 'autumn', 'winter'][season]][(x + y) % 2];
-      b0?.stamp(t.lod0, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
+      b0.stamp(t.lod0, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
       b1.stamp(t.lod1, wx, wy, wz, hash2(x, y, 71) * 6.28, 0.95 + 0.2 * hash2(x, y, 73));
     }
   };
 
-  const disposeOf = (c) => { for (const k of ['lod0', 'lod1']) if (c[k]) { group.remove(c[k]); freeTree(c[k]); c[k] = null; } };
+  const disposeOf = (c) => { for (const k of ['lod0', 'lod1']) if (c[k]) { group.remove(c[k]); freeInstances(c[k]); c[k] = null; } };
 
   const build = (i, season) => {
     const cx = i % CHUNKS, cy = Math.floor(i / CHUNKS);
     const c = chunks[i];
     disposeOf(c);
-    // The full trees are only made for chunks near the camera (they are most of the memory); the light ones are always there.
-    const b0 = c.near ? new Batch() : null, b1 = new Batch();
+    const b0 = new Planting(), b1 = new Planting();
     let orchard = false;
     for (let y = cy * CHUNK; y < (cy + 1) * CHUNK; y++) {
       for (let x = cx * CHUNK; x < (cx + 1) * CHUNK; x++) {
@@ -207,17 +226,33 @@ export function createTrees(GFX, world, materials, scene) {
         if (world_.tree[t] > 0 || world_.ground[t] === GROUND.ROCK || world_.ground[t] === GROUND.ORE || isOrchard) stampTile(b0, b1, x, y, isOrchard, season);
       }
     }
-    const wrap = (batch, shadows) => {
-      if (!batch) return null;
+    const wrap = (planting, shadows) => {
       const g = new GFX.Group();
       g.name = 'trees';
-      for (const [name, acc] of batch.accs) {
-        const geometry = acc.geometry(GFX);
-        if (!geometry || !mat[name]) continue;
-        const mesh = new GFX.Mesh(geometry, mat[name]);
-        mesh.castShadow = shadows;
-        mesh.receiveShadow = true;
-        g.add(mesh);
+      for (const [template, list] of planting.lists) {
+        const count = list.length / 8;
+        let first = null;
+        for (const [name, geometry] of partsOf(template)) {
+          const mesh = new GFX.InstancedMesh(geometry, mat[name], count);
+          if (first) {
+            // The parts of one tree stand in the same places: they share the copies, which go up once.
+            mesh.instancePlace = first.instancePlace;
+            mesh.instanceLook = first.instanceLook;
+            mesh.count = count;
+            mesh.boundingSphere = first.boundingSphere;
+          } else {
+            for (let k = 0; k < count; k++) {
+              const o = k * 8;
+              mesh.setInstance(k, list[o], list[o + 1], list[o + 2], list[o + 3], list[o + 4], [list[o + 5], list[o + 6], list[o + 7]]);
+            }
+            mesh.count = count;
+            mesh.update();
+            first = mesh;
+          }
+          mesh.castShadow = shadows;
+          mesh.receiveShadow = true;
+          g.add(mesh);
+        }
       }
       group.add(g);
       return g;
@@ -225,7 +260,7 @@ export function createTrees(GFX, world, materials, scene) {
     // Trees take shadows but do not throw them. Near trees threw them and far ones could not, so a straight line of shade ran along every chunk border; the forest floor is painted dark under the woods instead.
     c.lod0 = wrap(b0, false);
     c.lod1 = wrap(b1, false);
-    if (c.lod0) c.lod0.visible = true;
+    c.lod0.visible = c.near;
     c.lod1.visible = !c.near;
     c.built = true;
     c.season = season;
@@ -257,18 +292,17 @@ export function createTrees(GFX, world, materials, scene) {
         if (n % 3 === 0) await new Promise((r) => setTimeout(r, 0));
       }
     },
-    /** Makes the full trees for the chunks near the camera and drops them for those far off; at most `budget` chunks a call. */
-    updateLod(cx, cz, near = 45, budget = 2) {
-      let spent = 0;
+    /** Shows the full trees in the chunks near the camera and the light ones in those far off. Both are kept, so this costs nothing to change. */
+    updateLod(cx, cz, near = 45) {
       for (const c of chunks) {
-        if (!c.built || spent >= budget) continue;
+        if (!c.built) continue;
         const x = ((c.i % CHUNKS) + 0.5) * CHUNK, z = (Math.floor(c.i / CHUNKS) + 0.5) * CHUNK;
         const d = Math.hypot(x - cx, z - cz);
         const want = c.near ? d < near + 14 : d < near - 6;
         if (want !== c.near) {
           c.near = want;
-          build(c.i, c.season);
-          spent++;
+          c.lod0.visible = want;
+          c.lod1.visible = !want;
         }
       }
     },

@@ -1,4 +1,7 @@
-import { ZONES, ZONE_ID } from '../catalog.js';
+import { FARM_ZONES, ZONES, ZONE_ID } from '../catalog.js';
+
+/** The zones drawn as crops rather than as a wash of the zone's colour. */
+const FIELDS = new Set(FARM_ZONES.map((z) => ZONE_ID[z]));
 import { CHUNK, CHUNKS, ROAD } from '../config.js';
 import { HV, SUB, heightAt, idx, inb } from '../world/world.js';
 import { rgb } from 'madness-engine/mesher';
@@ -316,7 +319,7 @@ export function createDecals(GFX, world, materials, scene) {
         }
         const z = world.zone[t];
         if (!z || world.bld[t] || world.road[t]) continue;
-        if (z >= ZONE_ID.wheat) {
+        if (FIELDS.has(z)) {
           const name = z === ZONE_ID.wheat ? 0 : z === ZONE_ID.veg ? 1 : 2;
           const orient = runsAlong(x, y, z);
           const stage = fieldStage(z, world.crop[t], cal);
