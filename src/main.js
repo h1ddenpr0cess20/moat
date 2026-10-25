@@ -3,6 +3,7 @@ import { CENTER, MAP_SIZES, SIZE_NAME, TICK_SECONDS, WARDS } from './config.js';
 import { createSound } from './audio/index.js';
 import { createScene } from './render/scene.js';
 import { deserialize, serialize } from './save.js';
+import { createSaves } from './saves.js';
 import { startGame, step } from './sim/game.js';
 import { createTitle } from './ui/title.js';
 import { createUI } from './ui/index.js';
@@ -10,8 +11,7 @@ import { createUI } from './ui/index.js';
 const params = new URLSearchParams(location.search);
 const host = document.getElementById('game');
 const root = document.getElementById('ui');
-const saveStore = saveSlot('moat.save.v1');
-const savedAt = saveSlot('moat.saved-at.v1');
+const saves = createSaves();
 const prefs = saveSlot('moat.prefs.v1');
 const randomSeed = () => Math.random().toString(36).slice(2, 8);
 const dev = import.meta.env.DEV;
@@ -30,7 +30,7 @@ const loading = {
 
 const difficulty = params.get('difficulty') ?? 'normal';
 const disasters = params.get('disasters') !== '0';
-const saved = saveStore.read();
+const saved = saves.current();
 try { localStorage.setItem('moat.wards', String(WARDS)); } catch { /* no storage, no memory of the size */ }
 let game = null;
 let hasSave = false;
@@ -70,14 +70,22 @@ const flow = {
     if (!flow.mapSized) { flow.mapSized = true; stage.key.shadow.mapSize.set(q.map, q.map); }
     prefs.write({ quality: id });
   },
-  savedAt: () => { const t = savedAt.read(); return saveStore.read() && t ? new Date(t).toLocaleString() : saveStore.read() ? 'some time ago' : null; },
+  saves,
+  savedAt: () => { const t = saves.currentAt(); return t ? new Date(t).toLocaleString() : t === 0 ? 'some time ago' : null; },
   save() {
     if (!started || game.gameOver) return false;
-    const ok = saveStore.write(serialize(game));
-    if (ok) savedAt.write(Date.now());
-    return ok;
+    return saves.saveCurrent(serialize(game));
   },
-  load() { location.search = '?load=1'; },
+  /** Saves the game by name, over the save `id` if given; the save's entry, or null if there was no room. */
+  saveAs(opts) { return started && !game.gameOver ? saves.save(serialize(game), opts) : null; },
+  /** Loads the game in play as last saved, or the named save `id`. */
+  load(id) {
+    if (id && !saves.restore(id)) return false;
+    // Once the page goes, what it would save on the way out is not the save it is going to.
+    leaving = true;
+    location.search = '?load=1';
+    return true;
+  },
   newGame() { ui.dialogs.close(); showTitle({ canContinue: true }); },
 };
 flow.setQuality(flow.quality);
@@ -101,6 +109,7 @@ stage.view.step(1, true);
 if (params.has('tod')) { atmosphere.setMode('hold'); atmosphere.setTime(p('tod', 0.45)); }
 
 let started = false;
+let leaving = false;
 let title = null;
 
 const begin = () => {
@@ -121,8 +130,9 @@ function showTitle({ canContinue }) {
   clock.set(0);
   camera.drift(0.035);
   title = createTitle({
-    seed: game.seed, difficulty: game.difficulty, disasters: game.disasters, size: SIZE_NAME, sizes: MAP_SIZES, canContinue,
+    seed: game.seed, difficulty: game.difficulty, disasters: game.disasters, size: SIZE_NAME, sizes: MAP_SIZES, canContinue, saves,
     onBegin: begin,
+    onLoad: (id) => flow.load(id),
     onContinue: () => { if (started) { title.remove(); title = null; ui.hide(false); camera.drift(0); clock.set(clock.last); } else begin(); },
     onNew: (seed, level, size, on) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&size=${size}&disasters=${on ? 1 : 0}&play=1`; },
   });
@@ -139,9 +149,9 @@ if (params.has('play') || params.has('load') || (dev && (pre || params.has('spee
 // ------------------------------------------------------------ saving
 
 game.on('season', () => { if (flow.save()) ui.ctx.say('The game is saved.', 'quiet'); });
-game.on('gameover', () => setTimeout(() => { if (game.gameOver) { saveStore.write(null); showTitle({ canContinue: false }); } }, 4000));
-addEventListener('pagehide', () => flow.save());
-document.addEventListener('visibilitychange', () => { if (document.hidden) flow.save(); });
+game.on('gameover', () => setTimeout(() => { if (game.gameOver) { saves.clearCurrent(); showTitle({ canContinue: false }); } }, 4000));
+addEventListener('pagehide', () => { if (!leaving) flow.save(); });
+document.addEventListener('visibilitychange', () => { if (document.hidden && !leaving) flow.save(); });
 
 let acc = 0;
 stage.run((dt) => {
