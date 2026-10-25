@@ -44,7 +44,7 @@ Effects: the core's services are lifted to `strength · (0.45 + 0.55·closure)` 
 
 ## Saves
 
-The world is regenerated from the seed; a save keeps runs of changed cells for each map (`ground tree amount road zone crop`, and the two height maps to a thousandth), the buildings, wards, gates and the game's numbers. Autosave each season and on leaving the page (`localStorage`, key `moat.save.v1`).
+The world is regenerated from the seed; a save keeps runs of changed cells for each map (`ground tree amount road zone crop`, and the two height maps to a thousandth), the buildings, wards, gates and the game's numbers. Autosave each season and on leaving the page (`localStorage`, key `moat.save.v1`): that is the game in play, which Continue and a reload come back to. Up to eight more saves are made by name from the menu (`src/saves.js`: each under `moat.save.<id>.v1`, with a list of them in `moat.saves.v1`). Loading one copies it over the game in play and reloads the page, since the map size is chosen from the game in play before anything is made.
 
 ## Known rough edges
 

@@ -1,5 +1,6 @@
 import { h } from './dom.js';
 import { icon } from './icons.js';
+import { savedList } from './saves.js';
 
 /**
  * The menu: save and load, sound, how the picture is drawn, and how to play.
@@ -29,15 +30,30 @@ export function menuDialog(ctx) {
       const saved = flow.savedAt();
       const mute = h('button.btn.small', { onclick: () => { sound.toggleMute(); mute.textContent = sound.muted ? 'Sound off' : 'Sound on'; } }, sound.muted ? 'Sound off' : 'Sound on');
       const quality = h('span.seg', {}, ...[['low', 'Low'], ['medium', 'Medium'], ['high', 'High']].map(([id, name]) => h('button', { class: flow.quality === id ? 'on' : '', onclick: (e) => { flow.setQuality(id); e.target.parentNode.querySelectorAll('button').forEach((b) => b.classList.toggle('on', b === e.target)); } }, name)));
+      const redraw = () => this.draw(body);
+      const stored = (entry, what) => {
+        if (entry) { ctx.say(`${what}: ${entry.name}.`, 'good'); redraw(); } else ctx.say(flow.saves.list().length >= flow.saves.MAX ? `There is room for ${flow.saves.MAX} saves: delete one first.` : 'The game could not be saved: the browser has no room for it.', 'bad');
+      };
+      const nameInput = h('input.save-name', { type: 'text', maxlength: 40, placeholder: `${game.seed}, as it stands`, 'aria-label': 'Name of the save', spellcheck: 'false' });
+      const saveNew = () => stored(flow.saveAs({ name: nameInput.value }), 'Saved');
+      nameInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') saveNew(); });
+      const loadFailed = () => ctx.say('That save could not be loaded: the browser has no room to open it.', 'bad');
       body.replaceChildren(
         h('div.grid2', {},
           h('div', {}, h('h3', {}, 'The game'),
-            h('div.actions', {}, h('button.btn.gold', { onclick: () => { ctx.dialogs.close(); } }, 'Back to the realm'), h('button.btn', { onclick: () => { flow.save(); ctx.say('The game is saved.', 'good'); ctx.dialogs.close(); } }, 'Save'), h('button.btn', { disabled: !saved, onclick: () => flow.load() }, 'Load')),
+            h('div.actions', {}, h('button.btn.gold', { onclick: () => { ctx.dialogs.close(); } }, 'Back to the realm'), h('button.btn', { onclick: () => { flow.save(); ctx.say('The game is saved.', 'good'); ctx.dialogs.close(); } }, 'Save'), h('button.btn', { disabled: !saved, title: 'Back to the last save of this realm', onclick: () => flow.load() }, 'Load')),
             h('p.dim', {}, saved ? `Last saved: ${saved}.` : 'Nothing saved yet. The game saves itself each season.'),
             h('div.actions', {}, h('button.btn', { onclick: () => flow.newGame() }, 'A new realm…'), h('button.btn', { onclick: () => { ctx.steward.reset(); ctx.say('The steward will say it all again.', 'info'); } }, 'Hear the hints again'))),
           h('div', {}, h('h3', {}, 'Sound'), mute, slider('Music', 'music'), slider('Effects', 'sfx'),
             h('h3', {}, 'Picture'), h('div.stat', {}, h('span', {}, 'Quality'), quality),
             h('p.dim', {}, 'Low draws fewer shadows and smaller pixels; it helps a slow machine.'))),
+        h('h3', {}, `Saved realms (${flow.saves.list().length} of ${flow.saves.MAX})`),
+        h('div.actions.save-new', {}, nameInput, h('button.btn', { onclick: saveNew }, 'Save as new')),
+        savedList(flow.saves, {
+          onLoad: (id) => { if (!flow.load(id)) loadFailed(); },
+          onOverwrite: (id) => stored(flow.saveAs({ id, name: nameInput.value }), 'Saved over'),
+          redraw,
+        }),
         h('h3', {}, 'How to play'),
         h('table', {}, h('tbody', {}, ...CONTROLS.map(([k, v]) => h('tr', {}, h('td', {}, h('b', {}, k)), h('td', {}, v))))),
         h('p.dim', { html: `${icon('castle', 16)} <b>Moat</b> is built on the Madness Engine. Seed: <b>${game.seed}</b> · ${game.difficulty}.` }));
