@@ -127,6 +127,7 @@ export function createSound({ game, scene }) {
     get muted() { return audio.muted; },
     update(dt) {
       if (!audio.ctx || !loops) return;
+      music.update();
       env.t -= dt;
       if (env.t <= 0) { sample(); env.t = 0.6; }
       const a = scene.atmosphere.state;

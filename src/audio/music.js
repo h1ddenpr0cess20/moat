@@ -6,9 +6,9 @@ import { hash2 } from '../rng.js';
  * The score: a lute, a recorder, a low drone and a frame drum, made on the
  * spot, wandering through the modes of the year (D dorian in spring, G
  * mixolydian in summer, A aeolian in autumn, a slow D phrygian in winter) in
- * a lilting six-eight. It plays a phrase, rests a while, and plays another,
- * so that it is a background and not a wall; the drum comes in when the town
- * is busy or the raiders are near.
+ * a lilting six-eight. Phrase follows phrase without a break (each opens on
+ * a bar of the lute alone, so it breathes without going quiet); the drum
+ * comes in when the town is busy or the raiders are near.
  */
 
 const MODES = [
@@ -36,7 +36,7 @@ export function createMusic(audio, { getState }) {
   let started = false;
   let timer = 0;
   let ctx, bus, wet, drone;
-  let next = 0, bar = 0, phrase = null, rest = 0, seed = 1, melodyAt = 4;
+  let next = 0, phrase = null, seed = 1, melodyAt = 4;
   let last = null;
 
   const degree = (mode, d, octave = 0) => mode.root + mode.scale[((d % 7) + 7) % 7] + 12 * (octave + Math.floor(d / 7));
@@ -109,17 +109,11 @@ export function createMusic(audio, { getState }) {
     if (last !== state.season && drone) { last = state.season; drone.set({ freq: NOTE(MODES[state.season].root - 24) }); }
     if (state.silent) return;
     // Far enough ahead that a timer the browser slows down (a tab in the background, a frame that takes long) does not leave a gap.
-    while (next < ctx.currentTime + 3) {
-      if (next < ctx.currentTime) next = ctx.currentTime + 0.1;
-      if (rest > 0) { rest -= 0.5; next = Math.max(next, ctx.currentTime) + 0.5; continue; }
-      const len = scheduleBar(next, state);
-      next += len;
-      bar++;
-      if (phrase.bar >= 8) {
-        phrase = null;
-        // A phrase of eight bars, then a short rest, sometimes: long ones sounded as if the music had stopped.
-        if (hash2(seed, bar, 12) < 0.5) rest = 2 + hash2(seed, bar, 13) * 5;
-      }
+    while (next < ctx.currentTime + 4) {
+      // Fallen behind (the page was put away): pick up on the next beat rather than crowd the missed bars in at once.
+      if (next < ctx.currentTime) next = ctx.currentTime + 0.05;
+      next += scheduleBar(next, state);
+      if (phrase.bar >= 8) phrase = null;
     }
     if (drone) drone.set({ gain: state.droneGain });
   };
@@ -143,6 +137,8 @@ export function createMusic(audio, { getState }) {
       timer = setInterval(tick, 250);
     },
     stop() { clearInterval(timer); started = false; drone?.stop(); },
+    /** Schedules what is due; the interval does it too, but a frame never misses, so the music never runs dry while the game is drawing. */
+    update() { if (started) tick(); },
     get started() { return started; },
   };
 }
