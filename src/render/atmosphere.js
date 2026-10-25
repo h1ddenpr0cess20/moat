@@ -53,7 +53,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
      * `week` and `frac` (how far through it) place the year; `lightK` lets the
      * game dim the day (a storm, say). Call it every frame.
      */
-    update(dt, { week, frac = 0, near = [0, 0, 0] }) {
+    update(dt, { week, frac = 0 }) {
       const inYearF = (week % WEEKS_PER_YEAR) + frac;
       const yearT = inYearF / WEEKS_PER_YEAR;
       const season = Math.floor(inYearF / 12);
@@ -103,7 +103,6 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
         stage.film.set({ filter: base + night + grey, vignette: VIGNETTE, grain: null, ui: null });
       }
       Object.assign(state, { night: L.night, day: L.day, rain: rain && season !== 3, snow, season, tod: clock, overcast });
-      fx.weather(season === 3 && snow > 0.3 && hash2(Math.floor(inYearF / 2), 5, seed) < 0.55 ? 'snow' : rain && season !== 3 ? 'rain' : null, dt, near[0], near[1], near[2]);
     },
   };
   return atm;

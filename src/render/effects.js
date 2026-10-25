@@ -3,9 +3,9 @@ import { hash2 } from '../rng.js';
 import { heightAt } from '../world/world.js';
 
 /**
- * Things in the air: chimney smoke drifting off on the wind, the flames and
- * black smoke of a fire, and the weather (the engine's rain and snow, falling
- * round wherever the camera looks). Smoke is a pool of soft puffs that rise,
+ * Things in the air: chimney smoke drifting off on the wind, and the flames
+ * and black smoke of a fire. (Rain and snow are shown by the light and the
+ * ground, not by falling drops.) Smoke is a pool of soft puffs that rise,
  * swell and fade; every puff of one kind (chimney smoke, black smoke, flame)
  * is drawn in a single call.
  */
@@ -33,7 +33,6 @@ export function createFx(GFX, scene, world) {
   const fires = [];
   const ground = { heightAt: (x, z) => heightAt(world, x, z) };
   const effects = createEffects(GFX, scene, { ground });
-  let current;
 
   const puff = (x, y, z, { life = 4.5, size = 0.12, up = 0.34, vx = 0, vz = 0, grow = 2.6, material = smokeMat } = {}) => {
     for (let n = 0; n < MAX; n++) {
@@ -101,11 +100,6 @@ export function createFx(GFX, scene, world) {
       }
       for (const mesh of kinds) { mesh.instancePlace.needsUpdate = true; mesh.instanceLook.needsUpdate = true; }
       effects.update(dt);
-    },
-    /** The weather: 'rain', 'snow' or nothing, falling round (x, y, z). */
-    weather(kind, dt, x, y, z) {
-      if (kind !== current) { current = kind; effects.setWeather(kind); }
-      effects.weather(dt, x, y, z);
     },
     /** Smoke is lighter by day, darker against the night. */
     tint(night) { smokeMat.color.setRGB(0.83 - 0.5 * night, 0.83 - 0.5 * night, 0.84 - 0.42 * night); },

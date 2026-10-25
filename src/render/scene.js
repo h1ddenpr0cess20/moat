@@ -114,7 +114,7 @@ export async function createScene({ host, game, progress = () => {} }) {
       gates.update(dt);
       overlays.update(dt);
       const frac = Math.min(1, scene.weekFrac);
-      atmosphere.update(live, { week: game.week, frac, near: [stage.target.x, stage.target.y + 8, stage.target.z] });
+      atmosphere.update(live, { week: game.week, frac });
       const cold = cal.season === 3 ? 1.7 : cal.season === 2 ? 1.2 : 0.8;
       fx.update(live, { emitters, near: [stage.target.x, stage.target.z], reach: 20 + 4 * camera.distance, rate: 0.5 * cold, wind: [0.35, 0.12], time });
     },

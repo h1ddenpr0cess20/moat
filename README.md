@@ -54,7 +54,7 @@ Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp
 
 * `src/world/`: the land from a seed (heightfield, moat distance field, wards, gates, roads, zones, lots). Pure JS, no drawing.
 * `src/sim/`: the weekly simulation (economy, people, growth, events, blocks, actions). Pure JS; `src/save.js` stores only what changed from the seeded land.
-* `src/render/`: the picture on the engine's `gfx`, `stage`, `view` and `effects`: chunked terrain painted per pixel, a flooded moat, trees, autotiled roads and seasonal fields, about forty building models drawn in code, day/night and season grading, rain and snow.
+* `src/render/`: the picture on the engine's `gfx`, `stage`, `view` and `effects`: chunked terrain painted per pixel, a flooded moat, trees, autotiled roads and seasonal fields, about forty building models drawn in code, day/night and season grading, overcast skies and lying snow.
 * `src/audio/`: sound and a generative lute, recorder and frame-drum score, all Web Audio, no samples.
 * `src/ui/`: the HUD, tools, panels, realm map and menus, in plain DOM.
 * `test/`: node tests, and `test/bot.js`, a scripted player used for tuning.
