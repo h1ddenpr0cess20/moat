@@ -54,6 +54,13 @@ export function createBot(game) {
         buildZone(game, rectTiles(C - 9, C - 12, C + 8, C - 10), 'veg');
         buildZone(game, rectTiles(C - 9, C + 9, C - 3, C + 11), 'market');
       }
+      // Work for the idle: a workshop block with a storehouse at its heart, and a lane of crofts, once the town has the hands.
+      if (wk % 8 === 0 && wk >= 24 && pop() > 24 && !game.botCraft) {
+        for (const [x0, y0] of [[C + 12, C - 7], [C - 26, C - 7], [C - 7, C + 13], [C - 7, C - 27]]) {
+          const plan = buildBlock(game, x0, y0, x0 + 13, y0 + 13, { ring: game.botCroft ? 'craft' : 'croft', core: game.botCroft ? 'none' : 'wheat' });
+          if (plan.ok && plan.roads?.length) { connect(game, { x: x0, y: y0, w: 14, d: 14 }); if (game.botCroft) game.botCraft = true; else game.botCroft = true; break; }
+        }
+      }
       if (wk % 2 !== 0 || wk < 2) return;
       const s = game.stock;
       const forest = forestAt();

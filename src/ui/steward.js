@@ -16,9 +16,10 @@ const HINTS = {
   heart: { text: 'A courtyard! The plaque over the block shows its rating. It climbs as the ring fills, and as the heart grows: taxes, rooms, mood and safety all improve. Make another, and join it to the first.' },
   food: { text: 'The stores are running thin. <b>Zone wheat</b> near a farmstead before the spring, and put a few hands on the plough: a hungry town does not stay.' },
   winter: { text: 'Winter is coming, my lord. The people burn timber to keep warm: see that you have some, and a woodcutter who works. A <b>forester’s lodge</b> plants new woods, so the cutters never run dry.' },
-  raid: { text: 'Raiders have been sighted at the gate! A <b>gatehouse</b> and a <b>watchtower</b> will hold them. They come in the end to the weakest gate.' },
+  raid: { text: 'Raiders have been sighted at the gate, and will be here in three weeks! A <b>gatehouse</b> and a <b>watchtower</b> will hold them. If the walls are weak, your steward will try to pay them off from the treasury, but they come back greedier. They come in the end to the weakest gate.' },
   moat: { text: 'The treasury is fat. Open the <b>Realm map</b> (<b>M</b>) and widen the moat round another ward: more land, more forest, more stone. A larger castle can hold more wards.' },
-  idle: { text: 'There are idle hands in the town. More farmsteads, mills and workshops will use them, and a town with work is a happy one.' },
+  idle: { text: 'There are idle hands in the town. Zone <b>Workshops</b> or <b>Smallholdings</b> (Zones, <b>3</b>), or stamp a block with a ring of them (Blocks, <b>4</b>), and the people will build their own work. A town with work is a happy one.' },
+  tools: { text: 'The tools are wearing out, and every trade goes slower without them. Zone some <b>Workshops</b> by a street: carpenters make tools from timber. A smithy makes better ones from iron.' },
   noroad: { text: 'A building here has no street to the castle, and no one can work in it. Lay a road from it to the town.' },
 };
 
@@ -65,7 +66,8 @@ export function createSteward(ctx) {
       if ((r.foodWeeks ?? 99) < 7 && game.week > 20) steward.hint('food');
       if (week >= 30 && week < 34 && game.stock.wood < 120) steward.hint('winter');
       if (game.stock.gold > 700 && game.week > 60) steward.hint('moat');
-      if ((r.idle ?? 0) > 10 && game.week > 30) steward.hint('idle');
+      if ((r.idle ?? 0) > 6 && game.week > 30) steward.hint('idle');
+      if (game.stock.tools < 1.5 && game.week > 30) steward.hint('tools');
       for (const b of game.world.buildings.values()) if (b.state === 'ready' && !b.connected && b.type !== 'well' && b.type !== 'green' && b.type !== 'castle' && b.type !== 'gatehouse' && game.week > 8) { steward.hint('noroad'); break; }
     },
   };

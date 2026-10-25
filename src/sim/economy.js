@@ -1,4 +1,4 @@
-import { BUILDINGS, CASTLE_LEVELS, FARM_RADIUS, FARM_ZONES, FOODS, FOOD_PER_PERSON, FOOD_SPLIT, FUEL_PER_PERSON, GOODS, RESOURCES, ZONE_ID } from '../catalog.js';
+import { BUILDINGS, CASTLE_LEVELS, FARM_RADIUS, FARM_ZONES, FOODS, FOOD_PER_PERSON, FOOD_SPLIT, FUEL_PER_PERSON, GOODS, INDUSTRY_ZONES, RESOURCES, ZONE_ID } from '../catalog.js';
 import { GROUND, TILES, WEEKS_PER_YEAR } from '../config.js';
 import { clamp, lerp } from '../rng.js';
 import { qualityAt } from './blocks.js';
@@ -7,6 +7,7 @@ import { countNear, needsRoad } from '../world/buildings.js';
 import { accessOf, network, rootTiles, walkRoads } from '../world/roads.js';
 import { coreTiles } from '../world/zoning.js';
 import { idx, touch } from '../world/world.js';
+import { PRICES } from './state.js';
 
 /**
  * The week's work: who is where, what they make, what everyone uses, what
@@ -99,8 +100,20 @@ export const priorityOf = (game, type) => {
   if (game.prio[type] !== undefined) return game.prio[type];
   // A town short of timber needs its woodcutters before almost anything.
   if ((type === 'woodcutter' || type === 'forester') && game.stock.wood < 70) return 3;
-  return BUILDINGS[type]?.cat === 'food' ? 3 : 2;
+  // Smallholdings feed the town: they are food, whatever shelf they sit on.
+  return BUILDINGS[type]?.cat === 'food' || BUILDINGS[type]?.work?.kind === 'grow' ? 3 : 2;
 };
+
+/** How much a fine block lifts the trades in its ring: up to a quarter more from its workshops and smallholdings. */
+const tradeK = (game, b) => (INDUSTRY_ZONES.includes(BUILDINGS[b.type]?.auto) ? 1 + 0.25 * qualityAt(game, b.x + b.w / 2, b.y + b.d / 2) : 1);
+
+/** What a smallholding brings in a week, at its staffing: each good of its yields, before the season. */
+function growYield(game, b, season) {
+  const w = BUILDINGS[b.type].work;
+  const soil = 0.55 + 0.6 * (game.world.fert[idx(Math.floor(b.x + b.w / 2), Math.floor(b.y + b.d / 2))] / 255);
+  const k = b.workers * (w.season?.[season] ?? 1) * soil * haulK(b) * tradeK(game, b);
+  return Object.fromEntries(Object.entries(w.yields).map(([r, n]) => [r, n * k]));
+}
 
 /**
  * Shares out the people: the garrison first, then the workplaces of the
@@ -278,10 +291,14 @@ function work(game) {
         b.acc = 0;
       }
       if (!b.note) b.note = 'At work';
+    } else if (w.kind === 'grow') {
+      const weather = cal.season === 2 ? game.weather.harvest : 1;
+      for (const [r, n] of Object.entries(growYield(game, b, cal.season))) gain(game, r, n * mood * (FOODS.includes(r) ? weather : 1));
+      b.note = cal.season === 3 ? 'Mending fences through the winter' : 'At work';
     } else if (w.kind === 'plant') {
       plant(game, b, w, [1, 0.7, 0.8, 0][cal.season] * haulK(b) * mood);
     } else if (w.kind === 'make') {
-      let ratio = b.eff * haulK(b) * mood;
+      let ratio = b.eff * haulK(b) * mood * tradeK(game, b);
       let wait = '';
       for (const [r, n] of Object.entries(w.in)) {
         const k = game.stock[r] / n;
@@ -401,6 +418,44 @@ function eat(game, people) {
   return { sat: need > 0 ? clamp(eaten / need) : 1, groups, need };
 }
 
+/** What the steward pays a carter for grain when the stores are bare: well over what a merchant asks. */
+export const RELIEF_PRICE = 2;
+
+/**
+ * When the stores are all but empty and the treasury is not, the steward
+ * sends for grain from the next county (and for firewood, in the cold):
+ * enough for six weeks, at a hard price, once a month at most. A town should
+ * not starve or freeze with gold in the keep.
+ */
+export function relief(game) {
+  const people = game.pop.children + game.pop.adults + game.pop.elders;
+  if (!people) return;
+  const cold = coldness(game.week);
+  const burn = people * lerp(FUEL_PER_PERSON.mild, FUEL_PER_PERSON.cold, Math.max(cold, coldness(game.week + 4)));
+  if (game.week >= (game.nextFirewood ?? 0) && game.stock.wood < burn * 2) {
+    const price = PRICES.wood * RELIEF_PRICE;
+    const n = Math.floor(Math.min(burn * 6, (game.stock.gold - 20) / price, capFor(game.cap ?? capacity(game), 'wood') - game.stock.wood));
+    if (n >= 5) {
+      spend(game, 'gold', n * price);
+      gain(game, 'wood', n);
+      game.nextFirewood = game.week + 4;
+      game.note(`The woodpile was all but gone: your steward bought ${n} timber for ${Math.round(n * price)} gold. A woodcutter would be cheaper.`, 'info');
+    }
+  }
+  if (game.week < (game.nextRelief ?? 0)) return;
+  const need = people * FOOD_PER_PERSON;
+  const stock = FOODS.reduce((n, f) => n + game.stock[f] * RESOURCES[f].value, 0);
+  if (stock >= need * 2) return;
+  const price = PRICES.grain * RELIEF_PRICE;
+  const room = capFor(game.cap ?? capacity(game), 'grain') - FOODS.reduce((n, f) => n + game.stock[f], 0);
+  const n = Math.floor(Math.min(need * 6, (game.stock.gold - 20) / price, room));
+  if (n < 5) return;
+  spend(game, 'gold', n * price);
+  gain(game, 'grain', n);
+  game.nextRelief = game.week + 4;
+  game.note(`The stores were all but bare: your steward bought ${n} grain from carters for ${Math.round(n * price)} gold. Fields would be cheaper.`, 'info');
+}
+
 /** Everyone eats, burns fuel, drinks and wears out what they own. */
 function consume(game) {
   const people = game.pop.children + game.pop.adults + game.pop.elders;
@@ -497,6 +552,15 @@ export function estimateFood(game) {
       const sea = def.work.season ? def.work.season.reduce((a, c) => a + c, 0) / 4 : 1;
       other += def.work.rate * b.workers * 48 * sea * RESOURCES[def.work.res].value * 0.8;
     } else if (b.type === 'mill') millCap += def.work.in.grain * b.eff * 48;
+    else if (def?.work?.kind === 'grow') {
+      // A smallholding's year: a week's yield in each season, twelve weeks of each.
+      for (let season = 0; season < 4; season++) {
+        const y = growYield(game, b, season);
+        grain += (y.grain ?? 0) * 12;
+        produce += (y.produce ?? 0) * 12;
+        other += (y.meat ?? 0) * 12 * RESOURCES.meat.value;
+      }
+    }
   }
   grain *= game.weather.harvest;
   produce *= game.weather.harvest;
@@ -519,6 +583,7 @@ export function weekWork(game) {
   work(game);
   farm(game);
   estimateFood(game);
+  relief(game);
   consume(game);
   spoil(game);
   money(game);

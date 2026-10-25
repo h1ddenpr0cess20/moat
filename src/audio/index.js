@@ -89,7 +89,7 @@ export function createSound({ game, scene }) {
   game.on('annexStart', () => SFX.place());
   game.on('fire', () => { if (ok('fire', 1)) SFX.alarm(); });
   game.on('warning', () => { threat = 1; SFX.horn(); });
-  game.on('raid', ({ outcome }) => { threat = 0; SFX.clash(); setTimeout(() => (outcome === 'lost' ? SFX.dirge() : SFX.fanfare()), 900); });
+  game.on('raid', ({ outcome }) => { threat = 0; if (outcome === 'bought') return; SFX.clash(); setTimeout(() => (outcome === 'sacked' || outcome === 'pillaged' ? SFX.dirge() : SFX.fanfare()), 900); });
   game.on('harvest', () => SFX.harvest());
   game.on('merchant', () => SFX.coin());
   game.on('castle', () => SFX.fanfare());

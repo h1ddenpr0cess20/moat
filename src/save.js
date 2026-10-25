@@ -1,6 +1,7 @@
 import { ROAD, WARDS } from './config.js';
 import { mulberry32 } from './rng.js';
-import { newGame } from './sim/state.js';
+import { START } from './catalog.js';
+import { defaultTrade, newGame } from './sim/state.js';
 import { prime } from './sim/game.js';
 import { clearMoatTrees, computeMoat } from './world/wards.js';
 import { HEIGHTS, MAPS } from './world/snapshot.js';
@@ -72,6 +73,8 @@ export function serialize(game) {
     rank: game.rank,
     trade: game.trade,
     nextMerchant: game.nextMerchant,
+    nextRelief: game.nextRelief ?? 0,
+    nextFirewood: game.nextFirewood ?? 0,
     prio: game.prio,
     nextRaid: Number.isFinite(game.nextRaid) ? game.nextRaid : null,
     raids: game.raids,
@@ -116,8 +119,9 @@ export function deserialize(data) {
   }
   world.nextId = data.nextId;
   Object.assign(game, {
-    week: data.week, stock: data.stock, pop: data.pop, happiness: data.happiness, health: data.health, shock: data.shock, tax: data.tax,
-    castleLevel: data.castleLevel, castleWork: data.castleWork, rank: data.rank, trade: data.trade, nextMerchant: data.nextMerchant, prio: data.prio,
+    // Goods the game has gained since the save was made start at what a new lord has.
+    week: data.week, stock: { ...START.stock, ...data.stock }, pop: data.pop, happiness: data.happiness, health: data.health, shock: data.shock, tax: data.tax,
+    castleLevel: data.castleLevel, castleWork: data.castleWork, rank: data.rank, trade: { ...defaultTrade(), ...data.trade }, nextMerchant: data.nextMerchant, nextRelief: data.nextRelief ?? 0, nextFirewood: data.nextFirewood ?? 0, prio: data.prio,
     nextRaid: data.nextRaid ?? Infinity, raids: data.raids, plague: data.plague, weather: data.weather, log: data.log, gameOver: data.gameOver, stats: data.stats,
   });
   game.rnd = mulberry32((world.seed ^ 0xa5a5a5a5 ^ Math.imul(data.week + 1, 2654435761)) >>> 0);

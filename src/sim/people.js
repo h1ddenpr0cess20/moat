@@ -117,8 +117,10 @@ export function births(game) {
   }
   game.stats.deaths += dead;
   if (dead >= 3) game.note(`${dead} died this week${starving > 0.01 ? ' of hunger' : freezing > 0.005 ? ' of the cold' : ill > 0 ? ' of the plague' : ''}.`, 'bad');
-  if (game.plague > 0) game.plague--;
-  if (dead && game.plague === 0 && ill > 0) game.note('The plague has passed.', 'good');
+  if (game.plague > 0) {
+    game.plague--;
+    if (game.plague === 0) game.note('The plague has passed.', 'good');
+  }
 
   // Left, or arrived.
   if (game.happiness < 38 && total > 6) {

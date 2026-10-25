@@ -30,7 +30,10 @@ function stamp(map, cx, cy, radius, strength, size) {
 export function computeCoverage(game, force = false) {
   const { world } = game;
   const blocksChanged = computeBlocks(game, force);
-  if (!force && !blocksChanged && game.cover && game.coverVer === (world.bver ?? 0) && game.coverAle === (game.report.aleSat ?? 1)) return game.cover;
+  // How staffed the serving buildings are matters too: a tavern no one works cheers no one.
+  let staff = 0;
+  for (const b of world.buildings.values()) if (b.state === 'ready' && (BUILDINGS[b.type]?.serve || GUARD[b.type]) && BUILDINGS[b.type].jobs) staff = (staff * 31 + Math.round(Math.min(1, b.eff || 0) * 8)) % 1e9;
+  if (!force && !blocksChanged && game.cover && game.coverVer === (world.bver ?? 0) && game.coverAle === (game.report.aleSat ?? 1) && game.coverStaff === staff) return game.cover;
   const maps = Object.fromEntries(COVER_KINDS.map((k) => [k, new Float32Array(TILES)]));
   const aleSat = game.report.aleSat ?? 1;
   for (const b of world.buildings.values()) {
@@ -65,6 +68,7 @@ export function computeCoverage(game, force = false) {
   game.cover = maps;
   game.coverVer = world.bver ?? 0;
   game.coverAle = aleSat;
+  game.coverStaff = staff;
   return maps;
 }
 
