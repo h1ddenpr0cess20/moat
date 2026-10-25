@@ -4,11 +4,11 @@ import { createSound } from './audio/index.js';
 import { createScene } from './render/scene.js';
 import { deserialize, serialize } from './save.js';
 import { createSaves } from './saves.js';
+import { params, relaunch } from './launch.js';
 import { startGame, step } from './sim/game.js';
 import { createTitle } from './ui/title.js';
 import { createUI } from './ui/index.js';
 
-const params = new URLSearchParams(location.search);
 const host = document.getElementById('game');
 const root = document.getElementById('ui');
 const saves = createSaves();
@@ -83,7 +83,7 @@ const flow = {
     if (id && !saves.restore(id)) return false;
     // Once the page goes, what it would save on the way out is not the save it is going to.
     leaving = true;
-    location.search = '?load=1';
+    relaunch({ load: 1 });
     return true;
   },
   newGame() { ui.dialogs.close(); showTitle({ canContinue: true }); },
@@ -134,7 +134,7 @@ function showTitle({ canContinue }) {
     onBegin: begin,
     onLoad: (id) => flow.load(id),
     onContinue: () => { if (started) { title.remove(); title = null; ui.hide(false); camera.drift(0); clock.set(clock.last); } else begin(); },
-    onNew: (seed, level, size, on) => { location.search = `?new=1&seed=${encodeURIComponent(seed)}&difficulty=${level}&size=${size}&disasters=${on ? 1 : 0}&play=1`; },
+    onNew: (seed, level, size, on) => relaunch({ new: 1, seed, difficulty: level, size, disasters: on ? 1 : 0, play: 1 }),
   });
   document.body.append(title.el);
 }

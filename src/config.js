@@ -1,3 +1,5 @@
+import { params } from './launch.js';
+
 /**
  * The numbers the whole game agrees on. One tile is one unit of the engine's
  * world; the map is a grid of wards, and a ward is what the moat is dug round.
@@ -8,7 +10,7 @@ export const WARD = 30;
 
 /**
  * The sizes of the map, in wards along a side (odd, so the castle's ward is in the middle). A realm's size is
- * chosen once, before anything else is made: by `?size=` in the page's address for a new realm, else by the
+ * chosen once, before anything else is made: by the size the title chose for a new realm (see launch.js), else by the
  * size the saved realm was made at. Everything below is worked out from it. (In node, `MOAT_WARDS`.)
  */
 export const MAP_SIZES = Object.freeze({ small: 7, medium: 9, large: 11 });
@@ -18,7 +20,7 @@ const chooseWards = () => {
     const env = globalThis.process?.env?.MOAT_WARDS;
     if (env) return +env;
     if (typeof location !== 'undefined') {
-      const q = new URLSearchParams(location.search);
+      const q = params;
       if (q.has('size')) return MAP_SIZES[q.get('size')] ?? MAP_SIZES[DEFAULT_SIZE];
       if (!q.has('new')) {
         const kept = +globalThis.localStorage?.getItem('moat.wards');
