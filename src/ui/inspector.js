@@ -110,7 +110,7 @@ export function createInspector(ctx) {
   function showBuilding(b) {
     const def = defOf(b);
     const [status, kind] = statusOf(b);
-    const parts = [...head(def.name, `${def.cat === 'housing' ? 'Home' : def.cat === 'market' ? 'Trade' : def.cat[0].toUpperCase() + def.cat.slice(1)}${b.level > 1 && def.cat === 'housing' ? ` · level ${b.level}` : ''}`)];
+    const parts = [...head(def.name, `${def.cat === 'housing' ? 'Home' : def.cat === 'market' ? 'Trade' : def.cat[0].toUpperCase() + def.cat.slice(1)}${b.level > 1 && def.auto ? ` · level ${b.level}` : ''}`)];
     parts.push(h('div.badge-line', {}, tag(status, kind)));
     if (b.state === 'building') parts.push(bar(b.progress, 'warn'));
     parts.push(h('p', {}, def.desc));
@@ -124,14 +124,16 @@ export function createInspector(ctx) {
       if (def.work?.kind === 'farm') rows.push(['Fields tended', `${b.fields?.length ?? b.fields?.size ?? 0} tiles`]);
       if (def.work?.kind === 'gather') rows.push(['Gathers', `${RESOURCES[def.work.res].name.toLowerCase()} within ${def.work.radius} tiles`]);
       if (def.work?.kind === 'make') rows.push(['Makes', `${Object.keys(def.work.out).map((r) => `${num(def.work.out[r] * Math.min(1, b.eff || 0), 1)} ${RESOURCES[r].name.toLowerCase()}`).join(', ')} a week from ${Object.entries(def.work.in).map(([r, n]) => `${num(n * Math.min(1, b.eff || 0), 1)} ${RESOURCES[r].name.toLowerCase()}`).join(', ')}`]);
+      if (def.work?.kind === 'grow') rows.push(['Grows', `${Object.keys(def.work.yields).map((r) => RESOURCES[r].name.toLowerCase()).join(', ')}, most at harvest`]);
+      if (def.shop) rows.push(['Sells', `wares worth ${num(def.shop * 1.7, 1)} gold a week at most`]);
       if (def.serve) rows.push(['Looks after', `homes within ${def.serve.radius} tiles`]);
       if (def.store) rows.push(['Holds', Object.entries(def.store).map(([k, n]) => `${num(n)} ${k}`).join(', ')]);
       if (def.defense) rows.push(['Defence', def.defense]);
     } else rows.push(['Crew', `${round((b.crewK ?? 0) * def.crew)} of ${def.crew} builders`]);
     parts.push(kv(rows));
     const block = blockAt(game, b.x + 0.5, b.y + 0.5);
-    if (block && def.cap) parts.push(h('h3', {}, `In ${block.name}`), blockCard(block, true));
-    if (def.cap && b.state === 'ready') parts.push(...houseNeeds(b));
+    if (block && (def.cap || def.auto)) parts.push(h('h3', {}, `In ${block.name}`), blockCard(block, true));
+    if (def.auto === 'res' && b.state === 'ready') parts.push(...houseNeeds(b));
     if (HEARTS[b.type] && b.state === 'ready' && b.type !== 'castle') {
       const inHeart = block && block.core.includes(idx(Math.floor(b.x + b.w / 2), Math.floor(b.y + b.d / 2)));
       parts.push(h('p', { html: inHeart ? `<span class="good">★ This is the heart of its block.</span>` : '<span class="dim">★ In the middle of a donut block this would serve the whole ring and earn a courtyard bonus.</span>' }));

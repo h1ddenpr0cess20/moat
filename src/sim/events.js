@@ -19,6 +19,11 @@ import { PRICES } from './state.js';
  */
 
 const DIRECTIONS = ['north', 'east', 'south', 'west'];
+/** Weeks of warning before a raid: time to man a tower or raise the bridge. */
+const WARNING = 3;
+/** Gold a raider's strength is bought off for, if the treasury has it and the walls would not hold; each time they are paid they come back wanting a quarter more. */
+export const PAYOFF = 36;
+export const payoffPrice = (game, strength) => Math.round(strength * PAYOFF * (1 + 0.25 * (game.raids.bought ?? 0)));
 const DIFFICULTY = { peaceful: 0, easy: 0.7, normal: 1, hard: 1.4 };
 
 /** The year's weather is decided at the turn of the seasons. */
@@ -86,8 +91,12 @@ export function merchants(game) {
   else game.note('A merchant caravan came to the gate, but you have given no orders. Open the Trade ledger.', 'info', gate.mid);
 }
 
-const FLAMMABLE = { cottage: 1, stall: 1.2, house: 0.55, shop: 0.6, townhouse: 0.4, merchant: 0.4, farmstead: 0.7, woodcutter: 0.8, hunter: 0.8, fishery: 0.8, storehouse: 0.5, granary: 0.6, weaver: 0.7 };
-const HOT = new Set(['smithy', 'mill', 'brewery', 'tavern']);
+const FLAMMABLE = { cottage: 1, stall: 1.2, house: 0.55, shop: 0.6, townhouse: 0.4, merchant: 0.4, farmstead: 0.7, woodcutter: 0.8, hunter: 0.8, fishery: 0.8, storehouse: 0.5, granary: 0.6, weaver: 0.7, croft: 0.9, smallholding: 0.7, grange: 0.5, workshop: 1.1, joinery: 0.9, guildhall: 0.5 };
+const HOT = new Set(['smithy', 'mill', 'brewery', 'tavern', 'joinery', 'guildhall']);
+/** The chance a week that a building catches, before what is near it is counted: a town of a hundred roofs sees a fire every few years. */
+const IGNITE = 0.00006;
+/** The chance a burning building takes a neighbour with it, before wells and courtyards. */
+const SPREAD = 0.2;
 
 export function burn(game, b, depth = 0) {
   const { world } = game;
@@ -101,11 +110,12 @@ export function burn(game, b, depth = 0) {
   world.netVersion = (world.netVersion ?? 0) + 1;
   game.emit('fire', { at, building: b });
   game.note(`The ${BUILDINGS[b.type].name.toLowerCase()} burned down.`, 'bad', at);
-  if (depth < 2) {
+  // A fire may take the roof next door, but the neighbours are out with buckets: it seldom goes further.
+  if (depth < 1) {
     for (const o of [...world.buildings.values()]) {
-      if (o.type === 'castle') continue;
+      if (o.type === 'castle' || !FLAMMABLE[o.type]) continue;
       const d = Math.hypot(o.x + o.w / 2 - at[0], o.y + o.d / 2 - at[1]);
-      if (d < 3.2 && game.rnd() < 0.45 * (1 - 0.8 * covered(game, 'water', at[0], at[1])) * (1 - 0.5 * qualityAt(game, o.x + o.w / 2, o.y + o.d / 2))) burn(game, o, depth + 1);
+      if (d < 2.8 && game.rnd() < SPREAD * FLAMMABLE[o.type] * (1 - 0.8 * covered(game, 'water', at[0], at[1])) * (1 - 0.5 * qualityAt(game, o.x + o.w / 2, o.y + o.d / 2))) burn(game, o, depth + 1);
     }
   }
 }
@@ -114,7 +124,7 @@ export function fires(game) {
   if (!game.disasters) return;
   const { world } = game;
   const cal = calendar(game.week);
-  const season = cal.season === 1 ? 1.5 : cal.season === 3 ? 0.8 : 1;
+  const season = cal.season === 1 ? 1.3 : cal.season === 3 ? 0.8 : 1;
   const hot = [...world.buildings.values()].filter((b) => HOT.has(b.type) && b.state === 'ready');
   for (const b of [...world.buildings.values()]) {
     const f = FLAMMABLE[b.type];
@@ -122,7 +132,7 @@ export function fires(game) {
     const cx = b.x + b.w / 2, cy = b.y + b.d / 2;
     let near = 0;
     for (const h of hot) if (h !== b && Math.hypot(h.x + h.w / 2 - cx, h.y + h.d / 2 - cy) < 5) near++;
-    const p = 0.00022 * f * (1 + 0.7 * near) * season * (1 - 0.85 * covered(game, 'water', cx, cy)) * (1 - 0.3 * qualityAt(game, cx, cy)) * (game.difficulty === 'peaceful' ? 0.5 : 1);
+    const p = IGNITE * f * (1 + 0.5 * near) * season * (1 - 0.85 * covered(game, 'water', cx, cy)) * (1 - 0.3 * qualityAt(game, cx, cy)) * (game.difficulty === 'peaceful' ? 0.5 : 1);
     if (game.rnd() < p) { burn(game, b); break; }
   }
 }
@@ -172,11 +182,11 @@ function nearest(game, gate, n) {
 export function raids(game) {
   if (!game.disasters) return;
   const { world } = game;
-  if (game.week === game.nextRaid - 1 && game.nextRaid !== Infinity) {
+  if (game.week === game.nextRaid - WARNING && game.nextRaid !== Infinity) {
     const gates = world.gates.length ? world.gates : null;
     game.raidGate = gates ? gates[Math.floor(game.rnd() * gates.length)] : null;
     const g = game.raidGate;
-    game.note(g ? `Smoke and torches to the ${DIRECTIONS[g.dir]}: raiders are marching on the ${DIRECTIONS[g.dir]} gate. They will be here within the week.` : 'Raiders are marching on the castle!', 'bad', g?.mid ?? [CENTER, CENTER]);
+    game.note(g ? `Smoke and torches to the ${DIRECTIONS[g.dir]}: raiders are marching on the ${DIRECTIONS[g.dir]} gate. They will be here in ${WARNING} weeks.` : 'Raiders are marching on the castle!', 'bad', g?.mid ?? [CENTER, CENTER]);
     game.emit('warning', { gate: g });
     return;
   }
@@ -200,21 +210,30 @@ export function raids(game) {
   } else if (ratio >= 1) {
     outcome = 'repelled';
     game.raids.won++;
-    const b = gate ? nearest(game, gate, 4)[Math.floor(game.rnd() * 4)] : null;
+    const b = gate && game.rnd() < 0.4 ? nearest(game, gate, 4)[Math.floor(game.rnd() * 4)] : null;
     if (b) burn(game, b);
-    game.note('Raiders were driven off, but not before they put a torch to a roof.', 'info', at);
+    game.note(b ? 'Raiders were driven off, but not before they put a torch to a roof.' : `Raiders were driven off from the ${gate ? DIRECTIONS[gate.dir] : ''} gate.`, b ? 'info' : 'good', at);
+  } else if (game.payoff !== false && game.stock.gold >= payoffPrice(game, strength)) {
+    // The walls would not hold, but the treasury will: the steward meets them at the gate with a purse.
+    outcome = 'bought';
+    const price = payoffPrice(game, strength);
+    game.raids.bought = (game.raids.bought ?? 0) + 1;
+    game.stock.gold -= price;
+    game.flows.used.gold = (game.flows.used.gold ?? 0) + price;
+    game.shock += 2;
+    game.note(`The walls would not have held. Your steward paid the raiders ${price} gold, and they went away. They will want more next time: build towers.`, 'info', at);
   } else {
     const severe = ratio < 0.6;
     outcome = severe ? 'sacked' : 'pillaged';
     game.raids.lost++;
-    const loot = severe ? 0.35 : 0.15;
+    const loot = severe ? 0.25 : 0.12;
     for (const r of GOODS) game.stock[r] *= 1 - loot;
-    const burnt = gate ? nearest(game, gate, severe ? 5 : 2) : [];
+    const burnt = gate ? nearest(game, gate, severe ? 3 : 1) : [];
     burnt.forEach((b) => burn(game, b));
-    const dead = Math.min(headcount(game) - 1, Math.round(headcount(game) * (severe ? 0.07 : 0.025)));
+    const dead = Math.min(headcount(game) - 1, Math.round(headcount(game) * (severe ? 0.04 : 0.015)));
     for (const k of ['adults', 'children', 'elders']) game.pop[k] = Math.max(0, game.pop[k] - Math.round(dead * game.pop[k] / Math.max(1, headcount(game))));
-    game.shock += severe ? 18 : 8;
-    game.note(severe ? 'The barony has been sacked. Raiders took a third of everything and put the gate quarter to the torch.' : 'Raiders broke in at the gate, took what they could carry and left.', 'bad', at);
+    game.shock += severe ? 14 : 6;
+    game.note(severe ? 'The barony has been sacked. Raiders took a quarter of everything and put the gate quarter to the torch.' : 'Raiders broke in at the gate, took what they could carry and left.', 'bad', at);
   }
   game.emit('raid', { gate, outcome, at, strength, defense });
 }

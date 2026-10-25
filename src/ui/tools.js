@@ -409,7 +409,13 @@ export function createTools(ctx) {
 
   dom.addEventListener('pointerdown', (e) => {
     lastPointer = { x: e.clientX, y: e.clientY, clientX: e.clientX, clientY: e.clientY, pointerType: e.pointerType };
-    if (e.button !== 0 || camera.gesturing) return;
+    // A second finger down is a pinch or a twist of the view: whatever the first finger had begun to draw is let go,
+    // so lifting the fingers after does not lay a road or a zone that was never meant.
+    if (camera.gesturing) {
+      if (drag) { if (camera.grabbing) camera.endGrab(); drag = null; clearPreview(); refresh(); }
+      return;
+    }
+    if (e.button !== 0) return;
     const p = pickFor(e);
     tools.hover = p;
     if (!p) return;

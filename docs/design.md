@@ -12,15 +12,31 @@ The moat is a distance field from the *exposed borders* of owned wards (borders 
 
 ## A week
 
-weather → work and farms → food and fuel → money → mood → births and deaths → construction → coverage and blocks → growth → merchants → fire → plague → raids → tribute → rank.
+weather → work and farms → relief → food and fuel → money → mood → births and deaths → construction → coverage and blocks → growth → merchants → fire → plague → raids → tribute → rank.
+
+Relief: when food in store is under two weeks' eating and there is gold, the steward buys six weeks of grain at twice the merchant's price (at most once in four weeks); likewise firewood when the woodpile is under two weeks' burning.
 
 Labour: the garrison, then a third of the hands held for building sites, then priority-3 jobs (food, and woodcutters when timber is low), then crews up to 55%, then the rest by priority.
+
+## Industry
+
+Two zones grow the people's own trades, as the housing and market zones do:
+
+* **Smallholdings** (`croft` → `smallholding` → `grange`) house a family (2–4 beds) and grow mixed food by worker and season (`[0.6, 1, 1.5, 0.3]`, × soil `0.55 + 0.6·fert`), with no farmstead. Their jobs are food priority.
+* **Workshops** (`workshop` → `joinery` → `guildhall`) turn timber (and at the top, iron) into tools, and sell wares like a shop (`shop` 0.8, 1.4, 2.4).
+
+They are built when the idle exceed the jobs already going up by two (smallholdings first while food support is under 1.3 × the people), and otherwise a croft when the town wants both homes and food, or a workshop when tools are under `3 + 0.04·people` and no workshop is short of hands. They rise a level when worked at 90% or better and the town is big enough (30/90 people for smallholdings, 40/110 for workshops, the last wanting a market's reach and iron). In a donut block, their output × `(1 + 0.25·q)`; a storehouse, granary, smithy or windmill is a heart for an industrial block.
+
+## Fire and raids
+
+* Ignition: `0.00006 · flammability · (1 + 0.5·hot neighbours) · season (summer 1.3, winter 0.8) · (1 − 0.85·water) · (1 − 0.3·q)` a building a week, at most one fire a week. A fire may take a neighbour within 2.8 tiles (`0.2 · its flammability`, less with water and in a good block), and goes no further.
+* Raids are announced three weeks ahead. If the walls would not hold and the treasury can pay `36 · strength · (1 + 0.25·times paid)`, the steward buys them off. Otherwise a pillage takes 12% of the stores and burns one building; a sack takes 25%, burns three and kills 4%.
 
 ## Donut blocks
 
 `src/sim/blocks.js` finds every closed loop of road enclosing 9–800 tiles (a flood fill over non-road tiles; faces touching the map edge are open land). Tiles within three of the street are the *ring*; the rest is the *core*.
 
-* `closure = clamp((built / zoned − 0.35) / 0.55) · min(1, homes / 6)`
+* `closure = clamp((built / zoned − 0.35) / 0.55) · min(1, (homes + trades) / 6)`
 * `heart = 1 − Π(1 − fineᵢ)` over the distinct special buildings in the core (green 0.85, cathedral 0.9, chapel 0.6, market 0.6, castle 0.7, tavern 0.45, healer 0.45, well 0.4, watchtower 0.35, barracks 0.3; ×1.15 per extra of a kind) and the worked ground (gardens 0.3, allotments 0.36, orchard 0.42, common 0.32, field 0.25)
 * `rating = round(100 · heart · closure)`, `q = rating / 100`
 
@@ -34,3 +50,9 @@ The world is regenerated from the seed; a save keeps runs of changed cells for e
 
 * Early balance is tight on some seeds: a passive hamlet stagnates, and an active lord must find timber early (a forester's lodge plants new woods, and the starting ward has a belt of trees inside the bank).
 * Rendering in a software-GL browser is slow; shader compiles are the first-use hitches.
+
+## Drawing
+
+* Trees and rocks are GPU instances: each kind is one indexed geometry made once, and a chunk keeps only where its copies stand (eight numbers a tree), near and far sets both, so moving the camera swaps which is shown and felling a tree rebuilds a chunk in a few milliseconds.
+* Smoke, flames and rain splashes are instanced pools, a draw call for each kind.
+* Ground textures repaint only the tiles that changed. Buildings are batched in quarter-chunk cells, rebuilt only when their buildings change; sites under construction are their own small meshes.

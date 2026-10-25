@@ -3,7 +3,7 @@ import { createStage } from 'madness-engine/stage';
 import { defineView } from 'madness-engine/view';
 import { CENTER } from '../config.js';
 import { calendar } from '../sim/calendar.js';
-import { heightAt, touch } from '../world/world.js';
+import { heightAt } from '../world/world.js';
 import { createAtmosphere } from './atmosphere.js';
 import { createBuildings } from './buildings.js';
 import { createCamera } from './camera.js';
@@ -55,29 +55,16 @@ export async function createScene({ host, game, progress = () => {} }) {
   progress(0.64, 'Planting trees');
   await trees.buildAll(cal0.season, [CENTER, CENTER], (f) => progress(0.64 + f * 0.2, 'Planting trees'));
   progress(0.86, 'Laying the roads and raising the houses');
-  for (let k = 0; k < 12; k++) trees.updateLod(stage.target.x, stage.target.z, 30, 3);
+  trees.updateLod(stage.target.x, stage.target.z, 30);
   decals.refreshFields(cal0);
   decals.buildAll();
   buildings.buildAll();
   gates.build();
   progress(1, 'Ready');
 
-  // What each building was last drawn as: a house that has gone up a stage is drawn again.
-  const stages = new Map();
-  const restage = () => {
-    for (const b of world.buildings.values()) {
-      const s = b.state === 'building' ? Math.min(3, Math.floor(b.progress * 4)) : -1;
-      if (stages.get(b.id) !== s) {
-        stages.set(b.id, s);
-        touch(world, 'buildings', b.x, b.y, b.x + b.w, b.y + b.d);
-      }
-    }
-  };
-  restage();
   const castleY = () => heightAt(world, CENTER, CENTER);
   const unsubscribe = [
     game.on('week', () => {
-      restage();
       if (game.week % 4 === 0) decals.refreshFields(calendar(game.week));
       buildings.setCastleWork(Boolean(game.castleWork), castleY());
     }),
@@ -117,7 +104,8 @@ export async function createScene({ host, game, progress = () => {} }) {
       water.sync();
       trees.sync(cal.season, 1);
       decals.sync(cal, 3);
-      buildings.sync(2);
+      buildings.sync(1);
+      buildings.restage(4);
       lodClock -= dt;
       if (lodClock <= 0) { lodClock = 0.3; trees.updateLod(stage.target.x, stage.target.z, Math.max(22, Math.min(55, 8 + camera.distance * 0.55))); }
       emitClock -= dt;
@@ -126,7 +114,7 @@ export async function createScene({ host, game, progress = () => {} }) {
       gates.update(dt);
       overlays.update(dt);
       const frac = Math.min(1, scene.weekFrac);
-      atmosphere.update(live, { week: game.week, frac, near: [stage.target.x, stage.target.y + 8, stage.target.z] });
+      atmosphere.update(live, { week: game.week, frac });
       const cold = cal.season === 3 ? 1.7 : cal.season === 2 ? 1.2 : 0.8;
       fx.update(live, { emitters, near: [stage.target.x, stage.target.z], reach: 20 + 4 * camera.distance, rate: 0.5 * cold, wind: [0.35, 0.12], time });
     },

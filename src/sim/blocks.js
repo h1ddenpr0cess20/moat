@@ -1,4 +1,4 @@
-import { BUILDINGS, PLOT_DEPTH, ZONE_ID } from '../catalog.js';
+import { BUILDINGS, INDUSTRY_ZONES, PLOT_DEPTH, ZONE_ID } from '../catalog.js';
 import { DIRS, TILES } from '../config.js';
 import { network } from '../world/roads.js';
 import { idx, inb } from '../world/world.js';
@@ -38,6 +38,11 @@ export const HEARTS = Object.freeze({
   healer: { name: 'Physic Court', fine: 0.45, why: 'herbs and a healer in reach' },
   watchtower: { name: 'Watch Court', fine: 0.35, why: 'a tower that sees the whole street' },
   barracks: { name: 'Barrack Yard', fine: 0.3, why: 'men-at-arms in the yard' },
+  // The hearts an industrial block wants: somewhere to store, to mill, to forge.
+  storehouse: { name: 'Craft Yard', fine: 0.45, why: 'a storehouse the whole yard draws on' },
+  granary: { name: 'Granary Close', fine: 0.4, why: 'a granary at the middle of the holdings' },
+  smithy: { name: 'Forge Yard', fine: 0.4, why: 'a forge at the middle of the trades' },
+  mill: { name: 'Mill Green', fine: 0.4, why: 'a windmill turning at the middle' },
 });
 
 /** What an open core is worth if it is worked: by zone, its name and its share of the heart. */
@@ -51,6 +56,9 @@ const CULTIVATED = Object.freeze({
 
 const isHome = (b) => Boolean(BUILDINGS[b.type]?.cap);
 const isShop = (b) => Boolean(BUILDINGS[b.type]?.shop);
+/** The people's own buildings, which make up a ring: homes, shops, smallholdings and workshops. */
+const isGrown = (b) => Boolean(BUILDINGS[b.type]?.auto);
+const RING_ZONES = new Set([ZONE_ID.res, ZONE_ID.market, ...INDUSTRY_ZONES.map((z) => ZONE_ID[z])]);
 
 export const standing = (rating) => (rating >= 90 ? 'Jewel of the town' : rating >= 70 ? 'Fine courtyard' : rating >= 40 ? 'Pleasant close' : rating >= 10 ? 'Quiet close' : 'Hollow block');
 
@@ -137,7 +145,7 @@ function measure(game, tiles) {
     x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
     ((depth.get(t) ?? 1) <= PLOT_DEPTH ? ring : core).push(t);
   }
-  const homes = new Map(), shops = new Map(), specials = new Map();
+  const homes = new Map(), shops = new Map(), works = new Map(), specials = new Map();
   let zoned = 0, built = 0;
   const coreSet = new Set(core);
   for (const t of tiles) {
@@ -147,13 +155,14 @@ function measure(game, tiles) {
     if (b) {
       if (isHome(b) && b.state === 'ready') homes.set(b.id, b);
       else if (isShop(b) && b.state === 'ready') shops.set(b.id, b);
-      if (inRing && (isHome(b) || isShop(b))) { zoned++; if (b.state === 'ready') built++; }
+      if (INDUSTRY_ZONES.includes(BUILDINGS[b.type]?.auto) && b.state === 'ready') works.set(b.id, b);
+      if (inRing && isGrown(b)) { zoned++; if (b.state === 'ready') built++; }
       else if (HEARTS[b.type] && b.state === 'ready') {
         // A special building is in the heart if its middle is in the core.
         const cx = Math.floor(b.x + b.w / 2), cy = Math.floor(b.y + b.d / 2);
         if (coreSet.has(idx(cx, cy))) specials.set(b.id, b);
       }
-    } else if (inRing && (world.zone[t] === ZONE_ID.res || world.zone[t] === ZONE_ID.market)) zoned++;
+    } else if (inRing && RING_ZONES.has(world.zone[t])) zoned++;
   }
   // The castle, if the street runs round it.
   const castle = world.buildings.get(1);
@@ -186,7 +195,8 @@ function measure(game, tiles) {
   }
   const heart = core.length >= 4 ? 1 - rest : 0;
   const fill = zoned ? built / zoned : 0;
-  const closure = Math.max(0, Math.min(1, (fill - 0.35) / 0.55)) * Math.min(1, homes.size / 6);
+  // Six households or trades make a ring: homes, smallholdings or workshops.
+  const closure = Math.max(0, Math.min(1, (fill - 0.35) / 0.55)) * Math.min(1, new Set([...homes.keys(), ...works.keys()]).size / 6);
   const rating = Math.round(100 * heart * closure);
 
   // What the block is called: by the strongest thing in its heart.
@@ -200,7 +210,7 @@ function measure(game, tiles) {
   for (const b of homes.values()) cap += BUILDINGS[b.type].cap;
   return {
     id: -1, x0, y0, x1, y1, center: [(x0 + x1 + 1) / 2, (y0 + y1 + 1) / 2], area: tiles.length,
-    ring, core, homes: homes.size, shops: shops.size, cap, specials: [...specials.keys()], hearts, crop: crop === null ? null : CULTIVATED[crop].name,
+    ring, core, homes: homes.size, shops: shops.size, works: works.size, cap, specials: [...specials.keys()], hearts, crop: crop === null ? null : CULTIVATED[crop].name,
     fill, closure, heart, rating, q: rating / 100, name, why, standing: standing(rating),
     // Ring plots still to be built, and the core's open ground, for the tips.
     zoned, built, openCore: open, connected,
@@ -281,16 +291,17 @@ export function blockReport(block) {
     perks.push({ icon: 'fire', text: `Fires spread ${pct(0.5 * q)} less, and start ${pct(0.3 * q)} less often` });
     perks.push({ icon: 'build', text: 'Houses here rise a level sooner' });
     if (block.shops) perks.push({ icon: 'gold', text: `Shops in the ring sell ${pct(0.3 * q)} more` });
+    if (block.works) perks.push({ icon: 'build', text: `Smallholdings and workshops in the ring make ${pct(0.25 * q)} more` });
   }
   for (const h of block.hearts) perks.push({ icon: 'castle', text: `${h.name}: its services reach every door in the ring`, soft: true });
   if (block.crop) perks.push({ icon: 'leaf', text: `${block.crop}: worked ground at the heart`, soft: true });
   if (!block.connected) tips.unshift('No street of this block joins the castle’s roads, so no one will build here. Lay a road from it to the town.');
   if (block.core.length < 4) tips.push('This block has no core. Make it larger, so there is a heart to put something in.');
   else {
-    if (!block.hearts.length) tips.push('Put a Village Green, a well, a chapel or a tavern in the middle: that is what makes a donut.');
+    if (!block.hearts.length) tips.push((block.works ?? 0) > block.homes / 2 ? 'Put a storehouse, a granary, a smithy or a windmill in the middle: the trades round it all draw on it.' : 'Put a Village Green, a well, a chapel or a tavern in the middle: that is what makes a donut.');
     else if (block.hearts.length === 1 && block.heart < 0.85) tips.push('A second building in the heart (a well beside the green, say) raises it further.');
     if (block.fill < 0.9) tips.push(`Fill the ring: ${block.built} of ${block.zoned} plots are built.`);
-    if (block.homes < 6) tips.push('It wants at least six homes to count.');
+    if (block.homes + (block.works ?? 0) < 6) tips.push('It wants at least six homes, smallholdings or workshops to count.');
   }
   return { perks, tips };
 }

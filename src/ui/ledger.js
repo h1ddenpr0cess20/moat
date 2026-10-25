@@ -92,18 +92,18 @@ function blocksTab(ctx, body) {
   const blocks = [...game.blocks].filter((b) => b.core.length >= 4 || b.homes > 0).sort((a, b) => b.rating - a.rating);
   const g = game.blockGain ?? { tax: 0, mood: 0, cap: 0, shops: 0 };
   const rows = blocks.map((b) => h('tr', { style: { cursor: 'pointer' }, onclick: () => { ctx.dialogs.close(); ctx.inspector.show({ kind: 'block', id: b.id }); ctx.scene.focusOn(b.center[0], b.center[1], { zoom: 0.9 }); } },
-    h('td', {}, h('b', {}, b.name)), h('td.r', {}, `${b.rating}`), h('td', {}, b.standing), h('td.r', {}, `${b.homes}`), h('td.r', {}, `${Math.round(b.fill * 100)}%`), h('td', {}, b.hearts.length ? b.hearts.map((x) => x.name).join(', ') : (b.crop ?? '—'))));
+    h('td', {}, h('b', {}, b.name)), h('td.r', {}, `${b.rating}`), h('td', {}, b.standing), h('td.r', {}, `${b.homes}${b.works ? ` · ${b.works}` : ''}`), h('td.r', {}, `${Math.round(b.fill * 100)}%`), h('td', {}, b.hearts.length ? b.hearts.map((x) => x.name).join(', ') : (b.crop ?? '—'))));
   const best = blocks.find((b) => b.q === 0 && b.core.length >= 4);
   fill(body, 
     h('div.grid2', {},
       h('div', {}, h('h3', {}, 'The donut'), h('p', {}, 'A loop of streets with a ring of homes round the inside and, in the middle, a park or a building that serves them all. The closer the ring is to complete, and the better the heart, the higher the rating.'),
-        h('p', { html: '<b>Hearts, best first:</b> village green, cathedral, chapel, market square, castle, tavern, healer, well, watchtower; or kitchen gardens, an orchard or a common.' })),
+        h('p', { html: '<b>Hearts, best first:</b> village green, cathedral, chapel, market square, castle, tavern, healer, well, watchtower; or kitchen gardens, an orchard or a common. A ring of workshops or smallholdings wants a storehouse, granary, smithy or windmill.' })),
       h('div', {}, h('h3', {}, 'What the blocks bring the realm'),
         h('div.stat', {}, h('span', {}, 'Taxes'), h('b', { class: g.tax > 0 ? 'good' : '' }, `+${(g.tax * 100).toFixed(1)}%`)),
         h('div.stat', {}, h('span', {}, 'Courtyard rooms'), h('b', { class: g.cap > 0 ? 'good' : '' }, `+${g.cap} people`)),
         h('div.stat', {}, h('span', {}, 'Mood'), h('b', { class: g.mood > 0 ? 'good' : '' }, `+${g.mood.toFixed(1)}`)),
         h('div.stat', {}, h('span', {}, 'Shop sales'), h('b', { class: g.shops > 0 ? 'good' : '' }, `+${(g.shops * 100).toFixed(0)}%`)))),
-    blocks.length ? h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Block'), h('th.r', {}, 'Rating'), h('th', {}, 'Standing'), h('th.r', {}, 'Homes'), h('th.r', {}, 'Ring built'), h('th', {}, 'Heart'))), h('tbody', {}, ...rows))
+    blocks.length ? h('table', {}, h('thead', {}, h('tr', {}, h('th', {}, 'Block'), h('th.r', {}, 'Rating'), h('th', {}, 'Standing'), h('th.r', {}, 'Homes · trades'), h('th.r', {}, 'Ring built'), h('th', {}, 'Heart'))), h('tbody', {}, ...rows))
       : h('p', { html: 'You have no blocks yet. Take the <b>Blocks</b> tool, stamp one on open ground and leave its core open for a green.' }),
     best ? h('p.warn', { html: `✦ ${best.name === 'Hollow Block' ? 'A block' : best.name} near (${Math.round(best.center[0])}, ${Math.round(best.center[1])}) has no heart yet. Put a village green or a well in the middle.` }) : null);
 }

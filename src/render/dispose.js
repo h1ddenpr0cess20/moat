@@ -12,29 +12,37 @@ let backend = null;
 /** Tells it which renderer the buffers belong to. */
 export function useRenderer(renderer) { backend = renderer?.backend ?? null; }
 
+/** Frees what the graphics card holds for each of `attributes`. */
+function freeAttributes(attributes) {
+  const table = backend?.buffers;
+  if (!table?.get || !table.delete) return;
+  for (const attribute of attributes) {
+    if (!attribute) continue;
+    const entry = table.get(attribute);
+    if (!entry) continue;
+    try {
+      if (typeof entry.buffer?.destroy === 'function') entry.buffer.destroy();
+      else backend.gl?.deleteBuffer?.(entry.buffer);
+    } catch (err) {
+      console.warn('moat: a buffer could not be freed', err);
+    }
+    table.delete(attribute);
+  }
+}
+
 /** Frees what the graphics card holds for `geometry`, and the geometry itself. */
 export function freeGeometry(geometry) {
   if (!geometry) return;
-  const table = backend?.buffers;
-  if (table?.get && table.delete) {
-    const attributes = [...Object.values(geometry.attributes ?? {}), geometry.index];
-    for (const attribute of attributes) {
-      if (!attribute) continue;
-      const entry = table.get(attribute);
-      if (!entry) continue;
-      try {
-        if (typeof entry.buffer?.destroy === 'function') entry.buffer.destroy();
-        else backend.gl?.deleteBuffer?.(entry.buffer);
-      } catch (err) {
-        console.warn('moat: a buffer could not be freed', err);
-      }
-      table.delete(attribute);
-    }
-  }
+  freeAttributes([...Object.values(geometry.attributes ?? {}), geometry.index]);
   geometry.dispose?.();
 }
 
 /** Frees the geometry of every mesh in `object` and below. */
 export function freeTree(object) {
   object.traverse((o) => { if (o.geometry) freeGeometry(o.geometry); });
+}
+
+/** Frees the copies of every instanced mesh in `object` and below, leaving the geometry they share alone. */
+export function freeInstances(object) {
+  object.traverse((o) => { if (o.isInstancedMesh) freeAttributes([o.instancePlace, o.instanceLook]); });
 }

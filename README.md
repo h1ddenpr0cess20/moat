@@ -29,9 +29,11 @@ Node 22.12 or later. The game needs a browser with WebGPU or WebGL 2.
 | Time | Space pauses, Tab speeds up |
 | Pages | M realm map · L ledger · H chronicle · C castle · F10 menu |
 
-A year is 48 weeks, starting in March. People need **food** (grain or bread, vegetables and fruit, meat or fish: a table with all three is a happier one), **firewood** in the cold months, **homes**, and **work**. Lay roads (and **bridges** over rivers and lakes: drag from bank to bank, up to six tiles of water; the moat is crossed only at the gates), zone housing, market, fields, orchards and pasture, and put farmsteads, woodcutters, quarries and mills where they are wanted. The steward gives hints, once, as they matter.
+A year is 48 weeks, starting in March. People need **food** (grain or bread, vegetables and fruit, meat or fish: a table with all three is a happier one), **firewood** in the cold months, **homes**, and **work**. Lay roads (and **bridges** over rivers and lakes: drag from bank to bank, up to six tiles of water; the moat is crossed only at the gates), zone housing, market, workshops, smallholdings, fields, orchards and pasture, and put farmsteads, woodcutters, quarries and mills where they are wanted. The steward gives hints, once, as they matter.
 
-Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them. The king's collector wants tribute. Rank rises from Baron to Duke as the barony grows.
+When people want work, zone **Workshops** (carpenters who turn timber into tools and sell wares) or **Smallholdings** (crofts where a family lives and grows its own food, with no farmstead), or stamp a block with a ring of them: the people build these themselves, and they rise to joineries and craft halls, smallholdings and granges. A storehouse, granary, smithy or windmill makes a good heart for an industrial block. If the stores run bare, your steward will buy grain or firewood at a hard price, so long as there is gold.
+
+Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate, with three weeks' warning: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them, and if they would not, your steward pays them off (dearer every time). Fires are rare, and wells and good courtyards keep them small. The king's collector wants tribute. Rank rises from Baron to Duke as the barony grows.
 
 ### The moat and the realm
 
@@ -52,7 +54,7 @@ Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp
 
 * `src/world/`: the land from a seed (heightfield, moat distance field, wards, gates, roads, zones, lots). Pure JS, no drawing.
 * `src/sim/`: the weekly simulation (economy, people, growth, events, blocks, actions). Pure JS; `src/save.js` stores only what changed from the seeded land.
-* `src/render/`: the picture on the engine's `gfx`, `stage`, `view` and `effects`: chunked terrain painted per pixel, a flooded moat, trees, autotiled roads and seasonal fields, about forty building models drawn in code, day/night and season grading, rain and snow.
+* `src/render/`: the picture on the engine's `gfx`, `stage`, `view` and `effects`: chunked terrain painted per pixel, a flooded moat, trees, autotiled roads and seasonal fields, about forty building models drawn in code, day/night and season grading, overcast skies and lying snow.
 * `src/audio/`: sound and a generative lute, recorder and frame-drum score, all Web Audio, no samples.
 * `src/ui/`: the HUD, tools, panels, realm map and menus, in plain DOM.
 * `test/`: node tests, and `test/bot.js`, a scripted player used for tuning.

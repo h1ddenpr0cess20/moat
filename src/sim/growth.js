@@ -1,4 +1,4 @@
-import { BUILDINGS, CASTLE_LEVELS, GROWN, ZONE_ID, canPay, pay } from '../catalog.js';
+import { BUILDINGS, CASTLE_LEVELS, GROWN, INDUSTRY_ZONES, ZONE_ID, canPay, pay } from '../catalog.js';
 import { CENTER, DIRS, GROUND } from '../config.js';
 import { addBuilding } from '../world/buildings.js';
 import { blocked } from '../world/roads.js';
@@ -104,6 +104,15 @@ function upgrade(game, b, zone) {
   if (zone === 'res') {
     if (b.level === 1 && !(water > 0.25 && game.happiness >= 55 - 8 * q)) return false;
     if (b.level === 2 && !(water > 0.4 && faith > 0.25 && commerce > 0.15 && game.happiness >= 62 - 8 * q && people >= 80 - 25 * q)) return false;
+  } else if (zone === 'croft') {
+    // A smallholding grows when it is worked full and the town is big enough to buy from it.
+    if ((b.eff ?? 0) < 0.9) return false;
+    if (b.level === 1 && !(people >= 30 - 8 * q)) return false;
+    if (b.level === 2 && !(people >= 90 - 25 * q && (water > 0.15 || commerce > 0.1))) return false;
+  } else if (zone === 'craft') {
+    if ((b.eff ?? 0) < 0.9) return false;
+    if (b.level === 1 && !(people >= 40 - 10 * q && commerce + water > 0.1)) return false;
+    if (b.level === 2 && !(people >= 110 - 25 * q && commerce > 0.3 && game.stock.iron >= 10)) return false;
   } else {
     if (b.level === 1 && !(people >= 25 && (commerce > 0.1 || cheer > 0.1 || water > 0.2))) return false;
     if (b.level === 2 && !(people >= 110 && commerce > 0.4 && game.happiness >= 58)) return false;
@@ -148,13 +157,39 @@ export function grow(game) {
   for (const b of world.buildings.values()) { const s = BUILDINGS[b.type]?.shop; if (s) supply += s; }
   if (people >= 15 && supply < demand * 1.25) spawn(game, 'market', 1);
 
+  // Industry, where it is zoned. Work follows the idle: when hands are wanting work, smallholdings and workshops go up,
+  // the smallholdings first while food is short. A croft also goes up when the town wants both homes and food, for the
+  // family on it lives there; a workshop when the town is running out of tools. What is going up already counts.
+  if (people >= 12) {
+    const idle = game.report.idle ?? 0;
+    let coming = 0, going = 0, idleShops = 0;
+    for (const b of world.buildings.values()) {
+      if (!INDUSTRY_ZONES.includes(BUILDINGS[b.type]?.auto)) continue;
+      if (b.state === 'ready' && BUILDINGS[b.type].auto === 'craft' && (b.eff ?? 0) < 0.8) idleShops++;
+      if (b.state !== 'building') continue;
+      coming += BUILDINGS[b.type].jobs ?? 0;
+      going++;
+    }
+    const hungry = (game.report.foodSupport ?? 0) < people * 1.3;
+    const want = [];
+    // A town with tools piling up wants its idle on the land rather than at another bench.
+    const glut = game.stock.tools > 30 + people * 0.3;
+    if (idle - coming >= 2) want.push(...(hungry || glut ? ['croft', 'craft'] : ['craft', 'croft']));
+    else if (going < 2) {
+      if (hungry && wantHomes) want.push('croft');
+      // Not while the workshops there are short of hands: another would only share them out thinner.
+      if (game.stock.tools < 3 + people * 0.04 && !idleShops) want.push('craft');
+    }
+    for (const zone of want) if (spawn(game, zone, 1)) break;
+  }
+
   // And what is already there gets better.
   if (game.week % 2 === 0) {
-    const candidates = [...world.buildings.values()].filter((b) => b.state === 'ready' && (b.type === 'cottage' || b.type === 'house' || b.type === 'stall' || b.type === 'shop'));
-    if (candidates.length) {
-      const b = candidates[Math.floor(game.rnd() * candidates.length)];
-      const zone = BUILDINGS[b.type].auto;
-      upgrade(game, b, zone);
+    const candidates = [...world.buildings.values()].filter((b) => b.state === 'ready' && BUILDINGS[b.type]?.auto && GROWN[BUILDINGS[b.type].auto][b.level]);
+    // A bigger town has more to improve: one more try for every two dozen that could rise.
+    for (let n = 0; n < 1 + Math.floor(candidates.length / 24) && candidates.length; n++) {
+      const b = candidates.splice(Math.floor(game.rnd() * candidates.length), 1)[0];
+      upgrade(game, b, BUILDINGS[b.type].auto);
     }
   }
 

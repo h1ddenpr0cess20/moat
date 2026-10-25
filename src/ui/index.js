@@ -81,14 +81,20 @@ export function createUI({ game, scene, root, clock, sfx = () => {}, extra = {} 
     else if (e.code === 'F10') ctx.dialogs.toggle('menu');
   });
 
-  let t = 0, slow = 0, mapT = 0, mapN = 0;
+  let t = 0, slow = 0, mapT = 0, mapN = 0, hudFoot = -1;
   const ui = {
     ctx, tools: ctx.tools, hud, toasts, dialogs: ctx.dialogs, steward: ctx.steward, hide(on) { root.classList.toggle('away', on); },
     update(dt) {
       labels.update();
       t -= dt;
       mapT -= dt;
-      if (t <= 0) { t = 0.25; hud.update(); }
+      if (t <= 0) {
+        t = 0.25;
+        hud.update();
+        // The top bar wraps on a narrow screen: what hangs below it (the steward, the inspector) follows its foot.
+        const foot = Math.round(hud.el.getBoundingClientRect().bottom);
+        if (foot !== hudFoot) { hudFoot = foot; root.style.setProperty('--hud-bottom', `${foot}px`); }
+      }
       if (mapT <= 0) { mapT = 1; minimap.update(); if (++mapN % 5 === 0) minimap.repaint(); }
       slow -= dt;
       if (slow <= 0) { slow = 1.2; ctx.inspector.refresh(); toolbar.update(); }

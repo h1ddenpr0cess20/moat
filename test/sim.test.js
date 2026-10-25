@@ -65,3 +65,54 @@ test('the clearing tool fells trees and breaks rock, and the stores gain by it',
   }
   assert.equal(demolish(game, 3, 3).ok, false, 'nothing is cleared outside the realm');
 });
+
+/** Zones the free tiles beside the town's streets for `zone`, up to `n` of them. */
+async function zoneByStreets(game, zone, n) {
+  const { network } = await import('../src/world/roads.js');
+  const { idx } = await import('../src/world/world.js');
+  const { buildZone } = await import('../src/sim/game.js');
+  const { world } = game;
+  const { dist } = network(world);
+  const tiles = [];
+  for (let i = 0; i < world.size * world.size && tiles.length < n; i++) {
+    if (dist[i] < 0) continue;
+    const x = i % world.size, y = Math.floor(i / world.size);
+    for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
+      const j = idx(x + dx, y + dy);
+      if (!world.zone[j] && !world.bld[j] && !world.road[j] && !world.tree[j]) tiles.push([x + dx, y + dy]);
+    }
+  }
+  return buildZone(game, tiles, zone, { free: true });
+}
+
+test('hands wanting work raise workshops and smallholdings where they are zoned, and these make tools and food', async () => {
+  const town = async (zone) => {
+    const game = startGame({ seed: 'moat' });
+    await zoneByStreets(game, zone, 40);
+    // More people than the hamlet has work for, and the stores to build with.
+    game.pop.adults += 14;
+    Object.assign(game.stock, { wood: 600, stone: 200, gold: 900, grain: 400 });
+    const made = {};
+    game.on('week', () => { for (const [r, n] of Object.entries(game.flows.made)) made[r] = (made[r] ?? 0) + n; });
+    for (let w = 0; w < 30; w++) step(game);
+    return { kinds: [...game.world.buildings.values()].filter((b) => b.state === 'ready').map((b) => b.type), made };
+  };
+  const craft = await town('craft');
+  assert.ok(craft.kinds.includes('workshop'), `a workshop went up: ${craft.kinds.join(', ')}`);
+  assert.ok(craft.made.tools > 0, 'the workshops made tools');
+  const croft = await town('croft');
+  assert.ok(croft.kinds.includes('croft'), `a croft went up: ${croft.kinds.join(', ')}`);
+});
+
+test('fires are rare: a town of a hundred buildings loses only a few in a decade', async () => {
+  const { fires } = await import('../src/sim/events.js');
+  const { BUILDINGS } = await import('../src/catalog.js');
+  const game = startGame({ seed: 'moat' });
+  // A hundred cottages, set down by fiat where nothing else is: the fire roll only looks at the buildings.
+  for (let k = 0; k < 100; k++) game.world.buildings.set(1000 + k, { id: 1000 + k, type: 'cottage', x: 10 + (k % 10) * 3, y: 10 + Math.floor(k / 10) * 3, w: 2, d: 2, state: 'ready', level: 1 });
+  let burned = 0;
+  game.on('fire', () => burned++);
+  for (let w = 0; w < 480; w++) { game.week = w; fires(game); }
+  assert.ok(BUILDINGS.cottage);
+  assert.ok(burned <= 8, `${burned} burned in ten years`);
+});

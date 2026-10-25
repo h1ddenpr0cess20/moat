@@ -40,12 +40,17 @@ export const ZONES = Object.freeze({
   veg: { id: 'veg', name: 'Gardens', color: '#7fcf5a', cost: 1, desc: 'Cabbages, leeks and beans. Quick to grow, quick to spoil. They need a farmstead within eight tiles.', crop: 'produce' },
   orchard: { id: 'orchard', name: 'Orchard', color: '#d96a5a', cost: 3, desc: 'Apple and pear trees that give fruit every autumn and shade all year. They need a farmstead within eight tiles.', crop: 'produce' },
   pasture: { id: 'pasture', name: 'Pasture', color: '#9ec27a', cost: 1, desc: 'Sheep and cattle: wool, and meat in the autumn cull. They need a farmstead within eight tiles.', crop: 'wool' },
+  // Industry: zones the people work as well as live on, built up when there are hands wanting work.
+  croft: { id: 'croft', name: 'Smallholdings', color: '#c9a74e', cost: 1, industry: true, desc: 'Crofts along the lane: a family on each, with a strip, a cow and a pig. They feed themselves and send the rest to the stores, with no farmstead needed. They grow when there are hands wanting work.' },
+  craft: { id: 'craft', name: 'Workshops', color: '#b06a3c', cost: 2, industry: true, desc: 'Carpenters, coopers and wheelwrights: timber in, tools and wares out, and the wares sold in the town. Workshops grow when there are hands wanting work. Keep them back from the houses: they catch fire.' },
 });
 export const ZONE_LIST = Object.keys(ZONES);
 /** Zone numbers as they are stored on the map: 0 is none. */
 export const ZONE_ID = Object.freeze(Object.fromEntries(ZONE_LIST.map((z, i) => [z, i + 1])));
 export const ZONE_NAME = [null, ...ZONE_LIST];
 export const FARM_ZONES = ['wheat', 'veg', 'orchard', 'pasture'];
+/** The zones industry grows on, by themselves, when people want work. */
+export const INDUSTRY_ZONES = ['croft', 'craft'];
 
 /** How many tiles a house's plot reaches back from the street before the block's core begins. */
 export const PLOT_DEPTH = 3;
@@ -66,6 +71,13 @@ export const BUILDINGS = Object.freeze({
   stall: { name: 'Market Stall', cat: 'market', size: [2, 1], cost: { wood: 6 }, weeks: 1, crew: 1, jobs: 1, shop: 1.1, auto: 'market', level: 1, desc: 'A trestle and an awning.' },
   shop: { name: 'Shop', cat: 'market', size: [2, 2], cost: { wood: 18, stone: 6 }, weeks: 3, crew: 2, jobs: 2, shop: 2.4, auto: 'market', level: 2, desc: 'A draper, a chandler or a baker, with a sign over the door.' },
   merchant: { name: 'Merchant House', cat: 'market', size: [2, 2], cost: { wood: 24, stone: 18, gold: 20 }, weeks: 5, crew: 3, jobs: 3, shop: 4.2, auto: 'market', level: 3, desc: 'Warehouse below, counting house above.' },
+  // Industry, grown on its own zones: smallholdings that feed the town, and workshops that equip it.
+  croft: { name: 'Croft', cat: 'industry', size: [2, 2], cost: { wood: 14 }, weeks: 3, crew: 2, jobs: 2, cap: 2, auto: 'croft', level: 1, work: { kind: 'grow', yields: { grain: 0.7, produce: 0.35, meat: 0.08 }, season: [0.6, 1, 1.5, 0.3] }, desc: 'A cottage, a strip of oats and a cow. The family lives on it and sends what it does not eat to the stores.' },
+  smallholding: { name: 'Smallholding', cat: 'industry', size: [2, 3], cost: { wood: 22, stone: 6 }, weeks: 4, crew: 2, jobs: 3, cap: 3, auto: 'croft', level: 2, work: { kind: 'grow', yields: { grain: 0.75, produce: 0.4, meat: 0.1, wool: 0.1 }, season: [0.6, 1, 1.5, 0.3] }, desc: 'A longhouse and a byre, a few sheep and a vegetable plot.' },
+  grange: { name: 'Grange', cat: 'industry', size: [2, 3], cost: { wood: 34, stone: 16, gold: 20 }, weeks: 6, crew: 3, jobs: 4, cap: 4, auto: 'croft', level: 3, work: { kind: 'grow', yields: { grain: 0.85, produce: 0.45, meat: 0.12, wool: 0.12 }, season: [0.6, 1, 1.5, 0.3] }, desc: 'A yeoman’s farm with a barn and a dovecote. It feeds a street.' },
+  workshop: { name: 'Workshop', cat: 'industry', size: [2, 2], cost: { wood: 18, gold: 10 }, weeks: 3, crew: 2, jobs: 2, shop: 0.8, auto: 'craft', level: 1, work: { kind: 'make', in: { wood: 1.4 }, out: { tools: 0.3 } }, desc: 'A carpenter’s shop: hafts, rakes, buckets and benches. Wooden tools, and wares for the market.' },
+  joinery: { name: 'Joinery', cat: 'industry', size: [2, 3], cost: { wood: 30, stone: 8, gold: 20 }, weeks: 4, crew: 2, jobs: 3, shop: 1.4, auto: 'craft', level: 2, work: { kind: 'make', in: { wood: 2 }, out: { tools: 0.5 } }, desc: 'A cooper and a wheelwright under one roof, with a sawpit in the yard.' },
+  guildhall: { name: 'Craft Hall', cat: 'industry', size: [2, 3], cost: { wood: 40, stone: 24, gold: 40 }, weeks: 6, crew: 3, jobs: 4, shop: 2.4, auto: 'craft', level: 3, work: { kind: 'make', in: { wood: 2, iron: 0.4 }, out: { tools: 1.1 } }, desc: 'A master’s hall with apprentices: iron-shod tools, locks and hinges, and a counter on the street.' },
 
   // Food.
   farmstead: { name: 'Farmstead', cat: 'food', size: [3, 3], cost: { wood: 40, gold: 30 }, weeks: 5, crew: 3, jobs: 6, upkeep: 0.5, work: { kind: 'farm' }, desc: 'A farmhouse, a barn and a yard. Its hands tend every field within eight tiles, one for each six tiles of field.' },
@@ -109,6 +121,8 @@ export const CATEGORIES = Object.freeze([
 export const GROWN = Object.freeze({
   res: ['cottage', 'house', 'townhouse'],
   market: ['stall', 'shop', 'merchant'],
+  croft: ['croft', 'smallholding', 'grange'],
+  craft: ['workshop', 'joinery', 'guildhall'],
 });
 
 /** The castle as it grows: what the work costs, what it holds, how many wards the barony may keep, and how well it stands. */
