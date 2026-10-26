@@ -38,6 +38,10 @@ export function newGame({ seed = 'moat', difficulty = 'normal', disasters = true
     prio: {},
     nextRaid: difficulty === 'peaceful' ? Infinity : 110 + Math.floor(mulberry32(world.seed)() * 30),
     raids: { won: 0, lost: 0 },
+    /** The gate the next raid is marching on, once it has been seen. */
+    raidGate: null,
+    /** Gold taken in taxes and trade since the king's collector last came: his tithe is a share of it. */
+    takings: 0,
     plague: 0,
     weather: { harvest: 1, winter: 1 },
     /** What each good did last week: made and used. */

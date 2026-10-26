@@ -2,6 +2,7 @@ import { BUILDINGS } from '../src/catalog.js';
 import { CENTER, GROUND } from '../src/config.js';
 import { buildBlock, buildZone, placeBuilding, planAnnex, rectTiles, startAnnex, startCastle, setTrade } from '../src/sim/actions.js';
 import { autoPlace, connect } from '../src/sim/hamlet.js';
+import { defenseOf, threatOf } from '../src/sim/events.js';
 import { idx } from '../src/world/world.js';
 
 /**
@@ -32,6 +33,29 @@ export function createBot(game) {
     let sx = 0, sy = 0, n = 0;
     for (let y = C - 12; y < C + 12; y++) for (let x = C - 12; x < C + 12; x++) { const i = idx(x, y); if (world.tree[i] && world.realm[i]) { sx += x; sy += y; n++; } }
     return n > 12 ? [sx / n, sy / n] : null;
+  };
+  /** The thickest wood anywhere in the realm, by six-tile squares, away from the lodges already cutting. */
+  const woodsInRealm = () => {
+    const lodges = [...world.buildings.values()].filter((b) => b.type === 'woodcutter');
+    let best = null, bestN = 20;
+    for (let y0 = 0; y0 < world.size; y0 += 6) for (let x0 = 0; x0 < world.size; x0 += 6) {
+      let n = 0;
+      for (let y = y0; y < y0 + 6 && y < world.size; y++) for (let x = x0; x < x0 + 6 && x < world.size; x++) { const i = idx(x, y); if (world.realm[i] && world.tree[i] > 1) n += world.tree[i]; }
+      const cx = x0 + 3, cy = y0 + 3;
+      if (n > bestN && !lodges.some((b) => Math.hypot(b.x + 1 - cx, b.y + 1 - cy) < 9)) { bestN = n; best = [cx, cy]; }
+    }
+    return best;
+  };
+  /** The middle of the most open ground a forester could plant, within a dozen tiles of (cx, cy). */
+  const openGroundNear = (cx, cy) => {
+    const free = (x, y) => { const i = idx(x, y); return world.realm[i] && world.ground[i] === GROUND.GRASS && !world.tree[i] && !world.bld[i] && !world.road[i] && !world.zone[i] && !(game.blockOf && game.blockOf[i] >= 0); };
+    let best = null, bestN = 30;
+    for (let y = cy - 12; y <= cy + 12; y += 2) for (let x = cx - 12; x <= cx + 12; x += 2) {
+      let n = 0;
+      for (let dy = -7; dy <= 7; dy++) for (let dx = -7; dx <= 7; dx++) if (dx * dx + dy * dy <= 49 && free(x + dx, y + dy)) n++;
+      if (n > bestN) { bestN = n; best = [x, y]; }
+    }
+    return best;
   };
   const rockAt = () => {
     let sx = 0, sy = 0, n = 0;
@@ -66,6 +90,18 @@ export function createBot(game) {
       const forest = forestAt();
       if (!count(game, 'woodcutter') && forest && s.wood > 30) put(game, 'woodcutter', forest[0], forest[1], 10);
       if (count(game, 'woodcutter') === 1 && pop() > 30 && forest && s.wood > 40) put(game, 'woodcutter', forest[0], forest[1], 12);
+      // Every lodge felled out: go where the trees still are.
+      const lodges = [...world.buildings.values()].filter((b) => b.type === 'woodcutter' && b.state === 'ready');
+      if (lodges.length && lodges.every((b) => b.note !== 'At work') && s.wood < 150) {
+        const woods = s.wood >= 20 && s.gold > 15 ? woodsInRealm() : null;
+        if (woods) put(game, 'woodcutter', woods[0], woods[1], 8);
+        else {
+          // No woods left in the realm: plant one on open ground, with a lodge beside it, and buy timber till it grows.
+          setTrade(game, 'wood', { buy: 150 });
+          const open = !game.botPlanted && openGroundNear(Math.round(C), Math.round(C));
+          if (open && put(game, 'forester', open[0], open[1], 6)) { put(game, 'woodcutter', open[0] + 4, open[1], 6); game.botPlanted = true; }
+        }
+      }
       const lodge = [...world.buildings.values()].find((b) => b.type === 'woodcutter');
       if (lodge && count(game, 'forester') < 1 + Math.floor(pop() / 60) && s.wood > 50 && s.gold > 30) put(game, 'forester', lodge.x + 2, lodge.y + 2, 6);
       if (!count(game, 'farmstead') && s.wood > 50) put(game, 'farmstead', C + 10, C - 3, 4);
@@ -81,7 +117,8 @@ export function createBot(game) {
       if (!count(game, 'healer') && pop() > 55 && s.gold > 60) put(game, 'healer', C + 4, C + 8, 8);
       if (count(game, 'well') < 3 && pop() > 40 && s.stone > 20) put(game, 'well', C + (count(game, 'well') - 1) * 6, C - 8, 8);
       if (!count(game, 'storehouse') && s.wood > 250 && s.stone > 40) put(game, 'storehouse', C + 4, C + 9, 8);
-      if (!count(game, 'watchtower') && game.week > 60 && s.stone > 90 && s.wood > 60 && s.gold > 80) put(game, 'watchtower', C + 8, C + 9, 8);
+      // Towers while the walls would not hold the raiders the barony draws, from the second year.
+      if (game.week > 60 && defenseOf(game) < threatOf(game) * 1.15 && count(game, 'watchtower') < 6 && s.stone > 90 && s.wood > 60 && s.gold > 80) put(game, 'watchtower', C + 8 - count(game, 'watchtower') * 5, C + 9, 10);
       if (!count(game, 'smithy') && pop() > 40 && s.iron > 20 && s.gold > 60) put(game, 'smithy', C - 7, C + 8, 8);
       if (!count(game, 'barracks') && game.rank >= 1 && s.iron > 30 && s.stone > 70 && s.gold > 140) put(game, 'barracks', C + 7, C + 8, 8);
       // Wider moat, the best-looking neighbour first.
@@ -96,6 +133,9 @@ export function createBot(game) {
         }
         if (best && s.gold > 600) startAnnex(game, best.id);
       }
+      // No ore in the barony: buy the iron the keep wants from the merchants.
+      if (game.rank >= 1 && game.castleLevel < 2 && !count(game, 'ironmine')) setTrade(game, 'iron', { buy: 60 });
+      if (game.castleLevel === 1 && game.rank >= 2 && s.stone > 1000 && s.gold > 1850 && s.wood > 420 && s.iron > 150) startCastle(game);
       if (game.castleLevel === 0 && game.rank >= 1 && s.stone > 450 && s.gold > 650 && s.wood > 220 && s.iron > 40) startCastle(game);
       // Fish and iron once wards give them.
       for (const type of ['fishery', 'ironmine']) {
@@ -126,7 +166,9 @@ export function createBot(game) {
           if (f) buildZone(game, rectTiles(f.x - 4, f.y - 4, f.x + f.w + 3, f.y + f.d + 3), 'wheat');
         } else if (forest && !count(game, 'hunter')) put(game, 'hunter', forest[0], forest[1], 10);
       }
-      if (game.stock.grain > 300) setTrade(game, 'grain', { sell: 260 });
+      // Sell the grain the town will not eat before the harvest after next.
+      const keep = Math.max(260, Math.round(pop() * 0.25 * 48));
+      if (game.stock.grain > keep + 40) setTrade(game, 'grain', { sell: keep });
     },
   };
 }

@@ -5,8 +5,8 @@ import { needsRoad } from '../world/buildings.js';
 import { describeTile, idx } from '../world/world.js';
 import { HEARTS, blockAt, blockReport, qualityAt } from '../sim/blocks.js';
 import { covered } from '../sim/coverage.js';
-import { defenseOf, headcount, planCastle, startCastle, setPriority, toggleGate, demolish } from '../sim/game.js';
-import { priorityOf, jobsOf } from '../sim/economy.js';
+import { calendar, defenseOf, headcount, planCastle, startCastle, setPriority, toggleGate, demolish } from '../sim/game.js';
+import { haulK, priorityOf, jobsOf } from '../sim/economy.js';
 import { fill, h, num, round } from './dom.js';
 import { icon } from './icons.js';
 
@@ -41,6 +41,7 @@ export function createInspector(ctx) {
     if (b.type === 'castle') return game.castleWork ? ['Masons at work', 'warn'] : ['Home of the lord', 'good'];
     if (b.state === 'building') return [`Under construction · ${pct(b.progress)}`, 'warn'];
     if (needsRoad(b) && !b.connected && b.type !== 'gatehouse') return ['No road to the castle', 'bad'];
+    if (b.type === 'farmstead' && calendar(game.week).season === 3) return ['Fallow for the winter', 'good'];
     if (jobsOf(b) && b.eff < 0.4) return ['Short of workers', 'warn'];
     if (def.cap) return [`Home · ${def.cap} beds`, 'good'];
     return [jobsOf(b) ? 'Working' : 'Standing', 'good'];
@@ -119,6 +120,8 @@ export function createInspector(ctx) {
       const jobs = jobsOf(b);
       if (jobs) rows.push(['Workers', `${num(b.workers, 1)} of ${jobs}`]);
       if (jobs) rows.push(['Efficiency', pct(Math.min(1, b.eff || 0))]);
+      // What is made far from a store is partly lost on the way: say so, and what would help.
+      if (def.work && b.connected && haulK(b) < 0.98) rows.push(['Haul', `${pct(1 - haulK(b))} lost on the road to the stores; a granary or storehouse nearer would save it`]);
       if (def.cap) rows.push(['Beds', def.cap]);
       if (def.upkeep) rows.push(['Upkeep', `${def.upkeep} gold a week`]);
       if (def.work?.kind === 'farm') rows.push(['Fields tended', `${b.fields?.length ?? b.fields?.size ?? 0} tiles`]);

@@ -14,9 +14,21 @@ The moat is a distance field from the *exposed borders* of owned wards (borders 
 
 weather → work and farms → relief → food and fuel → money → mood → births and deaths → construction → coverage and blocks → growth → merchants → fire → plague → raids → tribute → rank.
 
+Tribute: each autumn from the third year the king's collector takes `25·wards` and a third of what taxes and the shops brought in since his last visit, so a hamlet pays as a hamlet and a city as a city.
+
 Relief: when food in store is under two weeks' eating and there is gold, the steward buys six weeks of grain at twice the merchant's price (at most once in four weeks); likewise firewood when the woodpile is under two weeks' burning.
 
-Labour: the garrison, then a third of the hands held for building sites, then priority-3 jobs (food, and woodcutters when timber is low), then crews up to 55%, then the rest by priority.
+Labour: the garrison, then a third of the hands held for building sites, then priority-3 jobs (food, and woodcutters when timber is low), then crews up to 55%, then the rest by priority. Food drops to normal priority while the stores alone would last to the harvest after next (even if this year's failed), so a well-fed town's hands go to the quarries and workshops; and farmsteads drop to low through the winter, when the fields lie fallow and only pasture wants tending.
+
+## Food
+
+A farmhand tends 8 tiles of field. Over a year a tile gives `soil · haul · mood · weather` times its crop's yield, where `soil = 0.35 + 0.9·fert`: wheat 10 grain, gardens 11 produce, orchard 14 produce (an orchard costs three times as much to plant). A farmhand on wheat feeds about five; a fisherman (1.8 fish a week) or a hunter (1.2 meat) about eight, but the catch spoils fast and only so much water or forest is in reach.
+
+Haul: what a building makes is lost on the road to the nearest store (the castle, a granary or a storehouse), `clamp(1.1 − d/100, 0.7, 1)` for `d` road tiles; the inspector shows the loss. The food estimate (what immigration, births and the smallholdings wait on) counts the haul, the mills' bread at what it is worth, and next year's weather as an average one once the harvest is in.
+
+## Timber and tools
+
+Woodcutters fell grown trees only (level 2 and up: 14 timber a level), leaving the saplings, so a wood a forester tends grows back; when only saplings are in reach the lodge waits for them. Workshops and smithies stop making tools, and drop to low priority, once the stores hold more than `30 + 0.3·people` (the same glut that sends idle hands to smallholdings instead of workshops).
 
 ## Industry
 
@@ -30,7 +42,7 @@ They are built when the idle exceed the jobs already going up by two (smallholdi
 ## Fire and raids
 
 * Ignition: `0.00006 · flammability · (1 + 0.5·hot neighbours) · season (summer 1.3, winter 0.8) · (1 − 0.85·water) · (1 − 0.3·q)` a building a week, at most one fire a week. A fire may take a neighbour within 2.8 tiles (`0.2 · its flammability`, less with water and in a good block), and goes no further.
-* Raids are announced three weeks ahead. If the walls would not hold and the treasury can pay `36 · strength · (1 + 0.25·times paid)`, the steward buys them off. Otherwise a pillage takes 12% of the stores and burns one building; a sack takes 25%, burns three and kills 4%.
+* Raids are announced three weeks ahead, at the weakest gate (a raised drawbridge counts ×2.4). Their strength is `(2 + 1.4·year + 0.05·people + 1.8·wards) · difficulty · (0.8 to 1.3)`, the first only scouts at 65%: raiders come for what there is to take. Defence is the castle's, plus every watchtower (5), barracks (12) and the gate's gatehouse (8), each at half strength empty, × 1.3. If the walls would not hold and the treasury can pay `36 · strength · (1 + 0.25·times paid)`, the steward buys them off. Otherwise a pillage takes 12% of the stores and burns one building; a sack takes 25%, burns three and kills 4%.
 
 ## Donut blocks
 
