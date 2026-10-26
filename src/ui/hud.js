@@ -90,7 +90,7 @@ export function createHud(ctx) {
     const g = game.raidGate;
     const d = defenseOf(game, g), s = threatOf(game);
     return `<b>Raiders on the road</b><div class="row"><span>Coming to</span><span>${g ? ['the north', 'the east', 'the south', 'the west'][g.dir] + ' gate' : 'the castle'}</span></div>`
-      + `<div class="row"><span>Your defence</span><span class="${d >= s * 1.3 ? 'good' : d < s ? 'bad' : ''}">${num(d, 0)}</span></div>`
+      + `<div class="row"><span>Your defense</span><span class="${d >= s * 1.3 ? 'good' : d < s ? 'bad' : ''}">${num(d, 0)}</span></div>`
       + `<div class="row"><span>Their strength, about</span><span>${num(s, 0)}</span></div>`
       + `<div class="dim">Towers, barracks and a gatehouse (with its bridge raised) hold them. Click to look at the gate.</div>`;
   });
@@ -108,7 +108,7 @@ export function createHud(ctx) {
     return [s, b];
   });
   const extras = [
-    ['ledger', 'ledger', 'The ledger: coin, stores, trade and labour'],
+    ['ledger', 'ledger', 'The ledger: coin, stores, trade and labor'],
     ['bell', 'chronicle', 'The chronicle'],
     ['menu', 'menu', 'Menu (F10)'],
   ];

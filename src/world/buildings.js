@@ -30,7 +30,7 @@ export function gateRect(g) {
   return { x: mx + 1, y: my - 1, w: 2, d: 2 };
 }
 
-/** The ground a rectangle sits on counted by the kind of tile that is round about its middle. */
+/** The ground a rectangle sits on counted by the kind of tile that is around its middle. */
 export function countNear(world, cx, cy, radius, test) {
   let n = 0;
   const r2 = radius * radius;

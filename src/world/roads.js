@@ -126,6 +126,6 @@ export function nearestRoadSide(world, x0, y0, w, d) {
   return counts.indexOf(Math.max(...counts));
 }
 
-/** How rough the ground is over a rectangle, for deciding whether it needs levelling. */
+/** How rough the ground is over a rectangle, for deciding whether it needs leveling. */
 export const roughness = (world, x, y, w, d) => { const [lo, hi] = rectRange(world, x, y, w, d); return hi - lo; };
 

@@ -3,9 +3,9 @@ import { ripples, roofTile, shingle, thatch } from './paint.js';
 
 /**
  * Every material the world is drawn with, made once. Solid things carry their
- * colour in their vertices and take their grain from a texture, so one
- * material serves cottages of any colour. The leaves are a few materials
- * whose colour the seasons turn.
+ * color in their vertices and take their grain from a texture, so one
+ * material serves cottages of any color. The leaves are a few materials
+ * whose color the seasons turn.
  */
 
 export function createMaterials(GFX) {
@@ -50,7 +50,7 @@ export function createMaterials(GFX) {
   };
   // The trim of a wall (the beams of half-timbering, the bars of a window, the frame of a door) is timber, but is a few centimetres across, finer than the shadow map can draw, and can only throw a speckle of shadow on the wall beside it. It is its own part, so that it can take shadows without throwing any.
   mat.trim = mat.timber;
-  // Only the plain-coloured materials have no texture coordinates to read.
+  // Only the plain-colored materials have no texture coordinates to read.
   return { tex, mat };
 }
 
@@ -58,7 +58,7 @@ export function createMaterials(GFX) {
 const NO_SHADOW = new Set(['glow', 'glass', 'flame', 'trim']);
 export const castsShadow = (name) => !NO_SHADOW.has(name);
 
-/** The leaves' colours through the year: spring, summer, autumn, and what is left in winter. */
+/** The leaves' colors through the year: spring, summer, autumn, and what is left in winter. */
 const LEAVES = {
   leafA: ['#a4d05a', '#5f9a3a', '#dc8a2a', '#6a5a44'],
   leafB: ['#b9de6c', '#78b043', '#e8c53c', '#7a6a50'],
@@ -67,8 +67,8 @@ const LEAVES = {
 };
 
 /**
- * Colours the leaves for a moment of the year: `season` 0 to 3 and `k` 0 to 1
- * how far through it. Each season's colour gives way to the next's over its
+ * Colors the leaves for a moment of the year: `season` 0 to 3 and `k` 0 to 1
+ * how far through it. Each season's color gives way to the next's over its
  * last stretch. Deciduous trees go bare through the winter; conifers take snow.
  */
 export function colorLeaves(materials, GFX, season, k) {

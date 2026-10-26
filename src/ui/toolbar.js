@@ -77,12 +77,12 @@ export function createToolbar(ctx) {
           h('span.label', {}, 'Street'), seg([['dirt', 'Dirt'], ['cobble', 'Cobbled']], b.road, (v) => tools.set('block', { block: { road: v } }))),
         h('div.row', {}, h('span.label', {}, 'Core'), ...CORES.map(([id, name, desc]) => opt(name, b.core === id, () => tools.set('block', { block: { core: id } }), { title: desc }))),
         h('div.hint', { html: b.ring === 'croft'
-          ? '<b>Agricultural block.</b> Crofts grow round the ring when people want work, each family on its own strip; they rise to smallholdings and granges. Put wheat or pasture in the core, or leave it open for a <b>granary</b> or a <b>windmill</b>.'
+          ? '<b>Agricultural block.</b> Crofts grow around the ring when people want work, each family on its own strip; they rise to smallholdings and granges. Put wheat or pasture in the core, or leave it open for a <b>granary</b> or a <b>windmill</b>.'
           : b.ring === 'craft'
-            ? '<b>Workshop block.</b> Workshops grow round the ring when people want work, turning timber into tools and wares; they rise to joineries and craft halls. Leave the core open for a <b>storehouse</b> or a <b>smithy</b>: the trades round it make a quarter more. Keep it back from the houses.'
+            ? '<b>Workshop block.</b> Workshops grow around the ring when people want work, turning timber into tools and wares; they rise to joineries and craft halls. Leave the core open for a <b>storehouse</b> or a <b>smithy</b>: the trades around it make a quarter more. Keep it back from the houses.'
             : b.core === 'none'
               ? '<b>Donut block.</b> Click to stamp it, or drag a rectangle. The core is left open: build a <b>Village Green</b>, well, chapel or tavern in the middle, and the ring of homes earns a courtyard bonus.'
-              : '<b>Donut block.</b> Click to stamp it, or drag a rectangle. Homes grow round the ring; what fills the core serves them. Choose <b>Open ★</b> to put a park or a special building there.' }));
+              : '<b>Donut block.</b> Click to stamp it, or drag a rectangle. Homes grow around the ring; what fills the core serves them. Choose <b>Open ★</b> to put a park or a special building there.' }));
     } else if (t === 'build') {
       const tabs = h('div.row', {}, ...CATEGORIES.map((c) => opt(c.name, buildCat === c.id, () => { buildCat = c.id; render(); })));
       const types = Object.entries(BUILDINGS).filter(([, d]) => d.cat === buildCat && !d.auto);

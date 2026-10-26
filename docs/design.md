@@ -18,7 +18,7 @@ Tribute: each autumn from the third year the king's collector takes `25·wards` 
 
 Relief: when food in store is under two weeks' eating and there is gold, the steward buys six weeks of grain at twice the merchant's price (at most once in four weeks); likewise firewood when the woodpile is under two weeks' burning.
 
-Labour: the garrison, then a third of the hands held for building sites, then priority-3 jobs (food, and woodcutters when timber is low), then crews up to 55%, then the rest by priority. Food drops to normal priority while the stores alone would last to the harvest after next (even if this year's failed), so a well-fed town's hands go to the quarries and workshops; and farmsteads drop to low through the winter, when the fields lie fallow and only pasture wants tending.
+Labor: the garrison, then a third of the hands held for building sites, then priority-3 jobs (food, and woodcutters when timber is low), then crews up to 55%, then the rest by priority. Food drops to normal priority while the stores alone would last to the harvest after next (even if this year's failed), so a well-fed town's hands go to the quarries and workshops; and farmsteads drop to low through the winter, when the fields lie fallow and only pasture wants tending.
 
 ## Food
 
@@ -41,8 +41,8 @@ They are built when the idle exceed the jobs already going up by two (smallholdi
 
 ## Fire and raids
 
-* Ignition: `0.00006 · flammability · (1 + 0.5·hot neighbours) · season (summer 1.3, winter 0.8) · (1 − 0.85·water) · (1 − 0.3·q)` a building a week, at most one fire a week. A fire may take a neighbour within 2.8 tiles (`0.2 · its flammability`, less with water and in a good block), and goes no further.
-* Raids are announced three weeks ahead, at the weakest gate (a raised drawbridge counts ×2.4). Their strength is `(2 + 1.4·year + 0.05·people + 1.8·wards) · difficulty · (0.8 to 1.3)`, the first only scouts at 65%: raiders come for what there is to take. Defence is the castle's, plus every watchtower (5), barracks (12) and the gate's gatehouse (8), each at half strength empty, × 1.3. If the walls would not hold and the treasury can pay `36 · strength · (1 + 0.25·times paid)`, the steward buys them off. Otherwise a pillage takes 12% of the stores and burns one building; a sack takes 25%, burns three and kills 4%.
+* Ignition: `0.00006 · flammability · (1 + 0.5·hot neighbors) · season (summer 1.3, winter 0.8) · (1 − 0.85·water) · (1 − 0.3·q)` a building a week, at most one fire a week. A fire may take a neighbor within 2.8 tiles (`0.2 · its flammability`, less with water and in a good block), and goes no further.
+* Raids are announced three weeks ahead, at the weakest gate (a raised drawbridge counts ×2.4). Their strength is `(2 + 1.4·year + 0.05·people + 1.8·wards) · difficulty · (0.8 to 1.3)`, the first only scouts at 65%: raiders come for what there is to take. Defense is the castle's, plus every watchtower (5), barracks (12) and the gate's gatehouse (8), each at half strength empty, × 1.3. If the walls would not hold and the treasury can pay `36 · strength · (1 + 0.25·times paid)`, the steward buys them off. Otherwise a pillage takes 12% of the stores and burns one building; a sack takes 25%, burns three and kills 4%.
 
 ## Donut blocks
 

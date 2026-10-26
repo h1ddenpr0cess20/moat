@@ -7,12 +7,12 @@ export { castleNorm };
 
 /**
  * The map is a grid of wards, and the realm is the wards that have been
- * moated. A moat runs round the realm, along every ward border that has
+ * moated. A moat runs around the realm, along every ward border that has
  * unmoated land on the far side; where two of the realm's wards meet there is
  * no moat. The castle has a moat of its own, which never moves.
  */
 
-const FIRST = ['Ash', 'Thorn', 'Elm', 'Brook', 'Stan', 'Holl', 'Ful', 'Mar', 'Ox', 'Whit', 'Hare', 'Black', 'Grey', 'Red', 'Cold', 'Ring', 'Wolf', 'Birch', 'Lang', 'Weth', 'Kings', 'Nor', 'Sud', 'Wen', 'Tyne', 'Crow', 'Alder', 'Fen', 'Gos', 'Hay'];
+const FIRST = ['Ash', 'Thorn', 'Elm', 'Brook', 'Stan', 'Holl', 'Ful', 'Mar', 'Ox', 'Whit', 'Hare', 'Black', 'Gray', 'Red', 'Cold', 'Ring', 'Wolf', 'Birch', 'Lang', 'Weth', 'Kings', 'Nor', 'Sud', 'Wen', 'Tyne', 'Crow', 'Alder', 'Fen', 'Gos', 'Hay'];
 const LAST = ['ford', 'ham', 'ton', 'wick', 'bury', 'leigh', 'by', 'stead', 'mere', 'combe', 'worth', 'field', 'den', 'ley', 'well', 'hurst', 'ness', 'holt'];
 const TAIL = { wood: ['Wood', 'Holt', 'Chase'], water: ['Mere', 'Fen', 'Reach'], rock: ['Crag', 'Tor', 'Quarry'], ore: ['Tor', 'Crag', 'Deep'], fertile: ['Vale', 'Meadows', 'Leas'], high: ['Fell', 'Heights', 'Scar'], plain: ['Down', 'Green', 'Marsh', 'Moor'] };
 
@@ -213,7 +213,7 @@ export function computeMoat(world) {
   return world;
 }
 
-/** Shapes the castle's island: a mound for the keep, a moat round it, a bank beyond. Done once, into the base heights. */
+/** Shapes the castle's island: a mound for the keep, a moat around it, a bank beyond. Done once, into the base heights. */
 export function shapeCastle(world) {
   if (!world.hBase) world.hBase = Float32Array.from(world.h);
   for (let vy = 0; vy < HV; vy++) {
@@ -251,7 +251,7 @@ export function carveMoat(world) {
   touchAll(world);
 }
 
-/** Trees do not stand in the water: the woods a new moat is dug through (the ward's own, or its neighbour's) lose the trees the water reaches. */
+/** Trees do not stand in the water: the woods a new moat is dug through (the ward's own, or its neighbor's) lose the trees the water reaches. */
 export function clearMoatTrees(world) {
   for (let y = 0; y < world.size; y++) {
     for (let x = 0; x < world.size; x++) {

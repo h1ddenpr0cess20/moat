@@ -14,19 +14,19 @@ import { freeGeometry } from './dispose.js';
  * people have been. Beyond the edge of the map the mountains go on, cheaply.
  */
 
-/** Pixels the ground texture has to a tile, and how many tiles round a chunk it paints so that chunks join. */
+/** Pixels the ground texture has to a tile, and how many tiles around a chunk it paints so that chunks join. */
 const PX = 16;
 const MARGIN = 1;
 const SPAN = CHUNK + MARGIN * 2;
 const SIDE = SPAN * PX;
 
-/** Tiles a chunk's own data covers: its own, and two more all round for the soft edges. */
+/** Tiles a chunk's own data covers: its own, and two more all around for the soft edges. */
 const PAD = 2;
 const DATA = CHUNK + PAD * 2;
 
 const lerp = (a, b, t) => a + (b - a) * t;
 
-/** The zones that are ploughed ground, painted as earth under the crops. */
+/** The zones that are plowed ground, painted as earth under the crops. */
 const FIELD_IDS = new Set(FARM_ZONES.map((z) => ZONE_ID[z]));
 
 let blotCache = null;
@@ -92,7 +92,7 @@ function gather(world, cx, cy) {
       if (field[k]) dirt[k] = Math.max(dirt[k], 0.7);
     }
   }
-  // Heights over the chunk and a tile all round, a vertex every half tile, and the slope at each.
+  // Heights over the chunk and a tile all around, a vertex every half tile, and the slope at each.
   const hs = SPAN * SUB + 1;
   const H = new Float32Array(hs * hs), S = new Float32Array(hs * hs);
   const hx0 = (x0 - MARGIN) * SUB, hy0 = (y0 - MARGIN) * SUB;
@@ -109,12 +109,12 @@ function gather(world, cx, cy) {
 
 /**
  * Paints a chunk's ground. `sources` are the luminance arrays of the engine's grass, dirt and rock textures.
- * `box` ([x0, y0, x1, y1] in tiles) paints only the ground round those tiles, for a change that touched a few.
+ * `box` ([x0, y0, x1, y1] in tiles) paints only the ground around those tiles, for a change that touched a few.
  */
 function paint(world, cx, cy, sources, canvas, box = null) {
   const d = gather(world, cx, cy);
   const ctx = canvas.getContext('2d');
-  // A tile's look blends into its neighbours two tiles out (the soft edges, the trodden earth round a wall).
+  // A tile's look blends into its neighbors two tiles out (the soft edges, the trodden earth around a wall).
   const B = 2;
   const toPx = (t) => Math.max(0, Math.min(SIDE, Math.floor((t - (cx * CHUNK - MARGIN)) * PX / B) * B));
   const [px0, py0, px1, py1] = box ? [toPx(box[0] - 2), toPx(box[1] - 2), toPx(box[2] + 3), toPx(box[3] + 3)] : [0, 0, SIDE, SIDE];
@@ -127,7 +127,7 @@ function paint(world, cx, cy, sources, canvas, box = null) {
   const inv = 1 / PX;
   const wx0 = d.x0 - MARGIN, wy0 = d.y0 - MARGIN;
   const tileAt = (arr, wx, wz) => {
-    // Bilinear between tile centres.
+    // Bilinear between tile centers.
     const u = wx - d.x0 + PAD - 0.5, v = wz - d.y0 + PAD - 0.5;
     const i = Math.max(0, Math.min(DATA - 2, Math.floor(u))), j = Math.max(0, Math.min(DATA - 2, Math.floor(v)));
     const fu = Math.max(0, Math.min(1, u - i)), fv = Math.max(0, Math.min(1, v - j));
@@ -216,7 +216,7 @@ export function createTerrain(GFX, world, materials, scene) {
     const map = new GFX.CanvasTexture(canvas);
     map.colorSpace = GFX.SRGBColorSpace;
     map.anisotropy = 8;
-    // The mesh's v runs down the chunk as the canvas's rows do: left flipped (the default), each chunk's ground ran backwards and met its neighbour in a seam.
+    // The mesh's v runs down the chunk as the canvas's rows do: left flipped (the default), each chunk's ground ran backwards and met its neighbor in a seam.
     map.flipY = false;
     // A bump of its own, shifted so the grain runs on across chunks.
     const bump = new GFX.CanvasTexture(tex.grass.bump.image);
@@ -288,9 +288,9 @@ export function createTerrain(GFX, world, materials, scene) {
     }
   }
 
-  // The mountains round the map, in low detail: a ring of chunks two deep. They are coloured by the rules the painted
-  // ground uses (in sRGB, as the paint is, then made linear for the vertex colours), and where they meet the map they
-  // take the map's own heights and ease from them into the mountains, so no seam or step runs round the border.
+  // The mountains around the map, in low detail: a ring of chunks two deep. They are colored by the rules the painted
+  // ground uses (in sRGB, as the paint is, then made linear for the vertex colors), and where they meet the map they
+  // take the map's own heights and ease from them into the mountains, so no seam or step runs around the border.
   // Four deep, so that drawn right out the land does not end in sky: the outer two at half the detail.
   const RING = 4;
   const EASE = 4;
@@ -369,7 +369,7 @@ export function createTerrain(GFX, world, materials, scene) {
   }
 
   // A curtain hung under the border: the map has a vertex every half tile and the mountains every tile, so between
-  // them a sliver of sky could show through. The curtain runs down from the map's edge, coloured as the ground there.
+  // them a sliver of sky could show through. The curtain runs down from the map's edge, colored as the ground there.
   const curtainGeometry = () => {
     const pts = [];
     const step = 1 / SUB;
@@ -442,7 +442,7 @@ export function createTerrain(GFX, world, materials, scene) {
         c.mesh.geometry = geometry;
         c.snow.geometry = geometry;
         reskirt(c.cx, c.cy);
-        // The heights have changed, and the ground over them is painted again: only round what changed, for every
+        // The heights have changed, and the ground over them is painted again: only around what changed, for every
         // change of height is touched with a box of ground. Without one (the whole map at once), the whole chunk is.
         world.dirty.ground.add(i);
         spent += 0.2;

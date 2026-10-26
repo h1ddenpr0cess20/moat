@@ -1,6 +1,6 @@
 /**
  * The maps that change as the barony is built, and the heights (which a moat
- * or a levelled plot changes). `snapshot` keeps a copy of them as the land
+ * or a leveled plot changes). `snapshot` keeps a copy of them as the land
  * was made, so that a save need keep only what has changed since.
  */
 export const MAPS = ['ground', 'tree', 'amount', 'road', 'zone', 'crop'];

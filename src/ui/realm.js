@@ -8,7 +8,7 @@ import { fill, h } from './dom.js';
 /**
  * The map of the barony, drawn like a surveyor's: the seven by seven wards,
  * what each is made of, which are the lord's, which can be taken by digging
- * the moat out round them, and what it will cost.
+ * the moat out around them, and what it will cost.
  */
 
 const PX = 3;
@@ -110,7 +110,7 @@ export function realmDialog(ctx, { ward: initial = null } = {}) {
     } else {
       const cost = plan.cost ?? annexCost(owned, s.hardness);
       const work = plan.work ?? annexWork(owned);
-      parts.push(h('h3', {}, 'Dig the moat out round it'), h('div.kv', { style: { color: 'inherit' } }, h('span', {}, 'Cost'), h('span', { html: Object.entries(cost).map(([r, n]) => `<span class="${game.stock[r] < n ? 'bad' : ''}">${n} ${RESOURCES[r].name.toLowerCase()}</span>`).join(', ') }), h('span', {}, 'Time'), h('span', {}, `${work.weeks} weeks`), h('span', {}, 'Diggers'), h('span', {}, `${work.crew} hands`)),
+      parts.push(h('h3', {}, 'Dig the moat out around it'), h('div.kv', { style: { color: 'inherit' } }, h('span', {}, 'Cost'), h('span', { html: Object.entries(cost).map(([r, n]) => `<span class="${game.stock[r] < n ? 'bad' : ''}">${n} ${RESOURCES[r].name.toLowerCase()}</span>`).join(', ') }), h('span', {}, 'Time'), h('span', {}, `${work.weeks} weeks`), h('span', {}, 'Diggers'), h('span', {}, `${work.crew} hands`)),
         h('p.dim', {}, 'The old moat between is filled in, the ground is graded and the new moat floods, with a bridge to the next ward.'),
         h('div.actions', {}, h('button.btn.gold', { disabled: !plan.ok, onclick: () => { const r = startAnnex(game, w.id); if (!r.ok) ctx.say(r.reason, 'warn'); else { ctx.sfx('place'); } draw(); showInfo(); } }, 'Dig the moat'), plan.ok ? null : h('span', { class: plan.capped ? 'warn' : 'bad' }, plan.reason)));
       if (plan.capped) parts.push(h('p', { html: `Your castle can hold ${cap} ${cap === 1 ? 'ward' : 'wards'}. <b>Raise it</b> to take more.` }), h('button.btn.small', { onclick: () => { ctx.dialogs.close(); ctx.inspector.show({ kind: 'building', id: 1 }); } }, 'Look at the castle'));

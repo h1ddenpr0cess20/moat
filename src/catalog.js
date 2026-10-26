@@ -67,7 +67,7 @@ export const BUILDINGS = Object.freeze({
   // The people's own, grown on zones.
   cottage: { name: 'Cottage', cat: 'housing', size: [2, 2], cost: { wood: 12, stone: 2 }, weeks: 3, crew: 2, cap: 4, auto: 'res', level: 1, desc: 'Wattle, daub and thatch: a hearth, a bed and a pig.' },
   house: { name: 'House', cat: 'housing', size: [2, 2], cost: { wood: 18, stone: 8 }, weeks: 3, crew: 2, cap: 6, auto: 'res', level: 2, desc: 'A timber-framed house with a tiled roof, and a chimney that draws.' },
-  townhouse: { name: 'Townhouse', cat: 'housing', size: [2, 3], cost: { wood: 26, stone: 18, gold: 15 }, weeks: 5, crew: 3, cap: 9, auto: 'res', level: 3, desc: 'Three storeys leaning out over the street. Merchants and masters live here.' },
+  townhouse: { name: 'Townhouse', cat: 'housing', size: [2, 3], cost: { wood: 26, stone: 18, gold: 15 }, weeks: 5, crew: 3, cap: 9, auto: 'res', level: 3, desc: 'Three stories leaning out over the street. Merchants and masters live here.' },
   stall: { name: 'Market Stall', cat: 'market', size: [2, 1], cost: { wood: 6 }, weeks: 1, crew: 1, jobs: 1, shop: 1.1, auto: 'market', level: 1, desc: 'A trestle and an awning.' },
   shop: { name: 'Shop', cat: 'market', size: [2, 2], cost: { wood: 18, stone: 6 }, weeks: 3, crew: 2, jobs: 2, shop: 2.4, auto: 'market', level: 2, desc: 'A draper, a chandler or a baker, with a sign over the door.' },
   merchant: { name: 'Merchant House', cat: 'market', size: [2, 2], cost: { wood: 24, stone: 18, gold: 20 }, weeks: 5, crew: 3, jobs: 3, shop: 4.2, auto: 'market', level: 3, desc: 'Warehouse below, counting house above.' },
@@ -82,7 +82,7 @@ export const BUILDINGS = Object.freeze({
   // Food.
   farmstead: { name: 'Farmstead', cat: 'food', size: [3, 3], cost: { wood: 40, gold: 30 }, weeks: 5, crew: 3, jobs: 6, upkeep: 0.5, work: { kind: 'farm' }, desc: 'A farmhouse, a barn and a yard. Its hands tend every field within eight tiles, one for each eight tiles of field.' },
   fishery: { name: 'Fisherman’s Hut', cat: 'food', size: [2, 3], cost: { wood: 30, gold: 20 }, weeks: 4, crew: 2, jobs: 2, upkeep: 0.2, where: { water: { radius: 4, count: 10 } }, work: { kind: 'gather', res: 'fish', rate: 1.8, from: 'water', radius: 4, season: [0.9, 1.1, 1, 0.45] }, desc: 'Nets, a jetty and a smoking rack. It must stand by the water.' },
-  hunter: { name: 'Hunter’s Lodge', cat: 'food', size: [2, 2], cost: { wood: 25, gold: 20 }, weeks: 3, crew: 2, jobs: 2, upkeep: 0.2, where: { trees: { radius: 10, count: 14 } }, work: { kind: 'gather', res: 'meat', rate: 1.2, from: 'trees', radius: 10, season: [1, 0.9, 1.2, 0.8], spends: 0 }, desc: 'Venison and hide from the woods round about. It wants a forest within ten tiles.' },
+  hunter: { name: 'Hunter’s Lodge', cat: 'food', size: [2, 2], cost: { wood: 25, gold: 20 }, weeks: 3, crew: 2, jobs: 2, upkeep: 0.2, where: { trees: { radius: 10, count: 14 } }, work: { kind: 'gather', res: 'meat', rate: 1.2, from: 'trees', radius: 10, season: [1, 0.9, 1.2, 0.8], spends: 0 }, desc: 'Venison and hide from the surrounding woods. It wants a forest within ten tiles.' },
   granary: { name: 'Granary', cat: 'food', size: [3, 3], cost: { wood: 40, stone: 10, gold: 20 }, weeks: 6, crew: 3, jobs: 1, upkeep: 0.3, store: { food: 1600 }, desc: 'Raised on staddle stones against the rats. Holds a harvest.' },
   mill: { name: 'Windmill', cat: 'food', size: [3, 3], cost: { wood: 80, stone: 30, gold: 50 }, weeks: 8, crew: 3, jobs: 2, upkeep: 0.5, work: { kind: 'make', in: { grain: 3.2 }, out: { bread: 4.5 }, fuel: 0.3 }, desc: 'Grinds grain and bakes it into bread: four loaves and a half for every three measures of grain.' },
   brewery: { name: 'Brewery', cat: 'food', size: [2, 3], cost: { wood: 60, stone: 10, gold: 40 }, weeks: 6, crew: 3, jobs: 2, upkeep: 0.4, work: { kind: 'make', in: { grain: 2.4 }, out: { ale: 4 }, fuel: 0.2 }, desc: 'Ale for the taverns, and for anyone who can pay.' },
@@ -90,7 +90,7 @@ export const BUILDINGS = Object.freeze({
   // Materials.
   woodcutter: { name: 'Woodcutter’s Lodge', cat: 'industry', size: [2, 2], cost: { wood: 20, gold: 15 }, weeks: 3, crew: 2, jobs: 3, upkeep: 0.2, where: { trees: { radius: 9, count: 6 } }, work: { kind: 'gather', res: 'wood', rate: 3.4, from: 'trees', radius: 9, tools: true }, desc: 'Fells the trees within nine tiles. The forest grows back, but slowly.' },
   forester: { name: 'Forester’s Lodge', cat: 'industry', size: [2, 2], cost: { wood: 30, gold: 20 }, weeks: 3, crew: 2, jobs: 2, upkeep: 0.2, work: { kind: 'plant', radius: 8, plant: 0.9, tend: 1.4 }, desc: 'Plants and tends young woods within eight tiles of the lodge, so the woodcutters never run dry. It plants on open ground only: not on streets, zones or in a block.' },
-  quarry: { name: 'Quarry', cat: 'industry', size: [3, 3], cost: { wood: 40, gold: 30 }, weeks: 5, crew: 3, jobs: 4, upkeep: 0.4, where: { rock: { radius: 6, count: 5 } }, work: { kind: 'gather', res: 'stone', rate: 1.7, from: 'rock', radius: 6, tools: true }, desc: 'Cuts stone from the outcrops round about. It must stand near bare rock.' },
+  quarry: { name: 'Quarry', cat: 'industry', size: [3, 3], cost: { wood: 40, gold: 30 }, weeks: 5, crew: 3, jobs: 4, upkeep: 0.4, where: { rock: { radius: 6, count: 5 } }, work: { kind: 'gather', res: 'stone', rate: 1.7, from: 'rock', radius: 6, tools: true }, desc: 'Cuts stone from the nearby outcrops. It must stand near bare rock.' },
   ironmine: { name: 'Iron Mine', cat: 'industry', size: [3, 3], cost: { wood: 60, stone: 20, gold: 60 }, weeks: 8, crew: 4, jobs: 4, upkeep: 0.6, where: { ore: { radius: 6, count: 3 } }, work: { kind: 'gather', res: 'iron', rate: 1, from: 'ore', radius: 6, tools: true, fuel: 0.2 }, desc: 'A shaft, a windlass and a sledge. It must stand near iron ore.' },
   storehouse: { name: 'Storehouse', cat: 'industry', size: [3, 3], cost: { wood: 50, stone: 20, gold: 25 }, weeks: 6, crew: 3, jobs: 1, upkeep: 0.3, store: { goods: 1300 }, desc: 'Timber, stone, iron and everything else that keeps.' },
   smithy: { name: 'Smithy', cat: 'industry', size: [2, 3], cost: { wood: 50, stone: 30, gold: 50 }, weeks: 6, crew: 3, jobs: 2, upkeep: 0.5, work: { kind: 'make', in: { iron: 1.1, wood: 0.7 }, out: { tools: 1.1 } }, desc: 'Turns iron and charcoal into the tools every trade wears out.' },
@@ -114,7 +114,7 @@ export const CATEGORIES = Object.freeze([
   { id: 'food', name: 'Food' },
   { id: 'industry', name: 'Industry' },
   { id: 'civic', name: 'Civic' },
-  { id: 'defense', name: 'Defence' },
+  { id: 'defense', name: 'Defense' },
 ]);
 
 /** The buildings the zones grow, by zone and level. */
@@ -146,10 +146,10 @@ export const RANKS = Object.freeze([
 export const ROADS = Object.freeze({
   dirt: { name: 'Dirt Road', cost: { gold: 1 }, desc: 'Beaten earth. Cheap, and it turns to mud in the rain.' },
   bridge: { name: 'Bridge', cost: { wood: 4, gold: 3 }, desc: 'A plank bridge over a river or a lake: drag from one bank to the other, up to six tiles of water, in a straight line. Both ends must be on dry land. The moat is crossed only at the gates.' },
-  cobble: { name: 'Cobbled Road', cost: { stone: 1, gold: 1 }, desc: 'Setts laid in sand. Dry in all weathers, and a good address.' },
+  cobble: { name: 'Cobbled Road', cost: { stone: 1, gold: 1 }, desc: 'Paving stones laid in sand. Dry in any weather, and a good address.' },
 });
 
-/** The cost of the moat round a new ward: it grows with the realm and with how hard the ground is. */
+/** The cost of the moat around a new ward: it grows with the realm and with how hard the ground is. */
 export function annexCost(owned, hardness = 0) {
   const k = 1 + hardness * 0.8;
   return {

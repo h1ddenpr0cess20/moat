@@ -104,7 +104,7 @@ export function createOverlays(GFX, world, scene) {
 
   const api = {
     group,
-    /** Colours tiles: `tiles` is a list of [x, y]; none clears the layer. */
+    /** Colors tiles: `tiles` is a list of [x, y]; none clears the layer. */
     fill(key, tiles, style = {}) {
       const sig = tiles?.length ? `${signature(tiles)}|${style.color}|${style.opacity}` : '';
       const had = layers.get(key);
@@ -130,14 +130,14 @@ export function createOverlays(GFX, world, scene) {
       }, { color: style.color ?? TINTS.select, opacity: style.opacity ?? 0.9, order: style.order ?? 5, pulse: style.pulse ?? 0 });
       layers.get(key).sig = sig;
     },
-    /** An outline round a rectangle of tiles (x, y, w, d). */
+    /** An outline around a rectangle of tiles (x, y, w, d). */
     rect(key, r, style = {}) {
       if (!r) return api.path(key, null);
       const pad = style.pad ?? 0.04;
       const x0 = r.x - pad, y0 = r.y - pad, x1 = r.x + r.w + pad, y1 = r.y + r.d + pad;
       api.path(key, [[x0, y0], [x1, y0], [x1, y1], [x0, y1]], { ...style, closed: true });
     },
-    /** A ring of `radius` tiles round (cx, cz) in world units. */
+    /** A ring of `radius` tiles around (cx, cz) in world units. */
     ring(key, cx, cz, radius, style = {}) {
       if (!radius) return api.path(key, null);
       const pts = [];

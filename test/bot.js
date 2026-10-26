@@ -7,7 +7,7 @@ import { idx } from '../src/world/world.js';
 
 /**
  * A player that follows a sensible order of play, for tests and for tuning:
- * it lays a ring block round the castle, farms the strips beyond it, finds
+ * it lays a ring block around the castle, farms the strips beyond it, finds
  * wood and stone, builds what the town asks for, and widens the moat when it
  * can. It uses the same actions as the lord, and pays for them.
  */
@@ -71,7 +71,7 @@ export function createBot(game) {
         // Wood first, while the trees stand.
         const forest = forestAt();
         if (forest) put(game, 'woodcutter', forest[0], forest[1], 10);
-        // The ring road round the castle, with housing round it; the strips beyond it for the fields.
+        // The ring road around the castle, with housing around it; the strips beyond it for the fields.
         buildBlock(game, C - 9, C - 9, C + 8, C + 8, { ring: 'res', core: 'none' });
         buildZone(game, rectTiles(C + 9, C - 12, C + 11, C + 5), 'wheat');
         buildZone(game, rectTiles(C - 12, C - 12, C - 10, C + 5), 'wheat');
@@ -121,7 +121,7 @@ export function createBot(game) {
       if (game.week > 60 && defenseOf(game) < threatOf(game) * 1.15 && count(game, 'watchtower') < 6 && s.stone > 90 && s.wood > 60 && s.gold > 80) put(game, 'watchtower', C + 8 - count(game, 'watchtower') * 5, C + 9, 10);
       if (!count(game, 'smithy') && pop() > 40 && s.iron > 20 && s.gold > 60) put(game, 'smithy', C - 7, C + 8, 8);
       if (!count(game, 'barracks') && game.rank >= 1 && s.iron > 30 && s.stone > 70 && s.gold > 140) put(game, 'barracks', C + 7, C + 8, 8);
-      // Wider moat, the best-looking neighbour first.
+      // Wider moat, the best-looking neighbor first.
       if (game.week > 20 && wk % 4 === 0) {
         let best = null, bestScore = -1;
         for (const w of world.wards) {

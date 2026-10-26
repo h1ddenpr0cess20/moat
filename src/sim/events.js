@@ -25,7 +25,7 @@ const WARNING = 3;
 export const PAYOFF = 36;
 export const payoffPrice = (game, strength) => Math.round(strength * PAYOFF * (1 + 0.25 * (game.raids.bought ?? 0)));
 const DIFFICULTY = { peaceful: 0, easy: 0.7, normal: 1, hard: 1.4 };
-/** How much a raised drawbridge multiplies a gate's defence. */
+/** How much a raised drawbridge multiplies a gate's defense. */
 const RAISED = 2.4;
 /** The king's share of what the barony took in taxes and trade over the year, on top of his due for its land: a third. */
 const TITHE = 1 / 3;
@@ -99,7 +99,7 @@ const FLAMMABLE = { cottage: 1, stall: 1.2, house: 0.55, shop: 0.6, townhouse: 0
 const HOT = new Set(['smithy', 'mill', 'brewery', 'tavern', 'joinery', 'guildhall']);
 /** The chance a week that a building catches, before what is near it is counted: a town of a hundred roofs sees a fire every few years. */
 const IGNITE = 0.00006;
-/** The chance a burning building takes a neighbour with it, before wells and courtyards. */
+/** The chance a burning building takes a neighbor with it, before wells and courtyards. */
 const SPREAD = 0.2;
 
 export function burn(game, b, depth = 0) {
@@ -114,7 +114,7 @@ export function burn(game, b, depth = 0) {
   world.netVersion = (world.netVersion ?? 0) + 1;
   game.emit('fire', { at, building: b });
   game.note(`The ${BUILDINGS[b.type].name.toLowerCase()} burned down.`, 'bad', at);
-  // A fire may take the roof next door, but the neighbours are out with buckets: it seldom goes further.
+  // A fire may take the roof next door, but the neighbors are out with buckets: it seldom goes further.
   if (depth < 1) {
     for (const o of [...world.buildings.values()]) {
       if (o.type === 'castle' || !FLAMMABLE[o.type]) continue;
@@ -172,7 +172,7 @@ export function defenseOf(game, gate = null) {
 }
 
 /**
- * How big the next raid is likely to be, for the lord to judge his defences by. Raiders come for what there is to
+ * How big the next raid is likely to be, for the lord to judge his defenses by. Raiders come for what there is to
  * take: they grow bolder with the years, but most of all with the people and the land behind the moat.
  */
 export function threatOf(game) {
@@ -243,8 +243,8 @@ export function raids(game) {
     game.raids.lost++;
     const loot = severe ? 0.25 : 0.12;
     for (const r of GOODS) game.stock[r] *= 1 - loot;
-    const burnt = gate ? nearest(game, gate, severe ? 3 : 1) : [];
-    burnt.forEach((b) => burn(game, b));
+    const burned = gate ? nearest(game, gate, severe ? 3 : 1) : [];
+    burned.forEach((b) => burn(game, b));
     const dead = Math.min(headcount(game) - 1, Math.round(headcount(game) * (severe ? 0.04 : 0.015)));
     for (const k of ['adults', 'children', 'elders']) game.pop[k] = Math.max(0, game.pop[k] - Math.round(dead * game.pop[k] / Math.max(1, headcount(game))));
     game.shock += severe ? 14 : 6;

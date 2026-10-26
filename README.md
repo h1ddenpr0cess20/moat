@@ -41,11 +41,11 @@ The map is a grid of **wards** of 30 × 30 tiles: 7 × 7 for a Small map, 9 × 9
 
 The game saves itself each season. To keep more than one realm, open the menu (F10) and **Save as new** under *Saved realms*: up to eight saves by name, each of which can be loaded, saved over or deleted, from the menu or the title screen.
 
-You own the ward the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out round a neighbouring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards. To raise it, press **C** and choose *Begin the work*: each tier needs a rank (Viscount, Earl, Marquess, which come with population, wards and a chapel) and a pile of timber, stone, iron and gold.
+You own the ward the castle stands in. From the **realm map** (M) you can pay for the diggers to dig the moat out around a neighboring ward: the old moat between is filled in, the ground is graded, the new moat floods, and a bridge is laid at the gate. A bigger castle (Timber Keep, Stone Keep, Castle, Citadel) holds more wards. To raise it, press **C** and choose *Begin the work*: each tier needs a rank (Viscount, Earl, Marquess, which come with population, wards and a chapel) and a pile of timber, stone, iron and gold.
 
 ### Donut blocks and courtyard bonuses
 
-Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp a loop of street with a ring of plots round its inside. Houses grow on the ring; the middle is the **core**. Put a **Village Green** (Build → Civic), a well, a chapel, a tavern, a healer or a market square in the core and the block becomes a *courtyard*, as in SimCity Classic:
+Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp a loop of street with a ring of plots around its inside. Houses grow on the ring; the middle is the **core**. Put a **Village Green** (Build → Civic), a well, a chapel, a tavern, a healer or a market square in the core and the block becomes a *courtyard*, as in SimCity Classic:
 
 * **Rating (0 to 100)** = how built the ring is × how good the heart is. Plaques over your blocks show it.
 * **Heart**: a village green is best for houses; a cathedral, chapel, market square, well, tavern, healer, watchtower or barracks serve the whole ring at once; kitchen gardens, an orchard, allotments or a common are worth something too. A second heart building adds more.
