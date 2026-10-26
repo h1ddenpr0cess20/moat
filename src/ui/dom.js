@@ -63,6 +63,8 @@ export function createTip(root) {
     hide() { el.hidden = true; },
     /** Gives `target` a tooltip made by `fn()` when the pointer rests on it. */
     attach(target, fn) {
+      // A phone has nothing that rests on a thing; the mouse events it makes up after a tap would leave a tip standing over the screen.
+      if (globalThis.matchMedia && !globalThis.matchMedia('(hover: hover)').matches) return target;
       target.addEventListener('pointerenter', (e) => { if (e.pointerType !== 'touch') { const c = fn(); if (c) this.show(c, e.clientX, e.clientY); } });
       target.addEventListener('pointermove', (e) => { if (!el.hidden) { const c = fn(); if (c) { this.show(c, e.clientX, e.clientY); } } });
       target.addEventListener('pointerleave', () => this.hide());

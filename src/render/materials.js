@@ -1,4 +1,4 @@
-import { FLOORS, clapboard, cobble, hedge, stone, stucco, tiled, timber } from 'madness-engine/textures/painters';
+import { FLOORS, ashlar, bedrock, clapboard, cobble, hedge, rubble, stucco, tiled, timber } from 'madness-engine/textures/painters';
 import { ripples, roofTile, shingle, thatch } from './paint.js';
 
 /**
@@ -15,7 +15,7 @@ export function createMaterials(GFX) {
   });
 
   const tex = {
-    stucco: stucco(GFX), stone: stone(GFX), timber: timber(GFX), clapboard: clapboard(GFX), cobble: cobble(GFX), hedge: hedge(GFX),
+    stucco: stucco(GFX), ashlar: ashlar(GFX), rubble: rubble(GFX), bedrock: bedrock(GFX), timber: timber(GFX), clapboard: clapboard(GFX), cobble: cobble(GFX), hedge: hedge(GFX),
     planks: FLOORS.planks(GFX), grass: FLOORS.grass(GFX), dirt: FLOORS.dirt(GFX), sand: FLOORS.sand(GFX), snow: FLOORS.snow(GFX),
     scree: FLOORS.scree(GFX), mud: FLOORS.mud(GFX),
     thatch: thatch(GFX), roofTile: roofTile(GFX), shingle: shingle(GFX), ripples: ripples(GFX),
@@ -23,9 +23,11 @@ export function createMaterials(GFX) {
 
   const mat = {
     plaster: textured(tex.stucco, { bumpScale: 0.9 }),
-    stone: textured(tex.stone, { bumpScale: 1.4, roughness: 0.95 }),
-    // Natural rock: the scree the hills are painted from, with no mortar lines in it.
-    rock: textured(tex.scree, { bumpScale: 1.8, roughness: 0.96 }),
+    // Dressed stone in level courses, for walls, towers and trim; rubble, rough fieldstone, for footings and humble walling.
+    stone: textured(tex.ashlar, { bumpScale: 1.2, roughness: 0.92 }),
+    rubble: textured(tex.rubble, { bumpScale: 1.6, roughness: 0.96 }),
+    // Natural rock: weathered grain, no mortar and no dark veins in it.
+    rock: textured(tex.bedrock, { bumpScale: 1.8, roughness: 0.96 }),
     timber: textured(tex.timber, { bumpScale: 1.1 }),
     wood: textured(tex.planks, { bumpScale: 0.8, roughness: 0.85 }),
     siding: textured(tex.clapboard, { bumpScale: 1.0 }),
