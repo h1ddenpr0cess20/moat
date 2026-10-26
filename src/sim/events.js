@@ -25,6 +25,10 @@ const WARNING = 3;
 export const PAYOFF = 36;
 export const payoffPrice = (game, strength) => Math.round(strength * PAYOFF * (1 + 0.25 * (game.raids.bought ?? 0)));
 const DIFFICULTY = { peaceful: 0, easy: 0.7, normal: 1, hard: 1.4 };
+/** How much a raised drawbridge multiplies a gate's defence. */
+const RAISED = 2.4;
+/** The king's share of what the barony took in taxes and trade over the year, on top of his flat due. */
+const TITHE = 0.2;
 
 /** The year's weather is decided at the turn of the seasons. */
 export function weather(game) {
@@ -167,10 +171,23 @@ export function defenseOf(game, gate = null) {
   return d * 1.3;
 }
 
-/** How big the next raid is likely to be, for the lord to judge his defences by. */
+/**
+ * How big the next raid is likely to be, for the lord to judge his defences by. Raiders come for what there is to
+ * take: they grow bolder with the years, but most of all with the people and the land behind the moat.
+ */
 export function threatOf(game) {
   const cal = calendar(game.week);
-  return (2.5 + cal.year * 2.2 + ownedCount(game.world) * 1.8) * (DIFFICULTY[game.difficulty] ?? 1);
+  return (2 + cal.year * 1.4 + headcount(game) * 0.05 + ownedCount(game.world) * 1.8) * (DIFFICULTY[game.difficulty] ?? 1);
+}
+
+/** The gate raiders make for: the weakest, a raised drawbridge counting for what it is worth. Ties fall to chance. */
+function weakestGate(game) {
+  let best = [], low = Infinity;
+  for (const g of game.world.gates) {
+    const d = defenseOf(game, g) * (g.open ? 1 : RAISED);
+    if (d < low - 1e-6) { low = d; best = [g]; } else if (d < low + 1e-6) best.push(g);
+  }
+  return best.length ? best[Math.floor(game.rnd() * best.length)] : null;
 }
 
 function nearest(game, gate, n) {
@@ -181,10 +198,8 @@ function nearest(game, gate, n) {
 
 export function raids(game) {
   if (!game.disasters) return;
-  const { world } = game;
   if (game.week === game.nextRaid - WARNING && game.nextRaid !== Infinity) {
-    const gates = world.gates.length ? world.gates : null;
-    game.raidGate = gates ? gates[Math.floor(game.rnd() * gates.length)] : null;
+    game.raidGate = weakestGate(game);
     const g = game.raidGate;
     game.note(g ? `Smoke and torches to the ${DIRECTIONS[g.dir]}: raiders are marching on the ${DIRECTIONS[g.dir]} gate. They will be here in ${WARNING} weeks.` : 'Raiders are marching on the castle!', 'bad', g?.mid ?? [CENTER, CENTER]);
     game.emit('warning', { gate: g });
@@ -199,7 +214,7 @@ export function raids(game) {
   const strength = threatOf(game) * (0.8 + game.rnd() * 0.5) * (game.raids.won + game.raids.lost === 0 ? 0.65 : 1);
   const raised = gate && !gate.open;
   const defense = defenseOf(game, gate);
-  const ratio = (raised ? defense * 2.4 : defense) / strength;
+  const ratio = (raised ? defense * RAISED : defense) / strength;
   const at = gate?.mid ?? [CENTER, CENTER];
   let outcome;
   if (ratio >= 1.3) {
@@ -241,8 +256,12 @@ export function raids(game) {
 /** The king's collector comes each autumn from the third year. */
 export function tribute(game) {
   const cal = calendar(game.week);
-  if (cal.inYear !== 24 || cal.year < 3 || game.difficulty === 'peaceful') return;
-  const due = Math.round((60 + 40 * (cal.year - 3) + ownedCount(game.world) * 25) * (game.difficulty === 'easy' ? 0.6 : 1));
+  if (cal.inYear !== 24) return;
+  // What came in since the collector's last visit (or since the barony began): his tithe is a share of it.
+  const takings = game.takings ?? 0;
+  game.takings = 0;
+  if (cal.year < 3 || game.difficulty === 'peaceful') return;
+  const due = Math.round((60 + 40 * (cal.year - 3) + ownedCount(game.world) * 25 + takings * TITHE) * (game.difficulty === 'easy' ? 0.6 : 1));
   const paid = Math.min(due, game.stock.gold);
   game.stock.gold -= paid;
   game.flows.used.gold = (game.flows.used.gold ?? 0) + paid;

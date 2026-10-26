@@ -531,6 +531,7 @@ function money(game) {
   gain(game, 'gold', taxes + shops);
   const pay = Math.min(upkeep, game.stock.gold);
   spend(game, 'gold', pay);
+  game.takings = (game.takings ?? 0) + taxes + shops;
   r.taxes = taxes;
   r.shops = shops;
   r.upkeep = upkeep;

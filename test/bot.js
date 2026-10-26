@@ -2,6 +2,7 @@ import { BUILDINGS } from '../src/catalog.js';
 import { CENTER, GROUND } from '../src/config.js';
 import { buildBlock, buildZone, placeBuilding, planAnnex, rectTiles, startAnnex, startCastle, setTrade } from '../src/sim/actions.js';
 import { autoPlace, connect } from '../src/sim/hamlet.js';
+import { defenseOf, threatOf } from '../src/sim/events.js';
 import { idx } from '../src/world/world.js';
 
 /**
@@ -81,7 +82,8 @@ export function createBot(game) {
       if (!count(game, 'healer') && pop() > 55 && s.gold > 60) put(game, 'healer', C + 4, C + 8, 8);
       if (count(game, 'well') < 3 && pop() > 40 && s.stone > 20) put(game, 'well', C + (count(game, 'well') - 1) * 6, C - 8, 8);
       if (!count(game, 'storehouse') && s.wood > 250 && s.stone > 40) put(game, 'storehouse', C + 4, C + 9, 8);
-      if (!count(game, 'watchtower') && game.week > 60 && s.stone > 90 && s.wood > 60 && s.gold > 80) put(game, 'watchtower', C + 8, C + 9, 8);
+      // Towers while the walls would not hold the raiders the barony draws, from the second year.
+      if (game.week > 60 && defenseOf(game) < threatOf(game) * 1.15 && count(game, 'watchtower') < 6 && s.stone > 90 && s.wood > 60 && s.gold > 80) put(game, 'watchtower', C + 8 - count(game, 'watchtower') * 5, C + 9, 10);
       if (!count(game, 'smithy') && pop() > 40 && s.iron > 20 && s.gold > 60) put(game, 'smithy', C - 7, C + 8, 8);
       if (!count(game, 'barracks') && game.rank >= 1 && s.iron > 30 && s.stone > 70 && s.gold > 140) put(game, 'barracks', C + 7, C + 8, 8);
       // Wider moat, the best-looking neighbour first.
@@ -96,6 +98,9 @@ export function createBot(game) {
         }
         if (best && s.gold > 600) startAnnex(game, best.id);
       }
+      // No ore in the barony: buy the iron the keep wants from the merchants.
+      if (game.rank >= 1 && game.castleLevel < 2 && !count(game, 'ironmine')) setTrade(game, 'iron', { buy: 60 });
+      if (game.castleLevel === 1 && game.rank >= 2 && s.stone > 1000 && s.gold > 1850 && s.wood > 420 && s.iron > 150) startCastle(game);
       if (game.castleLevel === 0 && game.rank >= 1 && s.stone > 450 && s.gold > 650 && s.wood > 220 && s.iron > 40) startCastle(game);
       // Fish and iron once wards give them.
       for (const type of ['fishery', 'ironmine']) {

@@ -126,3 +126,34 @@ test('food comes first only while the town needs it: full granaries let the farm
   game.prio.farmstead = 3;
   assert.equal(priorityOf(game, 'farmstead'), 3, 'the lord’s own order still stands');
 });
+
+test('raiders make for the weakest gate, and a raised drawbridge turns them elsewhere', async () => {
+  const { raids } = await import('../src/sim/events.js');
+  const game = startGame({ seed: 'moat' });
+  const gates = game.world.gates;
+  assert.ok(gates.length >= 2, 'the home ward has gates');
+  // Every drawbridge raised but one: that one is the weakest, whatever the dice say.
+  for (const g of gates) g.open = false;
+  gates[1].open = true;
+  for (let n = 0; n < 6; n++) {
+    game.nextRaid = game.week + 3;
+    raids(game);
+    assert.equal(game.raidGate, gates[1]);
+  }
+});
+
+test('the king’s collector takes a share of the year’s takings as well as his due', async () => {
+  const { tribute } = await import('../src/sim/events.js');
+  const due = (takings) => {
+    const game = startGame({ seed: 'moat' });
+    game.week = 2 * 48 + 24;
+    game.stock.gold = 10000;
+    game.takings = takings;
+    let paid = 0;
+    game.on('tribute', (e) => { paid = e.due; });
+    tribute(game);
+    assert.equal(game.takings, 0, 'the count starts again after his visit');
+    return paid;
+  };
+  assert.equal(due(1000) - due(0), 200);
+});
