@@ -126,7 +126,9 @@ export function createBot(game) {
           if (f) buildZone(game, rectTiles(f.x - 4, f.y - 4, f.x + f.w + 3, f.y + f.d + 3), 'wheat');
         } else if (forest && !count(game, 'hunter')) put(game, 'hunter', forest[0], forest[1], 10);
       }
-      if (game.stock.grain > 300) setTrade(game, 'grain', { sell: 260 });
+      // Sell the grain the town will not eat before the harvest after next.
+      const keep = Math.max(260, Math.round(pop() * 0.25 * 48));
+      if (game.stock.grain > keep + 40) setTrade(game, 'grain', { sell: keep });
     },
   };
 }

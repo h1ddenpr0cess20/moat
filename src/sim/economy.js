@@ -3,6 +3,7 @@ import { GROUND, TILES, WEEKS_PER_YEAR } from '../config.js';
 import { clamp, lerp } from '../rng.js';
 import { qualityAt } from './blocks.js';
 import { calendar, coldness } from './calendar.js';
+import { weeksToHarvest } from './people.js';
 import { countNear, needsRoad } from '../world/buildings.js';
 import { accessOf, network, rootTiles, walkRoads } from '../world/roads.js';
 import { coreTiles } from '../world/zoning.js';
@@ -21,7 +22,9 @@ const CREW_SHARE = 0.55;
 /** The share of the workforce always held for building sites, if there are any. */
 const CREW_FLOOR = 0.3;
 /** Field tiles one farmhand looks after, and how many a farmstead can hold. */
-export const TILES_PER_HAND = 6;
+export const TILES_PER_HAND = 8;
+/** Fruit a tile of orchard gives in a year, at the best soil: more than a garden bed, for the trees cost more to plant. */
+const ORCHARD_YIELD = 14;
 /** Wood in one level of a tile's trees. */
 const WOOD_PER_TREE = 14;
 
@@ -71,8 +74,8 @@ export function refresh(game, force = false) {
   world.housing = [...world.buildings.values()].filter((b) => BUILDINGS[b.type]?.cap && b.state === 'ready');
 }
 
-/** How much of what a building makes gets as far as a store: the further it is, the less. */
-const haulK = (b) => clamp(1.1 - (b.haul ?? 0) / 70, 0.55, 1);
+/** How much of what a building makes gets as far as a store: the further it is, the less. A granary or storehouse nearby is a store. */
+export const haulK = (b) => clamp(1.1 - (b.haul ?? 0) / 100, 0.7, 1);
 
 /** Which fields each farmstead tends: the nearest first, as many as its hands can look after. */
 export function assignFields(game) {
@@ -96,12 +99,23 @@ export function assignFields(game) {
 }
 
 export const jobsOf = (b) => (b.type === 'farmstead' ? (b.jobs ?? 1) : BUILDINGS[b.type]?.jobs ?? 0);
+/** Would the food in store last to the harvest after next, even if this year's failed? Then the fields need not come first. */
+const fedAhead = (game) => {
+  const people = game.pop.children + game.pop.adults + game.pop.elders;
+  const stock = FOODS.reduce((n, f) => n + game.stock[f] * RESOURCES[f].value, 0);
+  return stock >= people * FOOD_PER_PERSON * (weeksToHarvest(game.week) + WEEKS_PER_YEAR);
+};
+
 export const priorityOf = (game, type) => {
   if (game.prio[type] !== undefined) return game.prio[type];
   // A town short of timber needs its woodcutters before almost anything.
   if ((type === 'woodcutter' || type === 'forester') && game.stock.wood < 70) return 3;
-  // Smallholdings feed the town: they are food, whatever shelf they sit on.
-  return BUILDINGS[type]?.cat === 'food' || BUILDINGS[type]?.work?.kind === 'grow' ? 3 : 2;
+  // The fields lie fallow through the winter: the farmhands go to the woods and the quarries, and only the flocks want them.
+  if (type === 'farmstead' && calendar(game.week).season === 3) return 1;
+  // Smallholdings feed the town: they are food, whatever shelf they sit on. A town with its granaries full can spare
+  // the hands, though, and they share out with everyone else.
+  const food = BUILDINGS[type]?.cat === 'food' || BUILDINGS[type]?.work?.kind === 'grow';
+  return food && !fedAhead(game) ? 3 : 2;
 };
 
 /** How much a fine block lifts the trades in its ring: up to a quarter more from its workshops and smallholdings. */
@@ -330,7 +344,9 @@ function farm(game) {
     if (f.type !== 'farmstead' || f.state !== 'ready' || !f.fields) continue;
     const tended = Math.min(f.fields.length, Math.round(f.workers * TILES_PER_HAND + 0.001));
     f.tended = tended;
-    f.note = f.workers > 0.01 ? (tended < f.fields.length ? `${f.fields.length - tended} fields lie untended` : 'At work') : 'No one to work it';
+    // The hands it had while the fields were worked: what the winter's reckoning of next year's crop goes by.
+    if (cal.season !== 3) f.fieldHands = f.workers;
+    f.note = cal.season === 3 ? 'The fields lie fallow for the winter' : f.workers > 0.01 ? (tended < f.fields.length ? `${f.fields.length - tended} fields lie untended` : 'At work') : 'No one to work it';
     for (let n = 0; n < f.fields.length; n++) {
       const i = f.fields[n];
       const zone = world.zone[i];
@@ -350,7 +366,7 @@ function farm(game) {
         const share = ripe / 12 * haulK(f) * mood * weatherK;
         if (zone === ZONE_ID.wheat) gain(game, 'grain', 10 * soil * share);
         else if (zone === ZONE_ID.veg) gain(game, 'produce', 11 * soil * share);
-        else if (zone === ZONE_ID.orchard) gain(game, 'produce', 7 * soil * share);
+        else if (zone === ZONE_ID.orchard) gain(game, 'produce', ORCHARD_YIELD * soil * share);
       }
     }
   }
@@ -536,21 +552,24 @@ export function estimateFood(game) {
     if (b.state !== 'ready' || !b.connected) continue;
     const def = BUILDINGS[b.type];
     if (b.type === 'farmstead' && b.fields) {
-      const tended = Math.min(b.fields.length, Math.round(b.workers * TILES_PER_HAND + 0.001));
+      // In the winter the farmhands are off at other work; they come back to the fields in the spring.
+      const hands = cal.season === 3 ? (b.fieldHands ?? b.jobs) : b.workers;
+      const tended = Math.min(b.fields.length, Math.round(hands * TILES_PER_HAND + 0.001));
       for (let n = 0; n < tended; n++) {
         const i = b.fields[n];
-        const soil = 0.35 + 0.9 * (world.fert[i] / 255);
+        // What is lost on the cart to the store is lost to the table too.
+        const soil = (0.35 + 0.9 * (world.fert[i] / 255)) * haulK(b);
         const z = world.zone[i];
         // A crop sown late will not be a full one: how ripe this one will be by the harvest.
         const ripe = cal.season <= 1 ? clamp((world.crop[i] + (24 - cal.inYear) * (255 / 24)) / 255) : 1;
         if (z === ZONE_ID.wheat) grain += 10 * soil * ripe;
         else if (z === ZONE_ID.veg) produce += 11 * soil * ripe;
-        else if (z === ZONE_ID.orchard) produce += 7 * soil * ripe;
+        else if (z === ZONE_ID.orchard) produce += ORCHARD_YIELD * soil * ripe;
         else if (z === ZONE_ID.pasture) other += 1.5 * soil * RESOURCES.meat.value;
       }
     } else if (def?.work?.kind === 'gather' && (def.work.res === 'fish' || def.work.res === 'meat')) {
       const sea = def.work.season ? def.work.season.reduce((a, c) => a + c, 0) / 4 : 1;
-      other += def.work.rate * b.workers * 48 * sea * RESOURCES[def.work.res].value * 0.8;
+      other += def.work.rate * b.workers * 48 * sea * RESOURCES[def.work.res].value * haulK(b) * 0.8;
     } else if (b.type === 'mill') millCap += def.work.in.grain * b.eff * 48;
     else if (def?.work?.kind === 'grow') {
       // A smallholding's year: a week's yield in each season, twelve weeks of each.
@@ -562,9 +581,13 @@ export function estimateFood(game) {
       }
     }
   }
-  grain *= game.weather.harvest;
-  produce *= game.weather.harvest;
-  const bread = Math.min(grain, millCap) * (RESOURCES.bread.value / 1 - 1);
+  // Once this year's harvest is in, the next one's weather is anyone's guess.
+  const weatherK = cal.season === 3 ? 1 : game.weather.harvest;
+  grain *= weatherK;
+  produce *= weatherK;
+  // What milling adds: the bread a measure of grain makes is worth more than the grain.
+  const { in: mIn, out: mOut } = BUILDINGS.mill.work;
+  const bread = Math.min(grain, millCap) * (mOut.bread / mIn.grain * RESOURCES.bread.value - 1);
   const gardens = (game.gardens ?? 0) * 0.1 * 36 * mood;
   const stock = FOODS.reduce((n, f) => n + game.stock[f] * RESOURCES[f].value, 0);
   const annual = (grain + bread + produce + other + gardens) * mood * 0.8 + stock * 0.5;

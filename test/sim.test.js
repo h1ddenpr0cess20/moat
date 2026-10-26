@@ -116,3 +116,13 @@ test('fires are rare: a town of a hundred buildings loses only a few in a decade
   assert.ok(BUILDINGS.cottage);
   assert.ok(burned <= 8, `${burned} burned in ten years`);
 });
+
+test('food comes first only while the town needs it: full granaries let the farmhands go to other work', async () => {
+  const { priorityOf } = await import('../src/sim/economy.js');
+  const game = startGame({ seed: 'moat' });
+  assert.equal(priorityOf(game, 'farmstead'), 3, 'a hamlet with a thin store puts its fields first');
+  game.stock.grain = 2000;
+  assert.equal(priorityOf(game, 'farmstead'), 2, 'with a year and more in store, the fields share hands with everyone else');
+  game.prio.farmstead = 3;
+  assert.equal(priorityOf(game, 'farmstead'), 3, 'the lord’s own order still stands');
+});
