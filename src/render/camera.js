@@ -90,6 +90,9 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
   const onKeyUp = (e) => { fast = e.shiftKey; const k = KEYMAP[e.code]; if (k) keys.delete(k); };
   const onBlur = () => keys.clear();
 
+  /** An angle's change brought into -π..π, so fingers crossing the screen's left-pointing axis do not turn the map a whole way round. */
+  const wrap = (a) => a - Math.PI * 2 * Math.round(a / (Math.PI * 2));
+
   const touchInfo = () => {
     const [a, b] = [...touches.values()];
     return { cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, dist: Math.hypot(a.x - b.x, a.y - b.y), angle: Math.atan2(b.y - a.y, b.x - a.x) };
@@ -101,7 +104,9 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
       if (touches.size === 2) {
         const t = touchInfo();
         const p = pick(t.cx, t.cy);
-        gesture = { ...t, p };
+        // Where the fingers began, so a pinch need not turn the map and a twist need not zoom it until each is meant.
+        gesture = { ...t, p, dist0: t.dist, angle0: t.angle, zooming: false, twisting: false };
+        glide = null;
         grab = p ? { x0: p.x, z0: p.z, dx: 0, dz: 0, px: t.cx, py: t.cy } : null;
         dom.setPointerCapture?.(e.pointerId);
       }
@@ -124,10 +129,16 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
       if (touches.size === 2 && gesture) {
         const t = touchInfo();
-        view.zoomBy(gesture.dist / Math.max(20, t.dist));
-        view.aim.yaw -= t.angle - gesture.angle;
+        if (!gesture.zooming && Math.abs(Math.log(t.dist / gesture.dist0)) > 0.06) gesture.zooming = true;
+        if (!gesture.twisting && Math.abs(wrap(t.angle - gesture.angle0)) > 0.12) gesture.twisting = true;
+        if (gesture.zooming) view.zoomBy(gesture.dist / Math.max(20, t.dist));
+        // Raising the yaw turns the land clockwise on the screen, as fingers turning clockwise raise their angle (y runs down): the land turns with them.
+        if (gesture.twisting) view.aim.yaw += wrap(t.angle - gesture.angle);
         gesture.dist = t.dist;
         gesture.angle = t.angle;
+        // Under the fingers the view is where they put it at once, not eased after, so the land stays under them.
+        view.yaw = view.aim.yaw;
+        view.zoom = view.aim.zoom;
         if (grab) { grab.px = t.cx; grab.py = t.cy; }
       }
       return;
