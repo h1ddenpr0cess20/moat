@@ -6,7 +6,7 @@ import { clearTrees, idx, inb, touch } from './world.js';
 /**
  * Zones, and the lots that grow on them. A house takes a plot with its front
  * on a street and reaches back as far as it needs; the land behind the plots
- * is left alone, and that is the donut: a ring of houses round a core of
+ * is left alone, and that is the donut: a ring of houses around a core of
  * gardens, orchard or field.
  */
 
@@ -42,7 +42,7 @@ export function setZone(world, x, y, zone) {
 /** How many tiles of a zone, for knowing what a plan costs. */
 export const zoneCost = (zone) => ZONES[zone].cost;
 
-/** Plans a donut block over a rectangle of tiles: the street round it, the plots inside it, and the core. Returns tile lists. */
+/** Plans a donut block over a rectangle of tiles: the street around it, the plots inside it, and the core. Returns tile lists. */
 export function blockPlan(x0, y0, x1, y1, { ring = 'res', core = 'res' } = {}) {
   const roads = [], ringTiles = [], coreTiles = [];
   for (let y = y0; y <= y1; y++) {
@@ -123,7 +123,7 @@ export function findLot(world, zone, size, rnd, value = () => 0) {
         const ex = sx + lx * (W - 1) + DIRS[k][0] * (D - 1), ey = sy + ly * (W - 1) + DIRS[k][1] * (D - 1);
         const x0 = Math.min(sx, ex), y0 = Math.min(sy, ey);
         const w = Math.abs(ex - sx) + 1, d = Math.abs(ey - sy) + 1;
-        // Packed against a neighbour on either side scores best, so streets fill without gaps.
+        // Packed against a neighbor on either side scores best, so streets fill without gaps.
         const shut = (tx, ty) => !free(tx, ty);
         let score = rnd() * 0.8 + value(x0 + w / 2, y0 + d / 2);
         if (shut(sx - lx, sy - ly)) score += 2;

@@ -5,12 +5,12 @@ import { lightAt } from './sky.js';
 
 /**
  * The look of the hour and the year: where the sun is, how warm its light,
- * the colour of the sky and of the leaves, how much snow lies, whether it
- * rains, and the film the picture is shot on. The day goes round on its own
+ * the color of the sky and of the leaves, how much snow lies, whether it
+ * rains, and the film the picture is shot on. The day goes around on its own
  * clock; the year follows the game's calendar.
  */
 
-/** Seconds a day takes to go round. */
+/** Seconds a day takes to go around. */
 const DAY = 150;
 
 /** How much snow lies on the ground, 0 to 1, by the week of the year. */
@@ -36,7 +36,7 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
   let clock = 0.38;
   let mode = 'auto';
   let filmKey = '';
-  // The stage's own backdrop dome (drawn first, behind everything): its colour dims the sky when it clouds over.
+  // The stage's own backdrop dome (drawn first, behind everything): its color dims the sky when it clouds over.
   const backdrop = stage.scene.children.find((o) => o.renderOrder === -1 && o.material?.side === GFX.BackSide);
   stage.renderer.domElement.style.transition = 'filter 1.5s linear';
   let overcast = 0;
@@ -99,8 +99,8 @@ export function createAtmosphere({ GFX, stage, sunDir, materials, terrain, water
         filmKey = key;
         const base = FILMS[season];
         const night = L.night > 0.5 ? ' brightness(1.12) saturate(0.9)' : '';
-        const grey = overcast > 0.5 ? ' saturate(0.85)' : '';
-        stage.film.set({ filter: base + night + grey, vignette: VIGNETTE, grain: null, ui: null });
+        const gray = overcast > 0.5 ? ' saturate(0.85)' : '';
+        stage.film.set({ filter: base + night + gray, vignette: VIGNETTE, grain: null, ui: null });
       }
       Object.assign(state, { night: L.night, day: L.day, rain: rain && season !== 3, snow, season, tod: clock, overcast });
     },

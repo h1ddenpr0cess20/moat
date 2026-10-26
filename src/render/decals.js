@@ -1,6 +1,6 @@
 import { FARM_ZONES, ZONES, ZONE_ID } from '../catalog.js';
 
-/** The zones drawn as crops rather than as a wash of the zone's colour. */
+/** The zones drawn as crops rather than as a wash of the zone's color. */
 const FIELDS = new Set(FARM_ZONES.map((z) => ZONE_ID[z]));
 import { CHUNK, CHUNKS, ROAD } from '../config.js';
 import { HV, SUB, heightAt, idx, inb } from '../world/world.js';
@@ -9,21 +9,21 @@ import { freeGeometry } from './dispose.js';
 
 /**
  * What lies on the ground: roads (autotiled from an atlas, so every bend and
- * junction joins its neighbours), fields (which sow, grow, ripen and are cut
- * as the year goes), kitchen gardens, and the faint colour of land set aside
+ * junction joins its neighbors), fields (which sow, grow, ripen and are cut
+ * as the year goes), kitchen gardens, and the faint color of land set aside
  * for houses and shops. All are thin quads that follow the ground.
  */
 
 const CELL = 64;
 const LIFT = 0.03;
 /**
- * The atlases leave a margin round every cell. The smaller mip levels a far-off tile is drawn from blend each
- * texel with its neighbours, and with no margin the neighbour is the next cell, so a road bends toward a shape
- * it is not and a field takes the colour of the one beside it in the atlas, differently as the camera moves.
+ * The atlases leave a margin around every cell. The smaller mip levels a far-off tile is drawn from blend each
+ * texel with its neighbors, and with no margin the neighbor is the next cell, so a road bends toward a shape
+ * it is not and a field takes the color of the one beside it in the atlas, differently as the camera moves.
  */
 const PAD = 8;
 const STRIDE = CELL + 2 * PAD;
-/** The roads' atlas: a column for each of the 16 ways a road meets its neighbours, and one that is solid. */
+/** The roads' atlas: a column for each of the 16 ways a road meets its neighbors, and one that is solid. */
 const ROAD_COLS = 17, ROAD_ROWS = 8;
 const SOLID = 16;
 /** The fields' atlas: a column for each stage of the year, a row for each crop and each way its rows run. */
@@ -36,8 +36,8 @@ const cellUV = (col, row, cols, rows) => [
 ];
 
 /**
- * Fills the margin round the cell at (ox, oy): by running the cell's edge on (`clamp`, for the roads, whose edge
- * is where a road leaves the tile) or by bringing the opposite edge round (`wrap`, for the fields, which repeat).
+ * Fills the margin around the cell at (ox, oy): by running the cell's edge on (`clamp`, for the roads, whose edge
+ * is where a road leaves the tile) or by bringing the opposite edge around (`wrap`, for the fields, which repeat).
  */
 function pad(ctx, ox, oy, wrap) {
   const a = ctx.canvas;
@@ -70,7 +70,7 @@ const seeded = (seed) => { let s = seed; return () => { s = (s * 16807) % 214748
 /** The roads: 16 shapes (which of N, E, S, W it joins) and a solid one, by 4 variants by 2 kinds. */
 function paintRoads(cobble) {
   const [atlas, ctx] = surface(STRIDE * ROAD_COLS, STRIDE * ROAD_ROWS);
-  // The corner of a tile where its neighbours on both sides are roads is the solid one's (see `build`), so the shapes need no more than the 8 by 8 that leaves.
+  // The corner of a tile where its neighbors on both sides are roads is the solid one's (see `build`), so the shapes need no more than the 8 by 8 that leaves.
   const m = 8, r = 12, out = 16;
   const rnd = seeded(77);
   for (let type = 0; type < 2; type++) {
@@ -78,7 +78,7 @@ function paintRoads(cobble) {
       for (let mask = 0; mask < ROAD_COLS; mask++) {
         const solid = mask === SOLID;
         const ox = mask * STRIDE + PAD, oy = (type * 4 + variant) * STRIDE + PAD;
-        // The arms run on past the edge of the cell, so that the worn verge drawn round the road does not close across where it goes on.
+        // The arms run on past the edge of the cell, so that the worn verge drawn around the road does not close across where it goes on.
         const path = () => {
           ctx.beginPath();
           if (solid) { ctx.rect(ox, oy, CELL, CELL); return; }
@@ -88,7 +88,7 @@ function paintRoads(cobble) {
           if (mask & 4) ctx.rect(ox + m, oy + CELL - m - r, CELL - 2 * m, m + r + out);
           if (mask & 8) ctx.rect(ox - out, oy + m, m + r + out, CELL - 2 * m);
         };
-        // The worn verge: a soft dark edge round the road.
+        // The worn verge: a soft dark edge around the road.
         if (!solid) {
           ctx.save();
           ctx.beginPath(); ctx.rect(ox, oy, CELL, CELL); ctx.clip();
@@ -113,7 +113,7 @@ function paintRoads(cobble) {
             if (open & 10) { ctx.beginPath(); ctx.moveTo(ox + (open & 8 ? 0 : m + 2), oy + f * CELL); ctx.lineTo(ox + CELL - (open & 2 ? 0 : m + 2), oy + f * CELL); ctx.stroke(); }
           }
         } else {
-          // Setts laid in rows, a little different each.
+          // Paving stones laid in rows, a little different each.
           const sx = (variant % 2) * 128, sy = (variant >> 1) * 128;
           if (cobble) ctx.drawImage(cobble, sx, sy, 128, 128, ox, oy, CELL, CELL);
           else { ctx.fillStyle = '#9a8e7c'; ctx.fillRect(ox, oy, CELL, CELL); }
@@ -151,7 +151,7 @@ function paintFields() {
         const plant = (cols, w) => { for (let r = 0; r < rows; r++) { ctx.strokeStyle = cols[0]; ctx.lineWidth = w; ctx.beginPath(); ctx.moveTo(0, r * sp + sp * 0.3); ctx.lineTo(S, r * sp + sp * 0.3); ctx.stroke(); ctx.strokeStyle = cols[1]; ctx.lineWidth = w * 0.4; ctx.beginPath(); ctx.moveTo(0, r * sp + sp * 0.3 - w * 0.2); ctx.lineTo(S, r * sp + sp * 0.3 - w * 0.2); ctx.stroke(); } };
         if (crop === 0 || crop === 1) {
           ctx.fillStyle = soil; ctx.fillRect(0, 0, S, S);
-          // Ploughed earth: dark troughs, pale ridges, and clods.
+          // Plowed earth: dark troughs, pale ridges, and clods.
           for (let r = 0; r < rows; r++) {
             ctx.fillStyle = frost ? '#6e6052' : '#523a24'; ctx.fillRect(0, r * sp + sp * 0.62, S, sp * 0.38);
             ctx.fillStyle = frost ? '#9a8a7a' : '#86663f'; ctx.fillRect(0, r * sp + sp * 0.18, S, sp * 0.22);
@@ -200,7 +200,7 @@ function paintFields() {
   return atlas;
 }
 
-/** The corners of a tile: which two sides meet there (N 1, E 2, S 4, W 8), and which way the diagonal neighbour is. */
+/** The corners of a tile: which two sides meet there (N 1, E 2, S 4, W 8), and which way the diagonal neighbor is. */
 const CORNERS = [[0, 1, 2, 1, -1], [1, 2, 4, 1, 1], [2, 4, 8, -1, 1], [3, 8, 1, -1, -1]];
 
 /** The stage of a field's year, 0 to 5. */

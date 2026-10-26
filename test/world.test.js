@@ -20,7 +20,7 @@ test('the castle stands on an island in the middle of the home ward', () => {
   assert.equal(ownedCount(w), 1);
   const castle = w.buildings.get(1);
   assert.equal(castle.type, 'castle');
-  // Water all round the island, and the home ward is the realm's but for its banks.
+  // Water all around the island, and the home ward is the realm's but for its banks.
   const wet = (x, y) => w.moat[idx(x, y)] === 1;
   assert.ok(wet(CENTER - 4, CENTER) && wet(CENTER + 4, CENTER) && wet(CENTER, CENTER - 4));
   let realm = 0;
@@ -47,7 +47,7 @@ test('heightAt agrees with the heights it was made from', () => {
   }
 });
 
-test('digging the moat out round a ward takes it in, and fills the old moat', () => {
+test('digging the moat out around a ward takes it in, and fills the old moat', () => {
   const game = startGame({ seed: 'moat' });
   const { world } = game;
   const home = wardId(HOME_WARD, HOME_WARD);
@@ -145,7 +145,7 @@ test('a bridge may start on marshy bank: low ground counts as part of the span',
   assert.ok(plan.spans.length >= 4, 'two water tiles and the marshy banks either side');
 });
 
-test('no tree stands in a moat, however many wards are dug round', () => {
+test('no tree stands in a moat, however many wards are dug around', () => {
   const game = startGame({ seed: 'oxmere' });
   const { world } = game;
   const drowned = () => {
@@ -154,7 +154,7 @@ test('no tree stands in a moat, however many wards are dug round', () => {
     return n;
   };
   assert.equal(drowned(), 0);
-  // Woods in the way of the next moat: plant every tile of the ring round the home ward, then take the ward beside it.
+  // Woods in the way of the next moat: plant every tile of the ring around the home ward, then take the ward beside it.
   world.tree.fill(1);
   const next = world.wards.find((w) => !w.owned && bordersRealm(world, w.id));
   completeAnnex(game, next);

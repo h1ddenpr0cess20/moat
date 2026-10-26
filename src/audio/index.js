@@ -100,7 +100,7 @@ export function createSound({ game, scene }) {
   game.on('week', () => { if (threat > 0 && hash2(game.week, 3, 1) < 0.2) threat = 0; });
 
   const world = game.world;
-  /** What is round the camera, counted every so often: water, trees, and sites where builders work. */
+  /** What is around the camera, counted every so often: water, trees, and sites where builders work. */
   const sample = () => {
     const tx = Math.floor(scene.stage.target.x), ty = Math.floor(scene.stage.target.z);
     let water = 0, forest = 0, building = 0;

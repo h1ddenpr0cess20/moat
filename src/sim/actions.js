@@ -297,7 +297,7 @@ export function startAnnex(game, wardId) {
   payAll(game, plan.cost);
   plan.ward.dig = { progress: 0, weeks: plan.work.weeks, crew: plan.work.crew };
   game.emit('annexStart', { ward: plan.ward });
-  game.note(`The diggers have begun the moat round ${plan.ward.name}.`, 'info', [plan.ward.gx * WARD + WARD / 2, plan.ward.gy * WARD + WARD / 2]);
+  game.note(`The diggers have begun the moat around ${plan.ward.name}.`, 'info', [plan.ward.gx * WARD + WARD / 2, plan.ward.gy * WARD + WARD / 2]);
   return plan;
 }
 

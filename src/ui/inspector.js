@@ -131,7 +131,7 @@ export function createInspector(ctx) {
       if (def.shop) rows.push(['Sells', `wares worth ${num(def.shop * 1.7, 1)} gold a week at most`]);
       if (def.serve) rows.push(['Looks after', `homes within ${def.serve.radius} tiles`]);
       if (def.store) rows.push(['Holds', Object.entries(def.store).map(([k, n]) => `${num(n)} ${k}`).join(', ')]);
-      if (def.defense) rows.push(['Defence', def.defense]);
+      if (def.defense) rows.push(['Defense', def.defense]);
     } else rows.push(['Crew', `${round((b.crewK ?? 0) * def.crew)} of ${def.crew} builders`]);
     parts.push(kv(rows));
     const block = blockAt(game, b.x + 0.5, b.y + 0.5);
@@ -155,7 +155,7 @@ export function createInspector(ctx) {
   function showCastle(parts) {
     const lvl = CASTLE_LEVELS[game.castleLevel];
     const next = CASTLE_LEVELS[game.castleLevel + 1];
-    parts.push(kv([['Garrison', `${lvl.jobs} hands`], ['Defence', num(defenseOf(game), 0)], ['Wards it can hold', lvl.wards], ['Stores', `${num(lvl.store.food)} food, ${num(lvl.store.goods)} goods`]]));
+    parts.push(kv([['Garrison', `${lvl.jobs} hands`], ['Defense', num(defenseOf(game), 0)], ['Wards it can hold', lvl.wards], ['Stores', `${num(lvl.store.food)} food, ${num(lvl.store.goods)} goods`]]));
     if (game.castleWork) {
       const w = game.castleWork;
       parts.push(h('h3', {}, `Raising the ${CASTLE_LEVELS[w.level].name}`), bar(w.progress, 'warn'), h('p.dim', {}, `${Math.max(0, Math.ceil((1 - w.progress) * w.weeks))} weeks to go with a full crew.`));
@@ -172,7 +172,7 @@ export function createInspector(ctx) {
     const house = g.gatehouse && world.buildings.get(g.gatehouse);
     const parts = [...head(`${EDGES[g.dir][0].toUpperCase() + EDGES[g.dir].slice(1)} gate`, 'A bridge over the moat')];
     parts.push(h('p', {}, 'Merchants and raiders both come over the bridges. A gatehouse guards it, and gives you a windlass to raise the drawbridge.'));
-    parts.push(kv([['Gatehouse', house ? (house.state === 'ready' ? 'Standing' : 'Going up') : 'None'], ['Drawbridge', house && house.state === 'ready' ? (g.open ? 'Down' : 'Raised') : 'Fixed'], ['Defence at this gate', num(defenseOf(game, g), 0)]]));
+    parts.push(kv([['Gatehouse', house ? (house.state === 'ready' ? 'Standing' : 'Going up') : 'None'], ['Drawbridge', house && house.state === 'ready' ? (g.open ? 'Down' : 'Raised') : 'Fixed'], ['Defense at this gate', num(defenseOf(game, g), 0)]]));
     const acts = h('div.actions');
     if (!house) acts.append(h('button.btn.gold', { onclick: () => { ctx.tools.set('build', { build: { type: 'gatehouse', front: null } }); } }, 'Build a gatehouse'));
     else if (house.state === 'ready') acts.append(h('button.btn', { onclick: () => { toggleGate(game, g); show(selection); } }, g.open ? 'Raise the drawbridge' : 'Lower the drawbridge'));

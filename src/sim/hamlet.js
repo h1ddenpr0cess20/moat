@@ -139,7 +139,7 @@ export function seedHamlet(game) {
   game.world.bver = (game.world.bver ?? 0) + 1;
 }
 
-/** Zones `count` tiles of wheat in a clump round a farmstead: the nearest free, treeless ground first. */
+/** Zones `count` tiles of wheat in a clump around a farmstead: the nearest free, treeless ground first. */
 export function fieldsAround(game, farm, count = 24, zone = 'wheat') {
   const { world } = game;
   const cx = farm.x + farm.w / 2, cy = farm.y + farm.d / 2;

@@ -5,7 +5,7 @@ import { HV, SUB, idx, tileRange, touchAll } from './world.js';
 /**
  * Makes a map from a seed: a level meadow for the castle in the middle, a
  * valley of rolling lowland with a river and its lakes, hills with stone and
- * iron in them, forests, and mountains all round. Everything is a function of
+ * iron in them, forests, and mountains all around. Everything is a function of
  * the seed, so the same seed is the same land.
  */
 
@@ -27,7 +27,7 @@ export function baseHeight(seed, x, z) {
   // The home ward is level.
   const flat = smoothstep(WARD, WARD * 0.62, cheb);
   h = lerp(h, PLATEAU + (fbm(x / 6, z / 6, seed + 3, 2) - 0.5) * 0.08, flat);
-  // The mountains all round, their edge wandering.
+  // The mountains all around, their edge wandering.
   const warp = (fbm(x / 22 + 9, z / 22 + 3, seed + 11, 3) - 0.5) * 18 * K;
   const rim = smoothstep(HALF * 0.6, HALF * 1.02, cheb + warp);
   h += rim * rim * (5 + ridged(x / 16, z / 16, seed + 13, 4) * 15) + Math.max(0, cheb - HALF) * 0.35;

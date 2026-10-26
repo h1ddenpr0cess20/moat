@@ -1,8 +1,8 @@
 import { hash2, mulberry32 } from '../rng.js';
 
 /**
- * The sky: three painted canvases (day, dusk, night) wrapped round the scene,
- * faded one into another as the sun goes round; and the sun and moon that
+ * The sky: three painted canvases (day, dusk, night) wrapped around the scene,
+ * faded one into another as the sun goes around; and the sun and moon that
  * light the land. The day sky is the engine's own backdrop dome; dusk and
  * night are laid over it, see-through, a little inside.
  */
@@ -43,7 +43,7 @@ function canvas() {
   return [c, c.getContext('2d')];
 }
 
-/** A fair day: deep blue overhead, pale and hazy at the horizon, and the haze going to grey-green below it. */
+/** A fair day: deep blue overhead, pale and hazy at the horizon, and the haze going to gray-green below it. */
 export function paintDay() {
   const [c, ctx] = canvas();
   paintGradient(ctx, [[0, '#2f6fc4'], [0.22, '#4f90dc'], [0.38, '#8fc0ee'], [0.47, '#d4e6f4'], [0.5, '#dfe9ee'], [0.53, '#aebfb4'], [0.7, '#7d8f78'], [1, '#4a5a44']]);

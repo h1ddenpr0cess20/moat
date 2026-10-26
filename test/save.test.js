@@ -14,7 +14,7 @@ function play(seed, weeks) {
 
 test('a saved game comes back as it was', () => {
   const game = play('moat', 140);
-  // Take a ward the way the lord would: the moat is dug round it, and the old one filled.
+  // Take a ward the way the lord would: the moat is dug around it, and the old one filled.
   const next = game.world.wards.find((w) => !w.owned && bordersRealm(game.world, w.id));
   completeAnnex(game, next);
   assert.ok(game.world.wards.filter((w) => w.owned).length >= 2);

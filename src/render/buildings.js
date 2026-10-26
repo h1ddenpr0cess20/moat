@@ -175,7 +175,7 @@ export function createBuildings(GFX, world, materials, scene) {
     lights() {
       return chunks.flatMap((c) => c.lights);
     },
-    /** The scaffolding round the castle while masons work. */
+    /** The scaffolding around the castle while masons work. */
     setCastleWork(on, y) {
       if (on && !scaffold.group) {
         const batch = new Batch();

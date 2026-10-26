@@ -2,7 +2,7 @@ import { params } from './launch.js';
 
 /**
  * The numbers the whole game agrees on. One tile is one unit of the engine's
- * world; the map is a grid of wards, and a ward is what the moat is dug round.
+ * world; the map is a grid of wards, and a ward is what the moat is dug around.
  */
 
 /** Tiles along one side of a ward, wards along one side of the map, and so tiles along the map. */
@@ -44,7 +44,7 @@ export const TILES = SIZE * SIZE;
 export const HOME_WARD = (WARDS - 1) / 2;
 export const CENTER = SIZE / 2;
 
-/** Standing water, in world units up; and what the ground round a moat is cut to. */
+/** Standing water, in world units up; and what the ground around a moat is cut to. */
 export const WATER_LEVEL = 0;
 /** The moat's half width (water), and how far from its middle nothing may be built (the banks). */
 export const MOAT_HALF = 1.6;

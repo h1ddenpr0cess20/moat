@@ -12,7 +12,7 @@ import { freeInstances } from './dispose.js';
  * lists where its copies stand (eight numbers a tree), and draws every copy of
  * a kind in one call. Far from the camera a cheaper set of the same trees is
  * shown instead; both sets are kept, so the camera moving only swaps which is
- * shown. Leaves are materials the seasons colour, so a tree is built once and
+ * shown. Leaves are materials the seasons color, so a tree is built once and
  * is green in summer and bare in winter.
  */
 
@@ -22,14 +22,14 @@ const FAR_KEEP = 0.72;
 const LEAF = ['leafA', 'leafB', 'leafC'];
 const TRUNK = ['#6a4a2c', '#5a3e26', '#74532f'];
 
-/** A colour part of the way from one hex colour to another. */
+/** A color part of the way from one hex color to another. */
 function mix(a, b, t) {
   const p = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
   const A = p(a), B = p(b);
   return '#' + A.map((v, i) => Math.round(v + (B[i] - v) * t).toString(16).padStart(2, '0')).join('');
 }
 
-/** A clump of canopy in near-white (the leaf material colours it): lumpy, shaded round, pale on top and dark underneath. */
+/** A clump of canopy in near-white (the leaf material colors it): lumpy, shaded round, pale on top and dark underneath. */
 function blob(m, x, y, z, rx, ry, rz, mat, detail, seed, lump = 0.24) {
   m.crown(mat, x, y, z, rx, ry, rz, '#e8e8e8', { detail, lump, seed });
 }
@@ -107,12 +107,12 @@ export function buildTemplates() {
       }
     }));
   }
-  // Outcrops: a heap of knocked-about rock, a big one with smaller ones and chips against its foot, each variant its own colour and shape.
-  const GREY = [['#7a756b', '#6a655d', '#8a8478'], ['#8a8478', '#756f66', '#7f796c'], ['#6a655d', '#5c5851', '#7a756b'], ['#7f796c', '#8c8676', '#6e695f']];
+  // Outcrops: a heap of knocked-about rock, a big one with smaller ones and chips against its foot, each variant its own color and shape.
+  const GRAY = [['#7a756b', '#6a655d', '#8a8478'], ['#8a8478', '#756f66', '#7f796c'], ['#6a655d', '#5c5851', '#7a756b'], ['#7f796c', '#8c8676', '#6e695f']];
   const DARK = [['#5e5a52', '#4e4a44', '#6c675e'], ['#6c675e', '#58544c', '#625c54'], ['#4e4a44', '#5e5a52', '#403c38'], ['#625c54', '#6c675e', '#54504a']];
   for (let v = 0; v < 4; v++) {
     out.boulder.push(make((m, hi) => {
-      const c = GREY[v], d = 0, D = hi ? 1 : 0;
+      const c = GRAY[v], d = 0, D = hi ? 1 : 0;
       m.rock('rock', 0, 0.1, 0, 0.3 + 0.05 * v, 0.2 + 0.03 * v, 0.26 + 0.04 * v, c[0], { detail: D, rough: 0.3, seed: v, cuts: 5 });
       m.rock('rock', 0.27 + 0.03 * v, 0.04, 0.12, 0.15, 0.11, 0.13, c[1], { detail: d, rough: 0.28, seed: v + 4, cuts: 3 });
       m.rock('rock', -0.2, 0.03, -0.24 + 0.04 * v, 0.12, 0.09, 0.11, c[2], { detail: d, rough: 0.28, seed: v + 8, cuts: 3 });
@@ -269,7 +269,7 @@ export function createTrees(GFX, world, materials, scene) {
 
   return {
     group,
-    /** Builds what has changed. `season` colours the orchards' blossom and fruit. */
+    /** Builds what has changed. `season` colors the orchards' blossom and fruit. */
     sync(season, budget = 1) {
       let n = 0;
       for (const i of [...world_.dirty.trees]) {

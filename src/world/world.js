@@ -125,7 +125,7 @@ export function rectRange(world, x0, y0, w, d) {
 /** The distance from the middle of the castle on the squared-off norm its island is drawn with. */
 export const castleNorm = (x, y) => (Math.abs(x - CENTER) ** 8 + Math.abs(y - CENTER) ** 8) ** 0.125;
 
-/** Levels the ground under a rectangle of tiles to its average, and eases the ring of land round it into that. */
+/** Levels the ground under a rectangle of tiles to its average, and eases the ring of land around it into that. */
 export function flatten(world, x0, y0, w, d, { ease = 1.2 } = {}) {
   const vx0 = x0 * SUB, vx1 = (x0 + w) * SUB, vy0 = y0 * SUB, vy1 = (y0 + d) * SUB;
   let sum = 0, n = 0;
@@ -166,8 +166,8 @@ export function describeTile(world, x, y) {
   return text;
 }
 
-/** The four neighbours of a tile that are on the map. */
-export function neighbours(x, y) {
+/** The four neighbors of a tile that are on the map. */
+export function neighbors(x, y) {
   const out = [];
   for (const [dx, dy] of DIRS) if (inb(x + dx, y + dy)) out.push([x + dx, y + dy]);
   return out;

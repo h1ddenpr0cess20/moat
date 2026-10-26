@@ -90,7 +90,7 @@ export function createCamera({ GFX, stage, world, viewDef, dom }) {
   const onKeyUp = (e) => { fast = e.shiftKey; const k = KEYMAP[e.code]; if (k) keys.delete(k); };
   const onBlur = () => keys.clear();
 
-  /** An angle's change brought into -π..π, so fingers crossing the screen's left-pointing axis do not turn the map a whole way round. */
+  /** An angle's change brought into -π..π, so fingers crossing the screen's left-pointing axis do not turn the map a whole way around. */
   const wrap = (a) => a - Math.PI * 2 * Math.round(a / (Math.PI * 2));
 
   const touchInfo = () => {

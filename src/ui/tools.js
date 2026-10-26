@@ -118,7 +118,7 @@ export function createTools(ctx) {
     const cx = Math.floor(rect.x + rect.w / 2), cy = Math.floor(rect.y + rect.d / 2);
     const block = blockAt(game, cx, cy);
     const inCore = block && block.core.includes(idx(cx, cy));
-    if (inCore) return `<div class="good">In the heart of ${block.name === 'Hollow Block' ? 'a block' : 'the ' + block.name}: ${block.homes} homes round it will share it.</div>`;
+    if (inCore) return `<div class="good">In the heart of ${block.name === 'Hollow Block' ? 'a block' : 'the ' + block.name}: ${block.homes} homes around it will share it.</div>`;
     if (block) return '<div class="dim">This is in the ring: a heart goes in the middle of the block.</div>';
     if (heart) return '<div class="dim">★ Put this in the middle of a ring of houses (a donut block) and it serves them all, with a courtyard bonus.</div>';
     return '';
@@ -252,7 +252,7 @@ export function createTools(ctx) {
       if (!plan.ok) html = `<span class="bad">${plan.reason}</span>`;
       else {
         const coreSide = Math.max(0, Math.min(r.w, r.d) - 2 * (3 + 1));
-        html = `<b>Donut block</b> ${r.w}×${r.d} · ${plan.ring.length} plots round a ${coreSide > 0 ? `${coreSide}×${coreSide} core` : 'core too small'}<br>${costHtml(plan.cost)}`
+        html = `<b>Donut block</b> ${r.w}×${r.d} · ${plan.ring.length} plots around a ${coreSide > 0 ? `${coreSide}×${coreSide} core` : 'core too small'}<br>${costHtml(plan.cost)}`
           + (plan.afford ? '' : '<br><span class="bad">Not enough in the treasury</span>')
           + `<div class="dim">${o.core === 'none' ? 'Leave the core open and put a green, well or chapel in it.' : o.core === 'res' ? 'Kitchen gardens fill the core. Replace some of it with a green or a well later.' : 'The core is worked ground.'}</div>`;
       }

@@ -12,7 +12,7 @@ import { GOOD_ICON, icon } from './icons.js';
  */
 
 const PRIORITY = ['Off', 'Low', 'Normal', 'High'];
-const TABS = [['treasury', 'Treasury'], ['stores', 'Stores & trade'], ['labour', 'Labour'], ['blocks', 'Courtyards']];
+const TABS = [['treasury', 'Treasury'], ['stores', 'Stores & trade'], ['labor', 'Labor'], ['blocks', 'Courtyards']];
 let tab = 'treasury';
 
 const taxWord = (t) => (t <= 0.04 ? 'Generous' : t <= 0.1 ? 'Fair' : t <= 0.16 ? 'Heavy' : t <= 0.22 ? 'Harsh' : 'Crushing');
@@ -65,7 +65,7 @@ function stores(ctx, body) {
     h('p.dim', {}, `Food stores hold ${num(cap.food ?? 0)}, goods stores ${num(cap.goods ?? 0)}. What does not fit spoils or is lost. Build a granary or a storehouse for more.`));
 }
 
-function labour(ctx, body) {
+function labor(ctx, body) {
   const { game } = ctx;
   const r = game.report;
   const groups = new Map();
@@ -96,7 +96,7 @@ function blocksTab(ctx, body) {
   const best = blocks.find((b) => b.q === 0 && b.core.length >= 4);
   fill(body, 
     h('div.grid2', {},
-      h('div', {}, h('h3', {}, 'The donut'), h('p', {}, 'A loop of streets with a ring of homes round the inside and, in the middle, a park or a building that serves them all. The closer the ring is to complete, and the better the heart, the higher the rating.'),
+      h('div', {}, h('h3', {}, 'The donut'), h('p', {}, 'A loop of streets with a ring of homes around the inside and, in the middle, a park or a building that serves them all. The closer the ring is to complete, and the better the heart, the higher the rating.'),
         h('p', { html: '<b>Hearts, best first:</b> village green, cathedral, chapel, market square, castle, tavern, healer, well, watchtower; or kitchen gardens, an orchard or a common. A ring of workshops or smallholdings wants a storehouse, granary, smithy or windmill.' })),
       h('div', {}, h('h3', {}, 'What the blocks bring the realm'),
         h('div.stat', {}, h('span', {}, 'Taxes'), h('b', { class: g.tax > 0 ? 'good' : '' }, `+${(g.tax * 100).toFixed(1)}%`)),
@@ -109,7 +109,7 @@ function blocksTab(ctx, body) {
 }
 
 export function ledgerDialog(ctx) {
-  const pages = { treasury, stores, labour, blocks: blocksTab };
+  const pages = { treasury, stores, labor, blocks: blocksTab };
   return {
     title: 'The Ledger',
     icon: 'ledger',

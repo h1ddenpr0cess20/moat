@@ -204,7 +204,7 @@ export function grow(game) {
         world.tree[i]++;
         touch(world, 'trees', x, y);
       } else if (world.tree[i] > 0 && game.rnd() < 0.25) {
-        // Seed spreads to a neighbour.
+        // Seed spreads to a neighbor.
         const [dx, dy] = DIRS[Math.floor(game.rnd() * 4)];
         const nx = x + dx, ny = y + dy;
         if (inb(nx, ny)) {

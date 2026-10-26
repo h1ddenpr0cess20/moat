@@ -13,7 +13,7 @@ import { idx, inb } from '../world/world.js';
  *
  *   - `closure`: how much of the ring is built. A block with gaps is no donut.
  *   - `heart`: what is in the core. A village green is best for the houses
- *     round it; a chapel, well, tavern, healer, market or tower serves them
+ *     around it; a chapel, well, tavern, healer, market or tower serves them
  *     all at once; kitchen gardens, an orchard or pasture are worth something.
  *   - `rating`, 0 to 100, is the two together, and `q` is rating / 100.
  *
@@ -26,7 +26,7 @@ import { idx, inb } from '../world/world.js';
 const MIN_AREA = 9;
 const MAX_AREA = 800;
 
-/** What a building in the core is worth to the homes round it (`fine`: its share of the heart), and what the block is called for it. */
+/** What a building in the core is worth to the homes around it (`fine`: its share of the heart), and what the block is called for it. */
 export const HEARTS = Object.freeze({
   green: { name: 'Commons', fine: 0.85, why: 'a park every window looks onto' },
   cathedral: { name: 'Cathedral Close', fine: 0.9, why: 'spires over the rooftops' },
@@ -164,7 +164,7 @@ function measure(game, tiles) {
       }
     } else if (inRing && RING_ZONES.has(world.zone[t])) zoned++;
   }
-  // The castle, if the street runs round it.
+  // The castle, if the street runs around it.
   const castle = world.buildings.get(1);
   if (castle && coreSet.has(idx(Math.floor(castle.x + castle.w / 2), Math.floor(castle.y + castle.d / 2)))) specials.set(castle.id, castle);
 
@@ -298,7 +298,7 @@ export function blockReport(block) {
   if (!block.connected) tips.unshift('No street of this block joins the castle’s roads, so no one will build here. Lay a road from it to the town.');
   if (block.core.length < 4) tips.push('This block has no core. Make it larger, so there is a heart to put something in.');
   else {
-    if (!block.hearts.length) tips.push((block.works ?? 0) > block.homes / 2 ? 'Put a storehouse, a granary, a smithy or a windmill in the middle: the trades round it all draw on it.' : 'Put a Village Green, a well, a chapel or a tavern in the middle: that is what makes a donut.');
+    if (!block.hearts.length) tips.push((block.works ?? 0) > block.homes / 2 ? 'Put a storehouse, a granary, a smithy or a windmill in the middle: the trades around it all draw on it.' : 'Put a Village Green, a well, a chapel or a tavern in the middle: that is what makes a donut.');
     else if (block.hearts.length === 1 && block.heart < 0.85) tips.push('A second building in the heart (a well beside the green, say) raises it further.');
     if (block.fill < 0.9) tips.push(`Fill the ring: ${block.built} of ${block.zoned} plots are built.`);
     if (block.homes + (block.works ?? 0) < 6) tips.push('It wants at least six homes, smallholdings or workshops to count.');
