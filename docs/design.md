@@ -14,7 +14,7 @@ The moat is a distance field from the *exposed borders* of owned wards (borders 
 
 weather → work and farms → relief → food and fuel → money → mood → births and deaths → construction → coverage and blocks → growth → merchants → fire → plague → raids → tribute → rank.
 
-Tribute: each autumn from the third year the king's collector takes `60 + 40·(year − 3) + 25·wards` and a fifth of what taxes and the shops brought in since his last visit.
+Tribute: each autumn from the third year the king's collector takes `25·wards` and a third of what taxes and the shops brought in since his last visit, so a hamlet pays as a hamlet and a city as a city.
 
 Relief: when food in store is under two weeks' eating and there is gold, the steward buys six weeks of grain at twice the merchant's price (at most once in four weeks); likewise firewood when the woodpile is under two weeks' burning.
 
@@ -25,6 +25,10 @@ Labour: the garrison, then a third of the hands held for building sites, then pr
 A farmhand tends 8 tiles of field. Over a year a tile gives `soil · haul · mood · weather` times its crop's yield, where `soil = 0.35 + 0.9·fert`: wheat 10 grain, gardens 11 produce, orchard 14 produce (an orchard costs three times as much to plant). A farmhand on wheat feeds about five; a fisherman (1.8 fish a week) or a hunter (1.2 meat) about eight, but the catch spoils fast and only so much water or forest is in reach.
 
 Haul: what a building makes is lost on the road to the nearest store (the castle, a granary or a storehouse), `clamp(1.1 − d/100, 0.7, 1)` for `d` road tiles; the inspector shows the loss. The food estimate (what immigration, births and the smallholdings wait on) counts the haul, the mills' bread at what it is worth, and next year's weather as an average one once the harvest is in.
+
+## Timber and tools
+
+Woodcutters fell grown trees only (level 2 and up: 14 timber a level), leaving the saplings, so a wood a forester tends grows back; when only saplings are in reach the lodge waits for them. Workshops and smithies stop making tools, and drop to low priority, once the stores hold more than `30 + 0.3·people` (the same glut that sends idle hands to smallholdings instead of workshops).
 
 ## Industry
 

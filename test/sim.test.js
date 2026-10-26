@@ -155,5 +155,14 @@ test('the king’s collector takes a share of the year’s takings as well as hi
     assert.equal(game.takings, 0, 'the count starts again after his visit');
     return paid;
   };
-  assert.equal(due(1000) - due(0), 200);
+  assert.equal(due(1200) - due(0), 400);
+});
+
+test('the benches stand idle when the tool racks are full', async () => {
+  const { priorityOf } = await import('../src/sim/economy.js');
+  const game = startGame({ seed: 'moat' });
+  assert.equal(priorityOf(game, 'smithy'), 2);
+  game.stock.tools = 500;
+  assert.equal(priorityOf(game, 'smithy'), 1);
+  assert.equal(priorityOf(game, 'workshop'), 1);
 });

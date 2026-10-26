@@ -27,8 +27,8 @@ export const payoffPrice = (game, strength) => Math.round(strength * PAYOFF * (1
 const DIFFICULTY = { peaceful: 0, easy: 0.7, normal: 1, hard: 1.4 };
 /** How much a raised drawbridge multiplies a gate's defence. */
 const RAISED = 2.4;
-/** The king's share of what the barony took in taxes and trade over the year, on top of his flat due. */
-const TITHE = 0.2;
+/** The king's share of what the barony took in taxes and trade over the year, on top of his due for its land: a third. */
+const TITHE = 1 / 3;
 
 /** The year's weather is decided at the turn of the seasons. */
 export function weather(game) {
@@ -261,7 +261,8 @@ export function tribute(game) {
   const takings = game.takings ?? 0;
   game.takings = 0;
   if (cal.year < 3 || game.difficulty === 'peaceful') return;
-  const due = Math.round((60 + 40 * (cal.year - 3) + ownedCount(game.world) * 25 + takings * TITHE) * (game.difficulty === 'easy' ? 0.6 : 1));
+  // What the king asks follows what the barony takes in, and how much land it holds: a hamlet is not taxed like a town.
+  const due = Math.round((ownedCount(game.world) * 25 + takings * TITHE) * (game.difficulty === 'easy' ? 0.6 : 1));
   const paid = Math.min(due, game.stock.gold);
   game.stock.gold -= paid;
   game.flows.used.gold = (game.flows.used.gold ?? 0) + paid;

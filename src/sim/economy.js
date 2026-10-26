@@ -106,12 +106,17 @@ const fedAhead = (game) => {
   return stock >= people * FOOD_PER_PERSON * (weeksToHarvest(game.week) + WEEKS_PER_YEAR);
 };
 
+/** Are there tools enough in store that the benches can stand idle? */
+export const toolGlut = (game) => game.stock.tools > 30 + (game.pop.children + game.pop.adults + game.pop.elders) * 0.3;
+
 export const priorityOf = (game, type) => {
   if (game.prio[type] !== undefined) return game.prio[type];
   // A town short of timber needs its woodcutters before almost anything.
   if ((type === 'woodcutter' || type === 'forester') && game.stock.wood < 70) return 3;
   // The fields lie fallow through the winter: the farmhands go to the woods and the quarries, and only the flocks want them.
   if (type === 'farmstead' && calendar(game.week).season === 3) return 1;
+  // With the tool racks full, the smiths and carpenters' hands are better spent elsewhere.
+  if (BUILDINGS[type]?.work?.out?.tools && toolGlut(game)) return 1;
   // Smallholdings feed the town: they are food, whatever shelf they sit on. A town with its granaries full can spare
   // the hands, though, and they share out with everyone else.
   const food = BUILDINGS[type]?.cat === 'food' || BUILDINGS[type]?.work?.kind === 'grow';
@@ -205,6 +210,8 @@ function sourceTiles(world, b, from, radius) {
   const [cx, cy] = centerOf(b);
   const out = [];
   const test = from === 'trees' ? (i) => world.tree[i] > 0 && world.realm[i]
+    // Woodcutters fell grown trees and leave the saplings standing, so a wood that is tended grows back.
+    : from === 'timber' ? (i) => world.tree[i] > 1 && world.realm[i]
     : from === 'rock' ? (i) => world.ground[i] === GROUND.ROCK && world.amount[i] > 0 && world.realm[i]
       : from === 'ore' ? (i) => world.ground[i] === GROUND.ORE && world.amount[i] > 0 && world.realm[i]
         : (i) => world.ground[i] === GROUND.WATER || world.moat[i] === 1;
@@ -270,12 +277,13 @@ function work(game) {
     if (b.workers <= 0.01) { b.note = jobsOf(b) ? 'No one to work it' : ''; continue; }
 
     if (w.kind === 'gather') {
-      const tiles = sourceTiles(world, b, w.from, w.radius);
+      const felling = w.from === 'trees' && w.res === 'wood';
+      const tiles = sourceTiles(world, b, felling ? 'timber' : w.from, w.radius);
       let supply = 1;
       if (w.from === 'water') supply = Math.min(1, tiles.length / 14);
       else if (w.from === 'trees' && w.res === 'meat') supply = Math.min(1, tiles.length / 30);
       else if (!tiles.length) supply = 0;
-      if (supply <= 0) { b.note = w.from === 'trees' ? 'No trees in reach' : w.from === 'rock' ? 'The rock is worked out' : w.from === 'ore' ? 'The ore is worked out' : 'No water in reach'; continue; }
+      if (supply <= 0) { b.note = felling && sourceTiles(world, b, 'trees', w.radius).length ? 'Waiting for the young trees to grow' : w.from === 'trees' ? 'No trees in reach' : w.from === 'rock' ? 'The rock is worked out' : w.from === 'ore' ? 'The ore is worked out' : 'No water in reach'; continue; }
       let fuelK = 1;
       if (w.fuel) {
         const need = w.fuel * b.eff;
@@ -288,11 +296,14 @@ function work(game) {
       const out = w.rate * b.workers * (w.season?.[cal.season] ?? 1) * toolK * haulK(b) * mood * supply * fuelK;
       gain(game, w.res, out);
       b.acc = (b.acc ?? 0) + out;
-      if (w.from === 'trees' && w.res === 'wood') {
+      if (felling) {
         while (b.acc >= WOOD_PER_TREE && tiles.length) {
           b.acc -= WOOD_PER_TREE;
-          const i = tiles[Math.floor(game.rnd() * tiles.length)];
-          if (world.tree[i] > 0) { world.tree[i]--; touch(world, ['trees', 'ground'], i % world.size, Math.floor(i / world.size)); }
+          const k = Math.floor(game.rnd() * tiles.length);
+          const i = tiles[k];
+          world.tree[i]--;
+          if (world.tree[i] <= 1) tiles.splice(k, 1);
+          touch(world, ['trees', 'ground'], i % world.size, Math.floor(i / world.size));
         }
       } else if (w.from === 'rock' || w.from === 'ore') {
         while (b.acc >= 8 && tiles.length) {
@@ -320,6 +331,8 @@ function work(game) {
       }
       const cap = game.cap;
       for (const r of Object.keys(w.out)) if (game.stock[r] >= capFor(cap, r) * 0.95) { ratio = 0; wait = `${RESOURCES[r].name} stores are full`; }
+      // No more tools than the town can wear out: the timber and iron are worth more as they are.
+      if (w.out.tools && toolGlut(game)) { ratio = 0; wait = 'Tools enough in store'; }
       if (w.fuel && ratio > 0) {
         const need = w.fuel * ratio;
         if (game.stock.wood < need) { ratio *= game.stock.wood / need; wait = 'Short of fuel'; }

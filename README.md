@@ -33,7 +33,7 @@ A year is 48 weeks, starting in March. People need **food** (grain or bread, veg
 
 When people want work, zone **Workshops** (carpenters who turn timber into tools and sell wares) or **Smallholdings** (crofts where a family lives and grows its own food, with no farmstead), or stamp a block with a ring of them: the people build these themselves, and they rise to joineries and craft halls, smallholdings and granges. A storehouse, granary, smithy or windmill makes a good heart for an industrial block. If the stores run bare, your steward will buy grain or firewood at a hard price, so long as there is gold.
 
-Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate, with three weeks' warning: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them, and if they would not, your steward pays them off (dearer every time). Fires are rare, and wells and good courtyards keep them small. The king's collector wants tribute each autumn: a flat due and a fifth of the year's taxes and trade. Rank rises from Baron to Duke as the barony grows.
+Merchants come to the gates once you have a market square. Raiders come too, from the third year, to the weakest gate, with three weeks' warning: a gatehouse (which also raises the drawbridge), watchtowers and barracks hold them, and if they would not, your steward pays them off (dearer every time). Fires are rare, and wells and good courtyards keep them small. The king's collector wants tribute each autumn: a little for each ward and a third of the year's taxes and trade. Rank rises from Baron to Duke as the barony grows.
 
 ### The moat and the realm
 

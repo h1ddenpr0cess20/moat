@@ -9,6 +9,7 @@ import { qualityAt } from './blocks.js';
 import { covered } from './coverage.js';
 import { headcount, housingCap } from './people.js';
 import { completeAnnex } from './actions.js';
+import { toolGlut } from './economy.js';
 
 /**
  * Things being made: the buildings the people put up on zoned land as the town
@@ -173,7 +174,7 @@ export function grow(game) {
     const hungry = (game.report.foodSupport ?? 0) < people * 1.3;
     const want = [];
     // A town with tools piling up wants its idle on the land rather than at another bench.
-    const glut = game.stock.tools > 30 + people * 0.3;
+    const glut = toolGlut(game);
     if (idle - coming >= 2) want.push(...(hungry || glut ? ['croft', 'craft'] : ['craft', 'croft']));
     else if (going < 2) {
       if (hungry && wantHomes) want.push('croft');

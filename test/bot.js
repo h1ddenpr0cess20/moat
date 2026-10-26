@@ -34,6 +34,29 @@ export function createBot(game) {
     for (let y = C - 12; y < C + 12; y++) for (let x = C - 12; x < C + 12; x++) { const i = idx(x, y); if (world.tree[i] && world.realm[i]) { sx += x; sy += y; n++; } }
     return n > 12 ? [sx / n, sy / n] : null;
   };
+  /** The thickest wood anywhere in the realm, by six-tile squares, away from the lodges already cutting. */
+  const woodsInRealm = () => {
+    const lodges = [...world.buildings.values()].filter((b) => b.type === 'woodcutter');
+    let best = null, bestN = 20;
+    for (let y0 = 0; y0 < world.size; y0 += 6) for (let x0 = 0; x0 < world.size; x0 += 6) {
+      let n = 0;
+      for (let y = y0; y < y0 + 6 && y < world.size; y++) for (let x = x0; x < x0 + 6 && x < world.size; x++) { const i = idx(x, y); if (world.realm[i] && world.tree[i] > 1) n += world.tree[i]; }
+      const cx = x0 + 3, cy = y0 + 3;
+      if (n > bestN && !lodges.some((b) => Math.hypot(b.x + 1 - cx, b.y + 1 - cy) < 9)) { bestN = n; best = [cx, cy]; }
+    }
+    return best;
+  };
+  /** The middle of the most open ground a forester could plant, within a dozen tiles of (cx, cy). */
+  const openGroundNear = (cx, cy) => {
+    const free = (x, y) => { const i = idx(x, y); return world.realm[i] && world.ground[i] === GROUND.GRASS && !world.tree[i] && !world.bld[i] && !world.road[i] && !world.zone[i] && !(game.blockOf && game.blockOf[i] >= 0); };
+    let best = null, bestN = 30;
+    for (let y = cy - 12; y <= cy + 12; y += 2) for (let x = cx - 12; x <= cx + 12; x += 2) {
+      let n = 0;
+      for (let dy = -7; dy <= 7; dy++) for (let dx = -7; dx <= 7; dx++) if (dx * dx + dy * dy <= 49 && free(x + dx, y + dy)) n++;
+      if (n > bestN) { bestN = n; best = [x, y]; }
+    }
+    return best;
+  };
   const rockAt = () => {
     let sx = 0, sy = 0, n = 0;
     for (let y = C - 12; y < C + 12; y++) for (let x = C - 12; x < C + 12; x++) { const i = idx(x, y); if (world.ground[i] === GROUND.ROCK && world.realm[i]) { sx += x; sy += y; n++; } }
@@ -67,6 +90,18 @@ export function createBot(game) {
       const forest = forestAt();
       if (!count(game, 'woodcutter') && forest && s.wood > 30) put(game, 'woodcutter', forest[0], forest[1], 10);
       if (count(game, 'woodcutter') === 1 && pop() > 30 && forest && s.wood > 40) put(game, 'woodcutter', forest[0], forest[1], 12);
+      // Every lodge felled out: go where the trees still are.
+      const lodges = [...world.buildings.values()].filter((b) => b.type === 'woodcutter' && b.state === 'ready');
+      if (lodges.length && lodges.every((b) => b.note !== 'At work') && s.wood < 150) {
+        const woods = s.wood >= 20 && s.gold > 15 ? woodsInRealm() : null;
+        if (woods) put(game, 'woodcutter', woods[0], woods[1], 8);
+        else {
+          // No woods left in the realm: plant one on open ground, with a lodge beside it, and buy timber till it grows.
+          setTrade(game, 'wood', { buy: 150 });
+          const open = !game.botPlanted && openGroundNear(Math.round(C), Math.round(C));
+          if (open && put(game, 'forester', open[0], open[1], 6)) { put(game, 'woodcutter', open[0] + 4, open[1], 6); game.botPlanted = true; }
+        }
+      }
       const lodge = [...world.buildings.values()].find((b) => b.type === 'woodcutter');
       if (lodge && count(game, 'forester') < 1 + Math.floor(pop() / 60) && s.wood > 50 && s.gold > 30) put(game, 'forester', lodge.x + 2, lodge.y + 2, 6);
       if (!count(game, 'farmstead') && s.wood > 50) put(game, 'farmstead', C + 10, C - 3, 4);
