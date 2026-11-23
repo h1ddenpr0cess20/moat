@@ -28,4 +28,4 @@ for (let f = 0; f <= frames; f++) {
   if ((script.shots ?? []).includes(f)) fs.writeFileSync(path.join(out, `f${String(f).padStart(5, '0')}.ppm`), ppm());
   for (const [at, name, len] of script.peeks ?? []) if (at === f) console.log(`frame ${f} ${name} =`, peek(name, len ?? 1));
 }
-if (script.dump) { const M = nes.cpu.mem; for (const [name, len] of script.dump) console.log(name, JSON.stringify(peek(name, len))); }
+if (script.dump) { for (const [name, len] of script.dump) console.log(name, JSON.stringify(peek(name, len))); }
