@@ -11,7 +11,7 @@ typedef unsigned long u32;
 typedef long s32;
 
 /* ---- hardware (crt0.s) */
-extern u8 oam_busy, pad, padnew, frames, ppu_mask, vq_len, scrx, scry;
+extern u8 vq_busy, oam_busy, pad, padnew, frames, ppu_mask, vq_len, scrx, scry;
 extern u8 oam[256];
 extern u8 vq[256];
 void nmi_wait(void);

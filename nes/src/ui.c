@@ -47,11 +47,8 @@ static void menu_line(u8 x0, u8 y0, u8 w, u8 top, u8 sel, u8 k, fmt_fn fmt) {
 /* a list popup. returns the chosen index, or 0xFF if cancelled */
 static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
   u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, old;
-  w = (w + 7) & ~7;                  /* whole attribute cells, so the frame does not spill into the map's colors */
-  h = (vis_n + 4 + 3) & ~3;
-  x0 = (32 - w) >> 1;
-  y0 = (4 + ((22 - h) >> 1)) & ~3;
-  if (y0 < 4) y0 = 4;
+  (void)w;
+  w = 32; h = 16; x0 = 0; y0 = 8;    /* one frame for every popup, on whole attribute cells, so nested menus leave nothing behind */
   if (sel >= n) sel = 0;
   if (sel >= vis_n) top = sel - vis_n + 1;
   sprites_clear();

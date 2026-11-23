@@ -31,12 +31,12 @@ void vq_put(u16 addr, const u8 *d, u8 len) {
     return;
   }
   while ((u8)(vq_len + len + 3) > VQ_MAX || (u8)(vq_len + len + 3) < vq_len) nmi_wait();
-  PPUCTRL = 0x08;
+  vq_busy = 1;
   n = vq_len;
   vq[n++] = addr >> 8; vq[n++] = addr & 0xFF; vq[n++] = len;
   for (i = 0; i < len; i++) vq[n++] = d[i];
   vq_len = n;
-  PPUCTRL = 0x88;
+  vq_busy = 0;
 }
 
 void vq_byte(u16 addr, u8 v) { vq_put(addr, &v, 1); }

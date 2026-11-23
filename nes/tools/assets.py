@@ -97,7 +97,7 @@ put(0x33, 'gateH', tile_art(['22222222', '33333333', '32323232', '33333333', '33
 
 # --- zones
 ZPAT = {
-  'res':     ['........', '.2....2.', '........', '........', '........', '.2....2.', '........', '........'],
+  'res':     ['22....22', '2......2', '........', '........', '........', '........', '2......2', '22....22'],
   'market':  ['3.3.3.3.', '.3.3.3.3', '3.3.3.3.', '.3.3.3.3', '3.3.3.3.', '.3.3.3.3', '3.3.3.3.', '.3.3.3.3'],
   'wheat':   ['3.3.3.3.', '3.3.3.3.', '3.3.3.3.', '3.3.3.3.', '3.3.3.3.', '3.3.3.3.', '3.3.3.3.', '3.3.3.3.'],
   'veg':     ['........', '1111.111', '........', '........', '1111.111', '........', '........', '1111.111'],
@@ -689,7 +689,8 @@ def main():
     arr('tile_pal', pal)
     arr('row_off', [y * 48 for y in range(48)], 'const unsigned int')
     arr('wbit', [1 << i for i in range(9)], 'const unsigned int')
-    NAMES = 'const char *const b_name_%s[] = {' + ','.join('"%s"' % B[n]['name'].upper().replace('’', "'")[:16] for n in BNAMES) + '};'
+    SHORT = {'fishery': 'FISHERY', 'hunter': 'HUNTER', 'woodcutter': 'WOODCUTTER', 'forester': 'FORESTER', 'healer': 'HEALER', 'merchant': 'MERCHANT HOUSE', 'weaver': 'WEAVER', 'smallholding': 'SMALLHOLDING'}
+    NAMES = 'const char *const b_name_%s[] = {' + ','.join('"%s"' % SHORT.get(n, B[n]['name'].upper().replace('’', "'"))[:14] for n in BNAMES) + '};'
     TV.append(NAMES % 'v'); TU_NAMES.append(NAMES % 'u')
     open(os.path.join(ROOT, 'src', 'tables.c'), 'w').write('\n'.join(T) + '\n')
     open(os.path.join(ROOT, 'src', 'tab_a.c'), 'w').write('\n'.join(TA) + '\n')

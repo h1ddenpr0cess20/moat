@@ -5,7 +5,7 @@
         .export _nmi_wait, _pad, _padnew, _frames, _ppu_mask, _vq_len, _scrx, _scry
         .export _set_bank, _cur_bank, _set_chr
         .import _snd_init, snd_tick
-        .export _oam, _vq, _oam_busy
+        .export _oam, _vq, _oam_busy, _vq_busy
         .exportzp _zpt
         .import __STACKTOP__
         .import __DATA_LOAD__, __DATA_RUN__, __DATA_SIZE__
@@ -36,6 +36,7 @@ _zpt:      .res 4
 _cur_bank: .res 1
 _oam_busy: .res 1
 _padlatch: .res 1
+_vq_busy: .res 1
 ; sound
 
         .segment "OAM"
@@ -181,6 +182,8 @@ nmi:
         sta OAMDMA
 @nodma:
         ; flush the vram queue: [hi, lo, len, data...] ... ; hi=0 ends
+        lda _vq_busy
+        bne @noq
         ldx #0
         cpx _vq_len
         beq @noq
