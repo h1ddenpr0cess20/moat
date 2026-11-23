@@ -35,9 +35,18 @@ static void draw_box_text(u8 x, u8 y, const char *s) {
 static void wait_release(void) { while (pad) nmi_wait(); }
 
 /* a list popup. returns the chosen index, or 0xFF if cancelled */
-static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
-  u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, redraw = 1;
+static void menu_line(u8 x0, u8 y0, u8 w, u8 top, u8 sel, u8 k, fmt_fn fmt) {
   char line[34];
+  u8 i;
+  for (i = 0; i < 33; i++) line[i] = ' ';
+  line[0] = k == sel ? '>' : ' ';
+  fmt(k, line + 1);
+  text_pad(x0 + 1, y0 + 2 + (k - top), line, w - 2);
+}
+
+/* a list popup. returns the chosen index, or 0xFF if cancelled */
+static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
+  u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, old;
   w = (w + 7) & ~7;                  /* whole attribute cells, so the frame does not spill into the map's colors */
   h = (vis_n + 4 + 3) & ~3;
   x0 = (32 - w) >> 1;
@@ -51,27 +60,21 @@ static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
   box(x0, y0, w, h);
   draw_box_text(x0 + 2, y0 + 1, title);
   fill_attr_ui(x0, y0, w, h);
-  DBG(21)
+  for (i = 0; i < vis_n; i++) menu_line(x0, y0, w, top, sel, top + i, fmt);   /* drawn with the picture off: no queue */
   ppu_on();
-  DBG(22)
   wait_release();
-  DBG(23)
   for (;;) {
-    if (redraw) {
-      for (i = 0; i < vis_n; i++) {
-        u8 k = top + i;
-        line[0] = k == sel ? '>' : ' ';
-        DBG(24)
-        fmt(k, line + 1);
-        DBG(25)
-        text_pad(x0 + 1, y0 + 2 + i, line, w - 2);
-      }
-      redraw = 0;
-    }
     nmi_wait();
-    if (padnew & BTN_DOWN) { sel = sel + 1 >= n ? 0 : sel + 1; redraw = 1; }
-    if (padnew & BTN_UP) { sel = sel == 0 ? n - 1 : sel - 1; redraw = 1; }
-    if (redraw) { if (sel < top) top = sel; if (sel >= top + vis_n) top = sel - vis_n + 1; }
+    old = sel;
+    if (padnew & BTN_DOWN) sel = sel + 1 >= n ? 0 : sel + 1;
+    if (padnew & BTN_UP) sel = sel == 0 ? n - 1 : sel - 1;
+    if (sel != old) {
+      u8 ot = top;
+      if (sel < top) top = sel;
+      if (sel >= top + vis_n) top = sel - vis_n + 1;
+      if (top != ot) { for (i = 0; i < vis_n; i++) menu_line(x0, y0, w, top, sel, top + i, fmt); }
+      else { menu_line(x0, y0, w, top, sel, old, fmt); menu_line(x0, y0, w, top, sel, sel, fmt); }
+    }
     if (padnew & (BTN_A | BTN_START)) { snd_play(1); wait_release(); return sel; }
     if (padnew & BTN_B) { wait_release(); return 0xFF; }
   }
@@ -96,11 +99,12 @@ static void collect(void) {
 }
 static void f_bld(u8 i, char *o) {
   u8 t = menu_ids[i], n = scat(o, 0, b_name[t]);
-  while (n < 15) o[n++] = ' ';
+  do o[n++] = ' '; while (n < 14);
   n = ncat(o, n, b_cg[t]); n = scat(o, n, "G");
   if (b_cw[t]) { n = scat(o, n, " "); n = ncat(o, n, b_cw[t]); n = scat(o, n, "W"); }
   if (b_cs[t]) { n = scat(o, n, " "); n = ncat(o, n, b_cs[t]); n = scat(o, n, "S"); }
   if (b_rank[t] > rank) scat(o, n, " *");
+  else o[n] = 0;
 }
 
 void ui_choose_tool(void) {
@@ -114,7 +118,7 @@ void ui_choose_tool(void) {
     if (c != 0xFF) {
       u8 s;
       menu_cat = c; collect();
-      s = menu("CHOOSE", menu_nids, f_bld, 0, 30);
+      s = menu("CHOOSE", menu_nids, f_bld, 0, 32);
       if (s != 0xFF) { tool = TL_BUILD; tsub = menu_ids[s]; }
     }
   }
