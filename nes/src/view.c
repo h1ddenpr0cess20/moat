@@ -428,7 +428,7 @@ static void apply_tool(u8 first) {
       if (r == 1) say("NO MORE BLOCKS (SIX).");
       else if (r == 2) say("NO ROOM: NEEDS 9X9 FREE LAND.");
       else if (r == 3) say("NOT ENOUGH GOLD FOR THE BLOCK.");
-      else { set_msg("BLOCK LAID. PUT A HEART IN THE CORE."); msg_t = 120; snd_play(2); }
+      else { set_msg("BLOCK LAID. JOIN IT TO YOUR ROADS."); msg_t = 120; snd_play(2); }
       break;
     }
     case TL_CLEAR: {

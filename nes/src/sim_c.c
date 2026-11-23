@@ -143,6 +143,16 @@ void sc_consume(void) { consume(); }
 void sc_money(void) { money(); }
 
 /* flood the road network from the castle's causeway; then see which buildings a road reaches */
+/* does any tile of the block's loop belong to the castle's connected network? */
+static u8 block_joined(u8 b) {
+  u8 k;
+  for (k = 0; k < BLK; k++) {
+    u16 a = IDX(blk_x[b] + k, blk_y[b]), c = IDX(blk_x[b] + k, blk_y[b] + BLK - 1), d = IDX(blk_x[b], blk_y[b] + k), e = IDX(blk_x[b] + BLK - 1, blk_y[b] + k);
+    if ((conn[a >> 3] & (1 << (a & 7))) || (conn[c >> 3] & (1 << (c & 7))) || (conn[d >> 3] & (1 << (d & 7))) || (conn[e >> 3] & (1 << (e & 7)))) return 1;
+  }
+  return 0;
+}
+
 void sc_net(void) {
   u16 head = 0, tail = 0, k, q;
   u8 i;
@@ -170,7 +180,12 @@ void sc_net(void) {
   bfl[0] = BF_CONN;
   for (i = 1; i < MAXB; i++) {
     if (!bs[i]) continue;
-    if (adjacent_road(bx[i], by[i], b_w[bt[i]], b_d[bt[i]], 1)) bfl[i] |= BF_CONN; else bfl[i] &= ~BF_CONN;
+    if (adjacent_road(bx[i], by[i], b_w[bt[i]], b_d[bt[i]], 1)) bfl[i] |= BF_CONN;
+    else {
+      /* the heart of a block touches no street of its own: the block's loop reaches it, if the loop joins the castle's roads */
+      u8 b = block_at(bx[i], by[i]);
+      if (b != 0xFF && block_joined(b)) bfl[i] |= BF_CONN; else bfl[i] &= ~BF_CONN;
+    }
   }
 }
 
