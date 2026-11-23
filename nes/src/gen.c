@@ -177,6 +177,7 @@ void sim_new(void) {
   raids_won = raids_lost = raids_bought = 0; gameover = 0; food_avg = 4 * 256; dig_ward = 0xFF;
   for (i = 0; i < NRES; i++) { trade_sell[i] = 0; trade_buy[i] = 0; }
   for (i = 0; i < 8; i++) farm_crop[i] = 0;
+  blk_n = 0; blk_tax = 0; blk_mood = 0; blk_cap = 0;
   msg_new = 0; msgbuf[0] = 0;
   for (i = 0; i < 8; i++) chron[i][0] = 0;
   /* the hamlet: a road around the castle, houses along its south side, a farm and a woodcutter to the north */

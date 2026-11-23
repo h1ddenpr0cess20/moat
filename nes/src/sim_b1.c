@@ -15,6 +15,7 @@ static void mood_week(void) {
   h += 4 * 256 * care[0] / 255 * (care[2] > 13 ? 2 : 1) / 2;
   if (stock[R_CLOTH] > 256) h += 2 * 256;
   h += (5 * (s32)care[1] + 7 * care[3] + 7 * care[2] + 3 * care[4] + 5 * care[5] + 3 * care[6]) * 256 / 255;
+  h += (s32)blk_mood * 16;
   h -= ((s32)tax - 10) * 70 * 256 / 100;
   idle = jobless_q;
   if (idle > 51) h -= (idle - 51) * 40 * 256 / 256;
@@ -98,7 +99,7 @@ void burn_building(u8 id) {
   if (z) for (j = 0; j < d; j++) for (i = 0; i < w; i++) set_zone(x + i, y + j, z);
   note("A BUILDING BURNED DOWN.");
   snd_play(4);
-  view_dirty = 1;
+  mark_rect(x, y, w, d);
 }
 
 static void fires_week(void) {

@@ -27,7 +27,7 @@ s16 flow_made[NRES], flow_used[NRES];
 char msgbuf[32];
 u8 msg_new;
 char chron[8][32];
-u16 dirty_q[16];
+u16 dirty_q[48];
 u8 dirty_n;
 u8 view_dirty;
 
@@ -60,17 +60,6 @@ const u8 zone_cost[] = { 0, 1, 1, 1, 1, 3, 1, 1, 2 };
 const char *const month_name[] = { "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "JAN", "FEB" };
 const char *const season_name[] = { "SPRING", "SUMMER", "AUTUMN", "WINTER" };
 
-u8 utoa(u16 v, char *o) {
-  char t[6];
-  u8 n = 0, i = 0;
-  if (!v) { o[0] = '0'; o[1] = 0; return 1; }
-  while (v) { t[n++] = '0' + v % 10; v /= 10; }
-  while (n) o[i++] = t[--n];
-  o[i] = 0;
-  return i;
-}
-u8 scat(char *d, u8 n, const char *s) { while (*s && n < 33) d[n++] = *s++; d[n] = 0; return n; }
-u8 ncat(char *d, u8 n, u16 v) { return n + utoa(v, d + n); }
 s16 whole_of(u8 r) { s32 v = stock[r] >> 8; return v > 32000 ? 32000 : (s16)v; }
 
 void call_in(u8 bank, void (*f)(void)) {
@@ -82,7 +71,8 @@ void call_in(u8 bank, void (*f)(void)) {
 
 extern void sa_pre(void), sa_work(void), sa_care(void), sc_consume(void), sc_money(void);
 extern void sb1_weather(void), sb1_mood(void), sb1_people(void), sb1_events(void);
-extern void sb2_construct(void), sb2_grow(void), sb2_place(void), sb2_demolish(void), sb2_annex_ok(void), sb2_start_annex(void), sb2_castle_ok(void), sb2_start_castle(void);
+extern void sb2_block(void);
+extern void sb2_construct(void), sb2_grow_a(void), sb2_grow_b(void), sb2_grow_c(void), sb2_place(void), sb2_demolish(void), sb2_annex_ok(void), sb2_start_annex(void), sb2_castle_ok(void), sb2_start_castle(void);
 extern void gen_new(void);
 extern void view_new_game(void), view_game(void), ui_title(void);
 
@@ -101,7 +91,7 @@ void note(const char *m) {
 }
 
 void mark(u8 x, u8 y) {
-  if (dirty_n < 16) dirty_q[dirty_n++] = x | ((u16)y << 8); else view_dirty = 1;
+  if (dirty_n < 48) dirty_q[dirty_n++] = x | ((u16)y << 8); else view_dirty = 1;
 }
 
 u8 svc_n, svc_i[24];
@@ -116,6 +106,10 @@ void svc_rebuild(void) {
   }
 }
 /* how well a spot is looked after by services of a kind (0..255), from the week's list of service buildings */
+void mark_rect(u8 x, u8 y, u8 w, u8 d) {
+  u8 i, j;
+  for (j = 0; j < d; j++) for (i = 0; i < w; i++) mark(x + i, y + j);
+}
 u8 coverage_at(u8 kind, u8 x, u8 y) {
   u8 n, i, t;
   u16 sum = 0;
@@ -134,7 +128,7 @@ u8 coverage_at(u8 kind, u8 x, u8 y) {
 }
 
 u16 housing_cap(u8 building) {
-  u16 cap = 8;
+  u16 cap = 8 + blk_cap;
   u8 i;
   for (i = 1; i < MAXB; i++) {
     if (bs[i] == BS_READY || (building && bs[i] == BS_BUILD)) cap += b_cap[bt[i]];
@@ -156,12 +150,14 @@ u8 gates_all(u8 *list) {
   return n;
 }
 
+u8 block_stamp(u8 x, u8 y) { arg_a = x; arg_b = y; call_in(BK_SIMB2, sb2_block); return ret_a; }
+
 void sim_prime(void) {
   u8 i;
   refresh_net();
   call_in(BK_SIMA, sa_pre);
   call_in(BK_SIMA, sa_care);
-  for (i = 0; i < NRES; i++) { flow_made[i] = 0; flow_used[i] = 0; }
+  (void)i;
 }
 
 void ledger_prep(void) { sim_prime(); }
@@ -185,8 +181,10 @@ u8 sim_step(void) {
     PH(7, BK_SIMB1, sb1_mood)
     PH(8, BK_SIMB1, sb1_people)
     PH(9, BK_SIMB2, sb2_construct)
-    PH(10, BK_SIMB2, sb2_grow)
-    PH(11, BK_SIMB1, sb1_events)
+    PH(10, BK_SIMB2, sb2_grow_a)
+    PH(11, BK_SIMB2, sb2_grow_b)
+    PH(12, BK_SIMB2, sb2_grow_c)
+    PH(13, BK_SIMB1, sb1_events)
     default:
       week++;
       if (inyear(week) % 12 == 0) mus_season = season_of(week);

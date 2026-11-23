@@ -3,10 +3,12 @@
         .importzp sp
         .export __STARTUP__ : absolute = 1
         .export _nmi_wait, _pad, _padnew, _frames, _ppu_mask, _vq_len, _scrx, _scry
-        .export _snd_play, _mus_on, _mus_season, _snd_init, _set_bank, _cur_bank, _set_chr
-        .export _oam, _vq
+        .export _set_bank, _cur_bank, _set_chr
+        .import _snd_init, snd_tick
+        .export _oam, _vq, _oam_busy
         .exportzp _zpt
         .import __STACKTOP__
+        .import __DATA_LOAD__, __DATA_RUN__, __DATA_SIZE__
 
 PPUCTRL = $2000
 PPUMASK = $2001
@@ -32,18 +34,9 @@ _scry:     .res 1
 nmi_flag:  .res 1
 _zpt:      .res 4
 _cur_bank: .res 1
+_oam_busy: .res 1
+_padlatch: .res 1
 ; sound
-sfx_t:     .res 1       ; frames left of current effect
-sfx_id:    .res 1
-sfx_p:     .res 1
-_mus_on:   .res 1
-_mus_season: .res 1
-mus_t:     .res 1
-mus_n:     .res 1       ; step in bar
-mus_seed:  .res 1
-mus_lead:  .res 1
-mus_vib:   .res 1
-mus_bt:    .res 1
 
         .segment "OAM"
 _oam:   .res 256
@@ -97,6 +90,15 @@ reset:
         sta sp
         lda #>__STACKTOP__
         sta sp+1
+        ; copy the initialized data (the runtime's call vector) from ROM to WRAM
+        ldx #0
+@cd:    cpx #<__DATA_SIZE__
+        beq @cdone
+        lda __DATA_LOAD__,x
+        sta __DATA_RUN__,x
+        inx
+        bne @cd
+@cdone:
         jsr _snd_init
         lda #$88
         sta PPUCTRL            ; NMI on, BG $0000, sprites $1000
@@ -154,6 +156,12 @@ _nmi_wait:
         lda _frames
 @w:     cmp _frames
         beq @w
+        sei
+        lda _padlatch
+        sta _padnew
+        lda #0
+        sta _padlatch
+        cli
         rts
 
 nmi:
@@ -165,10 +173,13 @@ nmi:
         lda _ppu_mask
         and #$18
         beq @norender          ; rendering off: the main code owns the PPU
+        lda _oam_busy
+        bne @nodma
         lda #0
         sta OAMADDR
         lda #>_oam
         sta OAMDMA
+@nodma:
         ; flush the vram queue: [hi, lo, len, data...] ... ; hi=0 ends
         ldx #0
         cpx _vq_len
@@ -220,7 +231,8 @@ nmi:
         pla
         eor #$FF
         and _pad
-        sta _padnew
+        ora _padlatch
+        sta _padlatch
         inc _frames
         jsr snd_tick
         pla
@@ -231,14 +243,6 @@ nmi:
         rti
 irq:
         rti
-
-; ------------------------------------------------------------------ sound (stubs, replaced by snd.s)
-_snd_init:
-        rts
-_snd_play:
-        rts
-snd_tick:
-        rts
 
         .segment "VECTORS"
         .word nmi, reset, irq

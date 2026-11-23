@@ -26,7 +26,7 @@ static void b2_demolish_at(u8 x, u8 y) {
   /* half the timber and stone comes back */
   gain(R_WOOD, (s32)b_cw[t] << 7); gain(R_STONE, (s32)b_cs[t] << 7);
   i = b_w[t]; j = b_d[t];
-  { u8 xx = bx[id], yy = by[id]; remove_building(id); refresh_net(); view_dirty = 1; (void)xx; (void)yy; (void)i; (void)j; }
+  { u8 xx = bx[id], yy = by[id], ww = b_w[t], dd = b_d[t]; remove_building(id); mark_rect(xx, yy, ww, dd); (void)i; (void)j; }
 }
 
 static u8 lot_ok(u8 zone, u8 t, u8 x, u8 y) {
@@ -70,7 +70,7 @@ static u8 b2_spawn(u8 zone, u8 level) {
   if (!found) { spawn_cd[zone] = 4 + rndn(4); return 0; }
   pay_cost(t);
   place_building(t, bestx, besty, 0);
-  view_dirty = 1;
+  mark_rect(bestx, besty, b_w[t], b_d[t]);
   return 1;
 }
 
@@ -102,7 +102,7 @@ static void upgrade_try(void) {
   place_building(nt, x, y, 0);
   /* restore the zone under the old footprint (place_building cleared it) */
   for (j = 0; j < d2; j++) for (n = 0; n < w2; n++) set_zone(x + n, y + j, z);
-  view_dirty = 1;
+  mark_rect(x, y, w2, d2);
 }
 
 static void construct(void) {
@@ -116,8 +116,7 @@ static void construct(void) {
       u8 t = bt[i];
       bs[i] = BS_READY; bacc[i] = 0; bprog[i] = 255;
       if (!b_auto[t]) { note("A BUILDING IS FINISHED."); snd_play(2); }
-      mark(bx[i], by[i]);
-      view_dirty = 1;
+      mark_rect(bx[i], by[i], b_w[t], b_d[t]);
       net_dirty = 1;
     }
   }
@@ -143,18 +142,23 @@ static void construct(void) {
   }
 }
 
-static void grow_week(void) {
-  u16 people = headcount();
-  u16 supply = 0;
+static s16 homes_wanted(void) { u16 people = headcount(); return housing_cap(1) < (s16)(people + 6 + people / 8); }
+
+static void grow_homes(void) {
+  u16 people = headcount(), supply = 0;
   u8 i, n;
-  s16 want_homes = housing_cap(1) < (s16)(people + 6 + people / 8);
   for (n = 0; n < 9; n++) if (spawn_cd[n]) spawn_cd[n]--;
-  if (want_homes) {
+  if (homes_wanted()) {
     n = 0;
     while (n < 2 && housing_cap(1) < people + 6 + people / 8 + n && b2_spawn(Z_RES, 1)) n++;
   }
   for (i = 1; i < MAXB; i++) if (bs[i]) supply += b_shop[bt[i]];
   if (people >= 15 && supply * 4 < people * 3) b2_spawn(Z_MARKET, 1);
+}
+
+static void grow_industry(void) {
+  u16 people = headcount();
+  u8 i;
   if (people >= 12) {
     u8 coming = 0, going = 0, idle_shops = 0;
     s16 idle = r_idle;
@@ -168,11 +172,15 @@ static void grow_week(void) {
       u8 hungry = ((u32)food_avg * 4 >> 8) < (u32)people * 13 / 10;
       if (idle - coming >= 2) { if (hungry || tool_glut()) { if (!b2_spawn(Z_CROFT, 1)) b2_spawn(Z_CRAFT, 1); } else if (!b2_spawn(Z_CRAFT, 1)) b2_spawn(Z_CROFT, 1); }
       else if (going < 2) {
-        if (hungry && want_homes) b2_spawn(Z_CROFT, 1);
+        if (hungry && homes_wanted()) b2_spawn(Z_CROFT, 1);
         else if (whole(R_TOOLS) < 3 + (s16)(people / 25) && !idle_shops) b2_spawn(Z_CRAFT, 1);
       }
     }
   }
+}
+
+static void grow_misc(void) {
+  u8 n;
   if ((week & 1) == 0) upgrade_try();
   /* the forest grows back */
   if (season_of(week) <= 1) {
@@ -181,7 +189,7 @@ static void grow_week(void) {
       u16 k = IDX(x, y);
       if (TREE(k) > 0 && TREE(k) < 3) { mt[k] += 1 << 3; mark(x, y); }
       else if (TREE(k) > 0 && rndn(4) == 0) {
-        u8 nx = x + (rndn(2) ? 1 : -1 + 0), ny = y + (rndn(3) - 1);
+        u8 nx = x + (rndn(2) ? 1 : -1), ny = y + (rndn(3) - 1);
         if (nx < MAPW && ny < MAPH) {
           u16 j = IDX(nx, ny);
           if (!TREE(j) && GROUND(j) == GR_GRASS && !(mr[j] & BLD) && !ROAD(j) && !ZONE(j) && (!owned_at(nx, ny) || rndn(3) == 0)) { mt[j] |= 1 << 3; mark(nx, ny); }
@@ -232,12 +240,42 @@ static void b2_start_castle(void) {
   note("WORK BEGINS ON THE CASTLE.");
 }
 
+/* stamp a loop of street with a ring of housing plots inside it, around a core left open for a heart */
+static u8 b2_block(u8 x, u8 y) {
+  u8 i, j;
+  u16 cost = 0;
+  if (blk_n >= MAXBLK) return 1;
+  if (!block_ok(x, y)) return 2;
+  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
+    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
+    if (edge && ROAD(IDX(x + i, y + j)) == RD_NONE) cost++;
+    else if (!edge && !core) cost++;
+  }
+  if (whole(R_GOLD) < (s16)cost) return 3;
+  spend(R_GOLD, (s32)cost << 8);
+  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
+    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
+    u16 k = IDX(x + i, y + j);
+    mt[k] &= ~0x18;
+    if (edge) mr[k] = (mr[k] & ~0x7F) | RD_DIRT;
+    else if (!core) mr[k] = (mr[k] & ~0x78) | (Z_RES << 3);
+    else mr[k] &= ~0x78;
+  }
+  blk_x[blk_n] = x; blk_y[blk_n] = y; blk_n++;
+  net_dirty = 1;
+  view_dirty = 1;
+  return 0;
+}
+
 static void cpy_why(const char *w) { u8 i; for (i = 0; i < 31 && w[i]; i++) whybuf[i] = w[i]; whybuf[i] = 0; }
 void sb2_construct(void) { construct(); }
-void sb2_grow(void) { grow_week(); }
+void sb2_grow_a(void) { grow_homes(); }
+void sb2_grow_b(void) { grow_industry(); }
+void sb2_grow_c(void) { grow_misc(); }
 void sb2_place(void) { ret_a = b2_place_player(arg_a, arg_b, arg_c); }
 void sb2_demolish(void) { b2_demolish_at(arg_a, arg_b); }
 void sb2_annex_ok(void) { const char *w = ""; ret_a = b2_plan_annex_ok(arg_a, &w); cpy_why(w); }
 void sb2_start_annex(void) { b2_start_annex(arg_a); }
 void sb2_castle_ok(void) { const char *w = ""; ret_a = b2_castle_plan_ok(&w); cpy_why(w); }
 void sb2_start_castle(void) { b2_start_castle(); }
+void sb2_block(void) { ret_a = b2_block(arg_a, arg_b); }

@@ -1,7 +1,16 @@
 /* Moat for the NES: menus, pages and the title (a swappable bank). */
 #pragma code-name(push, "BANK5")
 #pragma rodata-name(push, "BANK5R")
+#define b_name b_name_u
+#define castle_name castle_name_u
+#define rank_name rank_name_u
+#define res_name res_name_u
 #include "game.h"
+#include "strutil.h"
+#ifndef TDBG
+#define TDBG 0
+#endif
+#define DBG(n) if (TDBG == n) for (;;) nmi_wait();
 
 static u8 menu_cat, menu_ids[16], menu_nids;
 static u8 trade_i;
@@ -27,8 +36,13 @@ static void wait_release(void) { while (pad) nmi_wait(); }
 
 /* a list popup. returns the chosen index, or 0xFF if cancelled */
 static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
-  u8 x0 = (32 - w) >> 1, vis_n = n > 12 ? 12 : n, h = vis_n + 4, y0 = (4 + 22 - h) / 2 & ~1, top = 0, i, redraw = 1;
+  u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, redraw = 1;
   char line[34];
+  w = (w + 7) & ~7;                  /* whole attribute cells, so the frame does not spill into the map's colors */
+  h = (vis_n + 4 + 3) & ~3;
+  x0 = (32 - w) >> 1;
+  y0 = (4 + ((22 - h) >> 1)) & ~3;
+  if (y0 < 4) y0 = 4;
   if (sel >= n) sel = 0;
   if (sel >= vis_n) top = sel - vis_n + 1;
   sprites_clear();
@@ -37,14 +51,19 @@ static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
   box(x0, y0, w, h);
   draw_box_text(x0 + 2, y0 + 1, title);
   fill_attr_ui(x0, y0, w, h);
+  DBG(21)
   ppu_on();
+  DBG(22)
   wait_release();
+  DBG(23)
   for (;;) {
     if (redraw) {
       for (i = 0; i < vis_n; i++) {
         u8 k = top + i;
         line[0] = k == sel ? '>' : ' ';
+        DBG(24)
         fmt(k, line + 1);
+        DBG(25)
         text_pad(x0 + 1, y0 + 2 + i, line, w - 2);
       }
       redraw = 0;
@@ -59,7 +78,7 @@ static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
 }
 
 static void f_tool(u8 i, char *o) {
-  static const char *const n[] = { "LOOK", "ROADS", "ZONES", "BUILD", "CLEAR" };
+  static const char *const n[] = { "LOOK", "ROADS", "ZONES", "BUILD", "CLEAR", "BLOCKS" };
   scat(o, 0, n[i]);
 }
 static void f_road(u8 i, char *o) { scat(o, 0, i ? "COBBLE 1 STONE 1 GOLD" : "DIRT 1 GOLD"); }
@@ -85,9 +104,9 @@ static void f_bld(u8 i, char *o) {
 }
 
 void ui_choose_tool(void) {
-  u8 t = menu("TOOLS", 5, f_tool, tool, 14);
+  u8 t = menu("TOOLS", 6, f_tool, tool, 14);
   if (t == 0xFF) return;
-  if (t == TL_LOOK || t == TL_CLEAR) { tool = t; }
+  if (t == TL_LOOK || t == TL_CLEAR || t == TL_BLOCK) { tool = t; }
   else if (t == TL_ROAD) { u8 s = menu("ROADS", 2, f_road, tsub2 & 1, 26); if (s != 0xFF) { tool = TL_ROAD; tsub = s; tsub2 = s; } }
   else if (t == TL_ZONE) { u8 s = menu("ZONES", 8, f_zone, 0, 20); if (s != 0xFF) { tool = TL_ZONE; tsub = s + 1; } }
   else if (t == TL_BUILD) {
@@ -289,6 +308,7 @@ void ui_title(void) {
     nmi_wait();
     ppu_off();
     set_chr(2);
+    mus_on = 0;
     vram_adr(0x2000);
     for (n = 0; n < 704; n++) PPUDATA = title_map[n];
     for (r = 22; r < 24; r++) { vram_adr(0x2000 + ((u16)r << 5)); for (i = 0; i < 32; i++) PPUDATA = title_map[21 * 32 + i]; }

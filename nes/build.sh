@@ -6,8 +6,9 @@ mkdir -p build
 node tools/dump_catalog.mjs > build/catalog.json
 python3 tools/assets.py
 ca65 -g -o build/crt0.o src/crt0.s
-objs="build/crt0.o"
-for f in ppu world core sim_a sim_b1 sim_b2 sim_c gen view ui tables tab_a tab_view tab_ui; do
+ca65 -g -o build/snd.o src/snd.s
+objs="build/crt0.o build/snd.o"
+for f in ppu world core sim_a sim_b1 sim_b2 sim_c sim_m gen view ui tables tab_a tab_view tab_ui; do
   cc65 -Oi -t none $CFLAGS -I src -o build/$f.s src/$f.c
   ca65 -g -o build/$f.o build/$f.s
   objs="$objs build/$f.o"

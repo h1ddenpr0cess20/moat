@@ -118,6 +118,7 @@ static void money(void) {
   s32 mood = 179 + (s32)happy * 77 / 1600;      /* .7 + .3 * happy% */
   taxes = (s32)r_employed * 230 * taxk >> 8;     /* employed * 0.9 */
   taxes = taxes * mood >> 8;
+  taxes += taxes * blk_tax >> 8;
   taxes += taxes * (care[0] * 0) >> 8;
   for (i = 1; i < MAXB; i++) {
     if (bs[i] == BS_READY && b_shop[bt[i]] && (bfl[i] & BF_CONN)) capacity_shop += (s32)b_shop[bt[i]] * 256 / 10 * (128 + (bef[i] >> 1) ) >> 8;

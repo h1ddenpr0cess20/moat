@@ -28,7 +28,7 @@ u8 rndn(u8 n) { return ((u16)rnd8() * n) >> 8; }
 
 u8 ward_of(u8 x, u8 y) { static const u8 r3[3] = { 0, 3, 6 }; return r3[y >> 4] + (x >> 4); }
 u8 owned_at(u8 x, u8 y) { return (wards_owned & wbit[ward_of(x, y)]) != 0; }
-static u8 own_w(s8 wx, s8 wy) {
+u8 own_w(s8 wx, s8 wy) {
   if (wx < 0 || wy < 0 || wx >= WARDS || wy >= WARDS) return 0;
   return (wards_owned >> (wy * WARDS + wx)) & 1;
 }
@@ -40,24 +40,6 @@ u8 owned_count(void) {
 u8 is_water(u8 g) { return g == GR_WATER || g == GR_MOAT; }
 
 /* ---------------------------------------------------------------- moat and gates */
-/* the castle's island (4x4, local 6..9 in the home ward) with a ring of moat and a causeway to the south */
-static u8 castle_ring(u8 x, u8 y) {
-  if (x < 21 || x > 26 || y < 21 || y > 26) return 0;
-  return x == 21 || x == 26 || y == 21 || y == 26;
-}
-static u8 castle_causeway(u8 x, u8 y) { return y == 26 && (x == 23 || x == 24); }
-
-static u8 is_moat(u8 x, u8 y) {
-  s8 wx = x >> 4, wy = y >> 4;
-  u8 lx = x & 15, ly = y & 15;
-  if (!own_w(wx, wy)) return 0;
-  if (lx == 0 && !own_w(wx - 1, wy)) return 1;
-  if (lx == 15 && !own_w(wx + 1, wy)) return 1;
-  if (ly == 0 && !own_w(wx, wy - 1)) return 1;
-  if (ly == 15 && !own_w(wx, wy + 1)) return 1;
-  return 0;
-}
-
 u8 gate_exposed(u8 w, u8 side) {
   s8 wx = w % WARDS, wy = w / WARDS;
   if (!own_w(wx, wy)) return 0;
@@ -81,7 +63,7 @@ u8 gate_pos(u8 w, u8 side, u8 *gx, u8 *gy) {
   return side & 1;     /* 1: the second tile is below, 0: to the right */
 }
 
-static void gate_tiles(u8 w, u8 side, u8 road) {
+void gate_tiles(u8 w, u8 side, u8 road) {
   u8 gx, gy, vert = gate_pos(w, side, &gx, &gy);
   u16 i = IDX(gx, gy), j = vert ? IDX(gx, gy + 1) : IDX(gx + 1, gy);
   mr[i] = (mr[i] & ~7) | road;
@@ -94,46 +76,9 @@ void gate_set(u8 w, u8 side, u8 open) {
   net_dirty = 1;
 }
 
-void rebuild_moat(void) {
-  u8 x, y, w, s;
-  u16 i;
-  for (y = 0; y < MAPH; y++) {
-    for (x = 0; x < MAPW; x++) {
-      i = IDX(x, y);
-      if (is_moat(x, y) || castle_ring(x, y)) {
-        if (GROUND(i) != GR_MOAT) { mt[i] = GR_MOAT; mr[i] = 0; }
-        else mr[i] &= BLD ? 0xFF : 0xFF;
-        if (castle_causeway(x, y)) mr[i] = (mr[i] & ~7) | RD_GATE;
-      } else if (GROUND(i) == GR_MOAT) {
-        mt[i] = GR_GRASS;
-        if (ROAD(i) == RD_GATE) mr[i] &= ~7;
-      }
-    }
-  }
-  for (w = 0; w < 9; w++) {
-    for (s = 0; s < 4; s++) {
-      if (!gate_exposed(w, s)) { gate_open[w] &= ~(1 << s); continue; }
-      gate_tiles(w, s, (gate_open[w] >> s) & 1 ? RD_GATE : RD_NONE);
-    }
-  }
-  net_dirty = 1;
-}
+void rebuild_moat(void) { extern void mc_rebuild(void); call_in(BK_SIMC, mc_rebuild); }
+void complete_annex(u8 wd) { extern void mc_annex(void); arg_a = wd; call_in(BK_SIMC, mc_annex); }
 
-void complete_annex(u8 w) {
-  u8 s;
-  wards_owned |= 1 << w;
-  for (s = 0; s < 4; s++) if (gate_exposed(w, s)) gate_open[w] |= 1 << s;
-  rebuild_moat();
-  /* gatehouses whose gates are gone go with them */
-  for (s = 0; s < MAXB; s++) {
-    if (bs[s] && bt[s] == B_GATEHOUSE) {
-      u8 gw = baux[s] >> 2, gs = baux[s] & 3;
-      if (!gate_exposed(gw, gs)) remove_building(s);
-    }
-  }
-}
-
-/* ---------------------------------------------------------------- generation */
 /* ---------------------------------------------------------------- near things */
 u8 count_near(u8 cx, u8 cy, u8 r, u8 kind) {
   u8 n = 0, x, y, x0 = cx > r ? cx - r : 0, y0 = cy > r ? cy - r : 0, x1 = cx + r, y1 = cy + r;
@@ -291,3 +236,56 @@ void refresh_net(void) {
   call_in(BK_SIMC, sc_net);
 }
 
+
+/* ---------------------------------------------------------------- donut blocks */
+u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK];
+s16 blk_tax, blk_mood, blk_cap;
+
+/* a nine-by-nine plot of free ground in the realm, away from the moat */
+u8 block_ok(u8 x, u8 y) {
+  u8 i, j;
+  u16 k;
+  if (x + BLK > MAPW || y + BLK > MAPH) return 0;
+  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
+    u8 lx, ly;
+    if (!owned_at(x + i, y + j)) return 0;
+    lx = (x + i) & 15; ly = (y + j) & 15;
+    if (lx == 0 || lx == 15 || ly == 0 || ly == 15) return 0;
+    k = IDX(x + i, y + j);
+    if (GROUND(k) > GR_GRASS && GROUND(k) != GR_SAND) return 0;
+    if (mr[k] & BLD) return 0;
+  }
+  return 1;
+}
+
+u8 block_at(u8 x, u8 y) {
+  u8 b;
+  for (b = 0; b < blk_n; b++) if (x >= blk_x[b] && x < blk_x[b] + BLK && y >= blk_y[b] && y < blk_y[b] + BLK) return b;
+  return 0xFF;
+}
+
+/* how built the ring is, times how good the heart is */
+u8 block_rating(u8 b) {
+  u8 i, j, built = 0, ring = 0, heart = 0;
+  u16 k;
+  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
+    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
+    if (edge || core) continue;
+    ring++;
+    if (mr[IDX(blk_x[b] + i, blk_y[b] + j)] & BLD) built++;
+  }
+  for (j = 3; j <= 5; j++) for (i = 3; i <= 5; i++) {
+    u8 id;
+    k = IDX(blk_x[b] + i, blk_y[b] + j);
+    if (!(mr[k] & BLD)) continue;
+    id = find_building(blk_x[b] + i, blk_y[b] + j);
+    if (id == 0xFF || id == 0) continue;
+    {
+      u8 t = bt[id], q = 90;
+      if (t == B_GREEN) q = 255;
+      else if (t == B_CATHEDRAL || t == B_CHAPEL || t == B_MARKET || t == B_WELL || t == B_TAVERN || t == B_HEALER || t == B_WATCHTOWER || t == B_BARRACKS) q = 204;
+      if (q > heart) heart = q;
+    }
+  }
+  return ring ? (u8)((u16)built * heart / ring) : 0;
+}

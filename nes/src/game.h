@@ -11,7 +11,7 @@ typedef unsigned long u32;
 typedef long s32;
 
 /* ---- hardware (crt0.s) */
-extern u8 pad, padnew, frames, ppu_mask, vq_len, scrx, scry;
+extern u8 oam_busy, pad, padnew, frames, ppu_mask, vq_len, scrx, scry;
 extern u8 oam[256];
 extern u8 vq[256];
 void nmi_wait(void);
@@ -102,6 +102,9 @@ extern const u16 wbit[];
 #define TL_ZONE 2
 #define TL_BUILD 3
 #define TL_CLEAR 4
+#define TL_BLOCK 5
+#define BLK 9
+#define MAXBLK 6
 
 /* ---- banks */
 #define BK_SIMA 0
@@ -124,13 +127,18 @@ extern const char *const zone_name[];
 extern const u8 zone_cost[];
 extern const char *const month_name[];
 extern const char *const season_name[];
-u8 utoa(u16 v, char *o);
-u8 scat(char *d, u8 n, const char *s);
-u8 ncat(char *d, u8 n, u16 v);
 s16 whole_of(u8 r);
 void rebuild_moat(void);
 void burn_building(u8 id);
 extern u16 farm_fields[8];
+
+/* donut blocks: a loop of street with a ring of plots and a core */
+extern u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK];
+extern s16 blk_tax, blk_mood, blk_cap;   /* what the courtyards earn the realm this week: tax x256, mood x16, beds */
+u8 block_ok(u8 x, u8 y);
+u8 block_rating(u8 b);                  /* 0..255 */
+u8 block_at(u8 x, u8 y);                /* index or 0xFF */
+u8 block_stamp(u8 x, u8 y);             /* 0 ok, else a reason code */
 
 /* ---- state (all of it in battery WRAM) */
 extern u16 wards_owned;          /* bit w for ward wy*3+wx */
@@ -269,7 +277,8 @@ extern const u8 rank_pop[], rank_wards[], rank_castle[], rank_bld[], res_spoil[]
 extern u8 view_dirty;
 u8 cold_season(void);
 void mark(u8 x, u8 y);
-extern u16 dirty_q[16];
+void mark_rect(u8 x, u8 y, u8 w, u8 d);
+extern u16 dirty_q[48];
 extern u8 dirty_n;
 extern char chron[8][32];
 

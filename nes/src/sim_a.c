@@ -42,6 +42,23 @@ static void compute_care(void) {
     u32 v = weight ? acc[k] / weight : 0;
     care[k] = v > 255 ? 255 : (u8)v;
   }
+  /* courtyards: what a built ring around a good heart earns the realm */
+  {
+    u8 rating[MAXBLK], b;
+    u32 weighted = 0, total = 0, share;
+    for (b = 0; b < blk_n; b++) rating[b] = block_rating(b);
+    for (i = 1; i < MAXB; i++) {
+      u8 t = bt[i];
+      if (bs[i] != BS_READY || !b_cap[t]) continue;
+      total += b_cap[t];
+      b = block_at(bx[i], by[i]);
+      if (b != 0xFF) weighted += (u32)b_cap[t] * rating[b];
+    }
+    share = total ? weighted * 256 / (total * 255) : 0;
+    blk_tax = (s16)(share * 46 / 256);
+    blk_mood = (s16)(share * 7 * 16 / 256);
+    blk_cap = (s16)(weighted / 255 * 12 / 100);
+  }
 }
 
 static u8 is_foodish(u8 t) { return b_cat[t] == 2 || w_kind[t] == 2; }

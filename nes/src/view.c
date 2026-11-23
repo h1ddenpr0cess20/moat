@@ -1,7 +1,12 @@
 /* Moat for the NES: the map view, the tools and the game loop (a swappable bank). */
 #pragma code-name(push, "BANK2")
 #pragma rodata-name(push, "BANK2R")
+#define b_name b_name_v
+#define castle_name castle_name_v
+#define rank_name rank_name_v
+#define res_name res_name_v
 #include "game.h"
+#include "strutil.h"
 #ifndef TICKF
 #define TICKF 192
 #endif
@@ -215,6 +220,7 @@ void hud_update(u8 force) {
 /* ---------------------------------------------------------------- sprites: castle, cursor, smoke */
 static void draw_sprites(void) {
   u8 i, tx, ty, fw = 1, fh = 1, valid = 1, sx, sy, base;
+  oam_busy = 1;
   sprites_clear();
   /* the castle, as sixteen sprites, with a banner on its tower */
   for (ty = 0; ty < 4; ty++) for (tx = 0; tx < 4; tx++) {
@@ -239,8 +245,10 @@ static void draw_sprites(void) {
   }
   /* the cursor: a box, or the corners of the footprint to be built */
   if (tool == TL_BUILD) { fw = b_w[tsub]; fh = b_d[tsub]; valid = can_place(tsub, cx, cy, 0) && pay_ok(tsub); }
-  if (!vis(cx, cy)) return;
-  sx = (cx - vx) << 3; sy = (cy - vy + 4) << 3;
+  if (tool == TL_BLOCK) { fw = BLK; fh = BLK; valid = block_ok(cx, cy) && blk_n < MAXBLK; }
+  if (!vis(cx, cy)) { oam_busy = 0; return; }
+  sx = cx - vx; sx <<= 3;
+  sy = cy - vy; sy += 4; sy <<= 3;
   base = tool == TL_LOOK ? 0x60 : valid ? 0x40 : 0x50;
   if (fw == 1 && fh == 1) {
     spr(sx, sy, base + 4, 3);
@@ -248,6 +256,7 @@ static void draw_sprites(void) {
     spr(sx, sy, base, 3); spr(sx + (fw << 3) - 8, sy, base + 1, 3);
     spr(sx, sy + (fh << 3) - 8, base + 2, 3); spr(sx + (fw << 3) - 8, sy + (fh << 3) - 8, base + 3, 3);
   }
+  oam_busy = 0;
 }
 
 u8 cold_season(void) { return season_of(week) == 3 || season_of(week) == 2; }
@@ -289,6 +298,7 @@ static void info_line(char *o) {
       return;
     }
   }
+  { u8 b = block_at(cx, cy); if (b != 0xFF && !(mr[i] & BLD)) { n = scat(o, 0, "COURTYARD "); n = ncat(o, n, (u16)block_rating(b) * 100 / 255); scat(o, n, "% RATING"); return; } }
   if (ROAD(i) == RD_GATE) { n = scat(o, 0, "GATE. A: RAISE OR LOWER"); return; }
   if (ROAD(i)) { scat(o, 0, ROAD(i) == RD_COBBLE ? "COBBLED ROAD" : ROAD(i) == RD_BRIDGE ? "BRIDGE" : "DIRT ROAD"); return; }
   if (ZONE(i)) { n = scat(o, 0, zone_name[ZONE(i)]); n = scat(o, n, " ZONE"); return; }
@@ -306,6 +316,7 @@ void status_update(void) {
     case TL_ZONE: n = scat(buf, 0, zone_name[tsub]); n = scat(buf, n, " ZONE "); n = ncat(buf, n, zone_cost[tsub]); n = scat(buf, n, " GOLD"); break;
     case TL_BUILD: n = scat(buf, 0, b_name[tsub]); n = scat(buf, n, " "); n = ncat(buf, n, b_cg[tsub]); n = scat(buf, n, "G "); n = ncat(buf, n, b_cw[tsub]); n = scat(buf, n, "W "); n = ncat(buf, n, b_cs[tsub]); n = scat(buf, n, "S"); if (b_ci[tsub]) { n = scat(buf, n, " "); n = ncat(buf, n, b_ci[tsub]); n = scat(buf, n, "I"); } break;
     case TL_CLEAR: n = scat(buf, 0, "CLEAR"); break;
+    case TL_BLOCK: n = scat(buf, 0, "BLOCK: LOOP OF STREET AND PLOTS"); break;
   }
   text_pad(0, 26, buf, 32);
   if (msg_t) text_pad(0, 27, msgbuf, 32);
@@ -410,6 +421,16 @@ static void apply_tool(u8 first) {
       set_msg("WORK BEGINS."); msg_t = 80;
       break;
     }
+    case TL_BLOCK: {
+      u8 r;
+      if (!first) return;
+      r = block_stamp(cx, cy);
+      if (r == 1) say("NO MORE BLOCKS (SIX).");
+      else if (r == 2) say("NO ROOM: NEEDS 9X9 FREE LAND.");
+      else if (r == 3) say("NOT ENOUGH GOLD FOR THE BLOCK.");
+      else { set_msg("BLOCK LAID. PUT A HEART IN THE CORE."); msg_t = 120; snd_play(2); }
+      break;
+    }
     case TL_CLEAR: {
       if (mr[i] & BLD) { if (find_building(cx, cy) == 0) return; demolish_at(cx, cy); snd_play(8); return; }
       if (ROAD(i) && ROAD(i) != RD_GATE) {
@@ -447,6 +468,7 @@ void view_new_game(void) {
 
 void view_game(void) {
   u8 moved;
+  mus_on = 1; mus_season = season_of(week);
   redraw_view();
 #ifdef T4
   for (;;) nmi_wait();
@@ -477,6 +499,7 @@ void view_game(void) {
       if (pad & BTN_A) apply_tool(0);
       status_update();
     }
+    if (!vis(cx, cy)) { center_view(); view_dirty = 1; }
     if (padnew & BTN_A) { stroke = 1; apply_tool(1); status_update(); }
     if (!(pad & BTN_A) && stroke) { stroke = 0; if (bridge_n && GROUND(IDX(last_x, last_y)) == GR_WATER) { undo_bridge(); say("A BRIDGE MUST REACH THE FAR BANK."); } bridge_n = 0; last_x = 0xFF; }
     if (padnew & BTN_B) { call_in(BK_UI, ui_choose_tool); status_update(); }
