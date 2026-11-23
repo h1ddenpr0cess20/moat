@@ -46,7 +46,7 @@ static void menu_line(u8 x0, u8 y0, u8 w, u8 top, u8 sel, u8 k, fmt_fn fmt) {
 
 /* a list popup. returns the chosen index, or 0xFF if cancelled */
 static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
-  u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, old;
+  u8 vis_n = n > 12 ? 12 : n, h, x0, y0, top = 0, i, old, rep = 0;
   (void)w;
   w = 32; h = 16; x0 = 0; y0 = 8;    /* one frame for every popup, on whole attribute cells, so nested menus leave nothing behind */
   if (sel >= n) sel = 0;
@@ -63,8 +63,13 @@ static u8 menu(const char *title, u8 n, fmt_fn fmt, u8 sel, u8 w) {
   for (;;) {
     nmi_wait();
     old = sel;
-    if (padnew & BTN_DOWN) sel = sel + 1 >= n ? 0 : sel + 1;
-    if (padnew & BTN_UP) sel = sel == 0 ? n - 1 : sel - 1;
+    {
+      u8 fresh = padnew & (BTN_UP | BTN_DOWN), go = fresh, d = pad & (BTN_UP | BTN_DOWN);
+      if (fresh) rep = 16;
+      else if (d) { if (rep) rep--; else { rep = 4; go = d; } }
+      if (go & BTN_DOWN) sel = sel + 1 >= n ? 0 : sel + 1;
+      else if (go & BTN_UP) sel = sel == 0 ? n - 1 : sel - 1;
+    }
     if (sel != old) {
       u8 ot = top;
       if (sel < top) top = sel;
@@ -106,6 +111,7 @@ static void f_bld(u8 i, char *o) {
 
 void ui_choose_tool(void) {
   u8 t = menu("TOOLS", 6, f_tool, tool, 14);
+  view_dirty = 1;                    /* every way out of the menus repaints the map */
   if (t == 0xFF) return;
   if (t == TL_LOOK || t == TL_CLEAR || t == TL_BLOCK) { tool = t; }
   else if (t == TL_ROAD) { u8 s = menu("ROADS", 2, f_road, tsub2 & 1, 26); if (s != 0xFF) { tool = TL_ROAD; tsub = s; tsub2 = s; } }
