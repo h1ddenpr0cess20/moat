@@ -20,7 +20,7 @@ extern void ui_castle(void), ui_choose_tool(void), ui_main_menu(void);
 extern const u8 tile_pal[];
 
 static u8 msg_t;
-static u8 tick_t, sim_busy;
+u8 tick_t, sim_busy;
 static u16 held;
 static u8 rep_t;
 static u8 blink;
@@ -512,7 +512,7 @@ void view_game(void) {
       u8 quit;
       call_in(BK_UI, ui_main_menu);
       quit = ret_a;
-      if (quit) return;
+      if (quit) { while (sim_busy && !sim_step()) ; sim_busy = 0; sim_p = 0; save_flag = gameover ? 0 : 1; return; }
       status_update();
     }
     /* the world moves on */
