@@ -1,0 +1,3569 @@
+Modules list:
+-------------
+crt0.o:
+    ZEROPAGE          Offs=000000  Size=000018  Align=00001  Fill=0000
+    HEADER            Offs=000000  Size=000010  Align=00001  Fill=0000
+    OAM               Offs=000000  Size=000100  Align=00001  Fill=0000
+    VBUF              Offs=000000  Size=000100  Align=00001  Fill=0000
+    STARTUP           Offs=000000  Size=000151  Align=00001  Fill=0000
+    VECTORS           Offs=000000  Size=000006  Align=00001  Fill=0000
+    CHARS             Offs=000000  Size=004000  Align=00001  Fill=0000
+ppu.o:
+    CODE              Offs=000000  Size=000718  Align=00001  Fill=0000
+    RODATA            Offs=000000  Size=000030  Align=00001  Fill=0000
+    BSS               Offs=000000  Size=000023  Align=00001  Fill=0000
+world.o:
+    CODE              Offs=000718  Size=00176C  Align=00001  Fill=0000
+    RODATA            Offs=000030  Size=000003  Align=00001  Fill=0000
+    BSS               Offs=000023  Size=00159A  Align=00001  Fill=0000
+    SCREEN            Offs=000000  Size=0002C0  Align=00001  Fill=0000
+core.o:
+    CODE              Offs=001E84  Size=000CAA  Align=00001  Fill=0000
+    RODATA            Offs=000033  Size=0000CC  Align=00001  Fill=0000
+    BSS               Offs=0015BD  Size=00036F  Align=00001  Fill=0000
+sim_a.o:
+    BSS               Offs=00192C  Size=000070  Align=00001  Fill=0000
+    BANK0             Offs=000000  Size=00273C  Align=00001  Fill=0000
+sim_b1.o:
+    BANK1R            Offs=000000  Size=00026D  Align=00001  Fill=0000
+    BANK1             Offs=000000  Size=001B51  Align=00001  Fill=0000
+sim_b2.o:
+    BSS               Offs=00199C  Size=000009  Align=00001  Fill=0000
+    BANK4R            Offs=000000  Size=000150  Align=00001  Fill=0000
+    BANK4             Offs=000000  Size=00195D  Align=00001  Fill=0000
+sim_c.o:
+    BSS               Offs=0019A5  Size=000003  Align=00001  Fill=0000
+    BANK6R            Offs=000000  Size=000032  Align=00001  Fill=0000
+    BANK6             Offs=000000  Size=00141A  Align=00001  Fill=0000
+gen.o:
+    BANK3R            Offs=000000  Size=00002F  Align=00001  Fill=0000
+    BANK3             Offs=000000  Size=0017F8  Align=00001  Fill=0000
+view.o:
+    BSS               Offs=0019A8  Size=000049  Align=00001  Fill=0000
+    BANK2R            Offs=000000  Size=0002AD  Align=00001  Fill=0000
+    BANK2             Offs=000000  Size=002DAD  Align=00001  Fill=0000
+ui.o:
+    BSS               Offs=0019F1  Size=000014  Align=00001  Fill=0000
+    BANK5R            Offs=000000  Size=0003FB  Align=00001  Fill=0000
+    BANK5             Offs=000000  Size=002B7A  Align=00001  Fill=0000
+tables.o:
+    RODATA            Offs=0000FF  Size=000835  Align=00001  Fill=0000
+tab_a.o:
+    BANK0R            Offs=000000  Size=0004A6  Align=00001  Fill=0000
+tab_view.o:
+    BANK2R            Offs=0002AD  Size=00012C  Align=00001  Fill=0000
+tab_ui.o:
+    BANK5R            Offs=0003FB  Size=000300  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(add.o):
+    CODE              Offs=002B2E  Size=00001C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(addeqsp.o):
+    CODE              Offs=002B4A  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(addysp.o):
+    CODE              Offs=002B5B  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(and.o):
+    CODE              Offs=002B69  Size=000010  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(aslax2.o):
+    CODE              Offs=002B79  Size=00000B  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(aslax3.o):
+    CODE              Offs=002B84  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(aslax4.o):
+    CODE              Offs=002B92  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asleax1.o):
+    CODE              Offs=002BA3  Size=00000C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asleax2.o):
+    CODE              Offs=002BAF  Size=000013  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asleax3.o):
+    CODE              Offs=002BC2  Size=00001A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asleax4.o):
+    CODE              Offs=002BDC  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asr.o):
+    CODE              Offs=002BED  Size=00003C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asrax1.o):
+    CODE              Offs=002C29  Size=00000A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asrax2.o):
+    CODE              Offs=002C33  Size=00000F  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asrax4.o):
+    CODE              Offs=002C42  Size=000019  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asreax1.o):
+    CODE              Offs=002C5B  Size=000010  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asreax2.o):
+    CODE              Offs=002C6B  Size=000019  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asreax3.o):
+    CODE              Offs=002C84  Size=000022  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(asreax4.o):
+    CODE              Offs=002CA6  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(axlong.o):
+    CODE              Offs=002CBB  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(bneg.o):
+    CODE              Offs=002CC8  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(call.o):
+    CODE              Offs=002CD6  Size=000007  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp1.o):
+    CODE              Offs=002CDD  Size=000009  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp2.o):
+    CODE              Offs=002CE6  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp3.o):
+    CODE              Offs=002CF3  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp4.o):
+    CODE              Offs=002D00  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp5.o):
+    CODE              Offs=002D0D  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp6.o):
+    CODE              Offs=002D1A  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp7.o):
+    CODE              Offs=002D27  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(decsp8.o):
+    CODE              Offs=002D34  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(div.o):
+    CODE              Offs=002D41  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(icmp.o):
+    CODE              Offs=002D56  Size=00002E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp1.o):
+    CODE              Offs=002D84  Size=000007  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp2.o):
+    CODE              Offs=002D8B  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp3.o):
+    CODE              Offs=002DA1  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp4.o):
+    CODE              Offs=002DA6  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp5.o):
+    CODE              Offs=002DAB  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp6.o):
+    CODE              Offs=002DB0  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp7.o):
+    CODE              Offs=002DB5  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(incsp8.o):
+    CODE              Offs=002DBA  Size=000005  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(jmpvec.o):
+    DATA              Offs=000000  Size=000003  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ladd.o):
+    CODE              Offs=002DBF  Size=000025  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(laddeq.o):
+    CODE              Offs=002DE4  Size=00002D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(laddeqsp.o):
+    CODE              Offs=002E11  Size=000023  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(land.o):
+    CODE              Offs=002E34  Size=000024  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lbneg.o):
+    CODE              Offs=002E58  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lcmp.o):
+    CODE              Offs=002E69  Size=00003B  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ldeaxi.o):
+    CODE              Offs=002EA4  Size=000017  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ldeaxysp.o):
+    CODE              Offs=002EBB  Size=000013  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ldec.o):
+    CODE              Offs=002ECE  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ldiv.o):
+    CODE              Offs=002EE3  Size=00001C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lge.o):
+    CODE              Offs=002EFF  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lgt.o):
+    CODE              Offs=002F05  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(linc.o):
+    CODE              Offs=002F0B  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(llt.o):
+    CODE              Offs=002F1C  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lmul.o):
+    CODE              Offs=002F22  Size=00005C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lneg.o):
+    CODE              Offs=002F7E  Size=00001E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lpush.o):
+    CODE              Offs=002F9C  Size=000021  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lshelp.o):
+    CODE              Offs=002FBD  Size=000052  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lsub.o):
+    CODE              Offs=00300F  Size=000027  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lsubeq.o):
+    CODE              Offs=003036  Size=000031  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lsubeqsp.o):
+    CODE              Offs=003067  Size=000027  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ltest.o):
+    CODE              Offs=00308E  Size=00000F  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ludiv.o):
+    CODE              Offs=00309D  Size=00007A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(luge.o):
+    CODE              Offs=003117  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lugt.o):
+    CODE              Offs=00311D  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(lult.o):
+    CODE              Offs=003123  Size=000006  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(makebool.o):
+    CODE              Offs=003129  Size=00002C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mul.o):
+    CODE              Offs=003155  Size=000045  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mul8.o):
+    CODE              Offs=00319A  Size=00003A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax10.o):
+    CODE              Offs=0031D4  Size=000019  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax3.o):
+    CODE              Offs=0031ED  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax5.o):
+    CODE              Offs=0031FE  Size=000014  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax6.o):
+    CODE              Offs=003212  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax7.o):
+    CODE              Offs=003228  Size=000019  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(mulax9.o):
+    CODE              Offs=003241  Size=000017  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(negabs.o):
+    CODE              Offs=003258  Size=000012  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(or.o):
+    CODE              Offs=00326A  Size=000012  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(popptr1.o):
+    CODE              Offs=00327C  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(pusha.o):
+    CODE              Offs=00328A  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(pushax.o):
+    CODE              Offs=0032A0  Size=00001A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(pushwsp.o):
+    CODE              Offs=0032BA  Size=00001C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(return0.o):
+    CODE              Offs=0032D6  Size=000004  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shelp.o):
+    CODE              Offs=0032DA  Size=000020  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shl.o):
+    CODE              Offs=0032FA  Size=000033  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shr.o):
+    CODE              Offs=00332D  Size=000034  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shrax1.o):
+    CODE              Offs=003361  Size=000008  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shrax2.o):
+    CODE              Offs=003369  Size=00000B  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shrax3.o):
+    CODE              Offs=003374  Size=00000E  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shreax1.o):
+    CODE              Offs=003382  Size=00000C  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shreax2.o):
+    CODE              Offs=00338E  Size=000013  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(shreax4.o):
+    CODE              Offs=0033A1  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(staspidx.o):
+    CODE              Offs=0033B2  Size=000016  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(staxsp.o):
+    CODE              Offs=0033C8  Size=00000B  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(staxspi.o):
+    CODE              Offs=0033D3  Size=00001B  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(steaxsp.o):
+    CODE              Offs=0033EE  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(steaxspi.o):
+    CODE              Offs=003403  Size=000022  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(sub.o):
+    CODE              Offs=003425  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(subeqsp.o):
+    CODE              Offs=00343A  Size=000015  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(subysp.o):
+    CODE              Offs=00344F  Size=00000D  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(toslong.o):
+    CODE              Offs=00345C  Size=000038  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(udiv.o):
+    CODE              Offs=003494  Size=00004F  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ugt.o):
+    CODE              Offs=0034E3  Size=00000A  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(ult.o):
+    CODE              Offs=0034ED  Size=000008  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(umod.o):
+    CODE              Offs=0034F5  Size=000011  Align=00001  Fill=0000
+/usr/share/cc65/lib/none.lib(zeropage.o):
+    ZEROPAGE          Offs=000018  Size=00001A  Align=00001  Fill=0000
+
+
+Segment list:
+-------------
+Name                   Start     End    Size  Align
+----------------------------------------------------
+CHARS                 000000  003FFF  004000  00001
+HEADER                000000  00000F  000010  00001
+ZEROPAGE              000002  000033  000032  00001
+OAM                   000200  0002FF  000100  00001
+VBUF                  000300  0003FF  000100  00001
+SCREEN                000400  0006BF  0002C0  00001
+DATA                  006000  006002  000003  00001
+BSS                   006003  007A07  001A05  00001
+BANK0                 008000  00A73B  00273C  00001
+BANK1                 008000  009B50  001B51  00001
+BANK2                 008000  00ADAC  002DAD  00001
+BANK3                 008000  0097F7  0017F8  00001
+BANK4                 008000  00995C  00195D  00001
+BANK5                 008000  00AB79  002B7A  00001
+BANK6                 008000  009419  00141A  00001
+BANK6R                00941A  00944B  000032  00001
+BANK3R                0097F8  009826  00002F  00001
+BANK4R                00995D  009AAC  000150  00001
+BANK1R                009B51  009DBD  00026D  00001
+BANK0R                00A73C  00ABE1  0004A6  00001
+BANK5R                00AB7A  00B274  0006FB  00001
+BANK2R                00ADAD  00B185  0003D9  00001
+STARTUP               00C000  00C150  000151  00001
+CODE                  00C151  00F656  003506  00001
+RODATA                00F657  00FF8A  000934  00001
+VECTORS               00FFFA  00FFFF  000006  00001
+
+
+Exports list by name:
+---------------------
+__STACKTOP__              000800 REA    __STARTUP__               000001 REA    
+_adjacent_road            00D268 RLA    _arg_a                    0075C0 RLA    
+_arg_b                    0075C1 RLA    _arg_c                    0075C2 RLA    
+_b_art                    00B05A RLA    _b_auto                   00F9A9 RLA    
+_b_cap                    00F91D RLA    _b_cat                    00F986 RLA    
+_b_cg                     00F86E RLA    _b_ci                     00F828 RLA    
+_b_crew                   00F8D7 RLA    _b_cs                     00F7E2 RLA    
+_b_cw                     00F79C RLA    _b_d                      00F779 RLA    
+_b_def                    00FB07 RLA    _b_jobs                   00F8FA RLA    
+_b_level                  00F9CC RLA    _b_name                   00FD61 RLA    
+_b_off                    00B140 RLA    _b_rank                   00F9EF RLA    
+_b_shop                   00F963 RLA    _b_trade                  00FB2A RLA    
+_b_upk                    00F940 RLA    _b_w                      00F756 RLA    
+_b_weeks                  00F8B4 RLA    _bacc                     00754D RLA    
+_baux                     007515 RLA    _bef                      0074A5 RLA    
+_bfl                      0074DD RLA    _bldg_of_type             00DB7C RLA    
+_bprog                    007435 RLA    _bs                       0073FD RLA    
+_bt                       007355 RLA    _bwk                      00746D RLA    
+_bx                       00738D RLA    _by                       0073C5 RLA    
+_call_in                  00DFD5 RLA    _can_place                00CB85 RLA    
+_cap_food                 00781D RLA    _cap_goods                00781F RLA    
+_care                     007821 RLA    _castle_cost              00FB4D RLA    
+_castle_crew              00763F RLA    _castle_crews             00FB91 RLA    
+_castle_def               00FB75 RLA    _castle_jobs              00FB79 RLA    
+_castle_k                 0078A1 RLA    _castle_lvl               00763B RLA    
+_castle_name              00FBA2 RLA    _castle_plan_ok           00E7F0 RLA    
+_castle_prog              00763E RLA    _castle_rank              00FB7D RLA    
+_castle_sfood             00FB81 RLA    _castle_sgoods            00FB89 RLA    
+_castle_wards             00FB71 RLA    _castle_weeks             00FB6D RLA    
+_castle_weeks_total       007640 RLA    _castle_work              00763D RLA    
+_chron                    007715 RLA    _complete_annex           00D89B RLA    
+_conn                     007226 RLA    _count_near               00D4AE RLA    
+_coverage_at              00E889 RLA    _crewk                    00782F RLA    
+_cur_bank                 00000E RLZ    _cx                       007817 RLA    
+_cy                       007818 RLA    _demolish_at              00E786 RLA    
+_diff                     007642 RLA    _dig_crew                 007354 RLA    
+_dig_k                    00789F RLA    _dig_prog                 007353 RLA    
+_dig_ward                 007351 RLA    _dig_weeks                007352 RLA    
+_dirty_n                  007714 RLA    _dirty_q                  0076F4 RLA    
+_farm_crop                0078FB RLA    _farm_fields              0075EA RLA    
+_farm_n                   0078DB RLA    _farm_nfarms              00790B RLA    
+_farm_slot                0078A3 RLA    _fed_ahead_f              00782E RLA    
+_fill_attr_ui             00C79F RLA    _find_building            00D187 RLA    
+_flow_made                0076BF RLA    _flow_used                0076D9 RLA    
+_food_avg                 00782C RLA    _frames                   000004 RLZ    
+_gameover                 007652 RLA    _gate_exposed             00DAB8 RLA    
+_gate_open                007348 RLA    _gate_pos                 00D9F2 RLA    
+_gate_set                 00D96B RLA    _gates_all                00EAC5 RLA    
+_gen_new                  0097EC RLA    _happy                    007634 RLA    
+_happy_target             00790C RLA    _harvest_k                007643 RLA    
+_headcount                00E4E7 RLA    _health                   007636 RLA    
+_housing_cap              00E827 RLA    _inyear                   00EAB2 RLA    
+_is_water                 00D492 RLA    _jobless_q                007828 RLA    
+_last_sub                 0075E6 RLA    _last_tool                0075E5 RLA    
+_main                     00EC42 RLA    _mark                     00EB35 RLA    
+_month_name               00F6A5 RLA    _mr                       006926 RLA    
+_msg_new                  0076A3 RLA    _msgbuf                   007683 RLA    
+_mt                       006026 RLA    _mus_season               000013 RLZ    
+_ncat                     00E14C RLA    _net_dirty                0075BF RLA    
+_next_merchant            007647 RLA    _next_raid                007645 RLA    
+_nmi_wait                 00C0BE RLA    _note                     00E503 RLA    
+_ntfill                   00C742 RLA    _oam                      000200 RLA    
+_owned_at                 00CB0F RLA    _owned_count              00CB50 RLA    
+_pad                      000002 RLZ    _padnew                   000003 RLZ    
+_paused                   00781C RLA    _pay_cost                 00E6BC RLA    
+_pay_ok                   00E60C RLA    _pk_x                     0076BD RLA    
+_pk_y                     0076BE RLA    _place_building           00CEC4 RLA    
+_place_player             00E75C RLA    _plague                   00764A RLA    
+_plan_annex_ok            00E7A5 RLA    _pop_a                    007630 RLA    
+_pop_c                    00762E RLA    _pop_e                    007632 RLA    
+_ppu_mask                 000005 RLZ    _ppu_off                  00C151 RLA    
+_ppu_on                   00C15F RLA    _prices                   00FB95 RLA    
+_r_cap                    007680 RLA    _r_employed               007675 RLA    
+_r_food                   00767C RLA    _r_foodsat                007679 RLA    
+_r_fuelsat                00767A RLA    _r_idle                   007677 RLA    
+_r_income                 00766D RLA    _r_taxes                  00766F RLA    
+_r_upkeep                 007671 RLA    _r_variety                00767B RLA    
+_r_workforce              007673 RLA    _raid_gate                007649 RLA    
+_raids_bought             007651 RLA    _raids_lost               007650 RLA    
+_raids_won                00764F RLA    _rank                     00763A RLA    
+_rank_bld                 00FBDD RLA    _rank_castle              00FBD8 RLA    
+_rank_name                00FBAA RLA    _rank_pop                 00FBCE RLA    
+_rank_wards               00FBD3 RLA    _rebuild_moat             00C869 RLA    
+_refresh_net              00D480 RLA    _remove_building          00D09D RLA    
+_res_name                 00FBB4 RLA    _res_spoil                00FBE2 RLA    
+_ret_a                    0075C3 RLA    _rnd16                    00CA88 RLA    
+_rnd8                     00CA81 RLA    _rndn                     00CAD2 RLA    
+_rng                      0075BD RLA    _row_off                  00FCEF RLA    
+_sa_care                  00A739 RLA    _sa_pre                   00A72A RLA    
+_sa_work                  00A733 RLA    _save_flag                0075E7 RLA    
+_save_magic               0075E8 RLA    _sb1_events               009B3A RLA    
+_sb1_mood                 009B34 RLA    _sb1_people               009B37 RLA    
+_sb1_weather              009B31 RLA    _sb2_annex_ok             00990A RLA    
+_sb2_castle_ok            00993B RLA    _sb2_construct            0098DE RLA    
+_sb2_demolish             0098FE RLA    _sb2_grow                 0098E1 RLA    
+_sb2_place                0098E4 RLA    _sb2_start_annex          009935 RLA    
+_sb2_start_castle         00995A RLA    _sbuf                     000400 RLA    
+_sc_consume               009031 RLA    _sc_money                 009034 RLA    
+_sc_net                   009037 RLA    _scat                     00E0DC RLA    
+_season_of                00EA9A RLA    _set_bank                 00C0A8 RLA    
+_set_chr                  00C094 RLA    _set_palettes             00C510 RLA    
+_set_road                 00D6EF RLA    _set_title_palettes       00C626 RLA    
+_set_zone                 00D757 RLA    _shock                    00764B RLA    
+_sim_p                    007682 RLA    _sim_prime                00E484 RLA    
+_sim_step                 00E1D2 RLA    _snd_play                 00C14F RLA    
+_speed                    00781B RLA    _spr                      00C675 RLA    
+_sprites_clear            00C644 RLA    _st_food                  00AB56 RLA    
+_st_goods                 00AB9C RLA    _start_annex              00E7D7 RLA    
+_start_castle             00E81B RLA    _stock                    0075FA RLA    
+_sv_k                     00FA12 RLA    _sv_k2                    00FA58 RLA    
+_sv_r                     00FA9E RLA    _sv_v                     00FA35 RLA    
+_sv_v2                    00FA7B RLA    _svc_i                    0076A5 RLA    
+_svc_n                    0076A4 RLA    _svc_rebuild              00EA35 RLA    
+_takings                  00764D RLA    _tax                      00763C RLA    
+_text_n                   00C390 RLA    _text_pad                 00C450 RLA    
+_tile_ok_zone             00D7BD RLA    _tile_pal                 00FBEF RLA    
+_title_attr               00B235 RLA    _title_map                00AF75 RLA    
+_tool                     007819 RLA    _trade_buy                007660 RLA    
+_trade_sell               007653 RLA    _tsub                     00781A RLA    
+_tsub2                    0075E4 RLA    _ui_castle                009FD6 RLA    
+_ui_choose_tool           0088BC RLA    _ui_main_menu             00AA7F RLA    
+_ui_title                 00A756 RLA    _utoa                     00DFFA RLA    
+_view_dirty               0076F3 RLA    _view_game                00AA55 RLA    
+_view_new_game            00AA18 RLA    _vq                       000300 RLA    
+_vq_byte                  00C28A RLA    _vq_len                   000006 RLZ    
+_vram_adr                 00C2B9 RLA    _vx                       007815 RLA    
+_vy                       007816 RLA    _w_from                   00A7C8 RLA    
+_w_fuel                   00A831 RLA    _w_i0a                    00A926 RLA    
+_w_i0r                    00A903 RLA    _w_i1a                    00A98F RLA    
+_w_i1r                    00A96C RLA    _w_kind                   00A73C RLA    
+_w_o0a                    00A9F8 RLA    _w_o0r                    00A9D5 RLA    
+_w_rad                    00A7EB RLA    _w_rate                   00A782 RLA    
+_w_res                    00A75F RLA    _w_season                 00A877 RLA    
+_w_tools                  00A80E RLA    _w_yg                     00AA3E RLA    
+_w_ym                     00AACA RLA    _w_yp                     00AA84 RLA    
+_w_yw                     00AB10 RLA    _wards_owned              007346 RLA    
+_wbit                     00FD4F RLA    _week                     007638 RLA    
+_whole_of                 00E176 RLA    _whybuf                   0075C4 RLA    
+_winter_k                 007644 RLA    _zone_cost                00F69C RLA    
+_zone_name                00F68A RLA    addeq0sp                  00EC9B RLA    
+addeqysp                  00EC9D RLA    addysp                    00ECAD RLA    
+addysp1                   00ECAC RLA    aslax2                    00ECCA RLA    
+aslax3                    00ECD5 RLA    aslax4                    00ECE3 RLA    
+aslaxy                    00F452 RLA    asleax1                   00ECF4 RLA    
+asleax2                   00ED00 RLA    asleax3                   00ED13 RLA    
+asleax4                   00ED2D RLA    asrax1                    00ED7A RLA    
+asrax2                    00ED84 RLA    asrax4                    00ED93 RLA    
+asreax1                   00EDAC RLA    asreax2                   00EDBC RLA    
+asreax3                   00EDD5 RLA    asreax4                   00EDF7 RLA    
+axlong                    00EE0C RLA    bnega                     00EE1D RLA    
+bnegeax                   00EFA9 RLA    booleq                    00F280 RLA    
+boolge                    00F291 RLA    boolgt                    00F28F RLA    
+boollt                    00F289 RLA    boolne                    00F27A RLA    
+booluge                   00F2A1 RLA    boolugt                   00F29F RLA    
+boolult                   00F299 RLA    callax                    00EE27 RLA    
+deceaxy                   00F01F RLA    decsp1                    00EE2E RLA    
+decsp2                    00EE37 RLA    decsp3                    00EE44 RLA    
+decsp4                    00EE51 RLA    decsp5                    00EE5E RLA    
+decsp6                    00EE6B RLA    decsp7                    00EE78 RLA    
+decsp8                    00EE85 RLA    getlop                    00F1FF RLA    
+inceaxy                   00F05C RLA    incsp1                    00EED5 RLA    
+incsp2                    00EEE4 RLA    incsp3                    00EEF2 RLA    
+incsp4                    00EEF7 RLA    incsp5                    00EEFC RLA    
+incsp6                    00EF01 RLA    incsp7                    00EF06 RLA    
+incsp8                    00EF0B RLA    jmpvec                    006000 RLA    
+laddeq                    00EF3D RLA    laddeq0sp                 00EF62 RLA    
+laddeqysp                 00EF64 RLA    ldeax0sp                  00F00C RLA    
+ldeaxi                    00EFF5 RLA    ldeaxysp                  00F00E RLA    
+lsubeq                    00F18F RLA    lsubeqysp                 00F1BA RLA    
+mul8x16                   00F2ED RLA    mul8x16a                  00F2F7 RLA    
+mulax10                   00F325 RLA    mulax3                    00F33E RLA    
+mulax5                    00F34F RLA    mulax6                    00F363 RLA    
+mulax7                    00F379 RLA    mulax9                    00F392 RLA    
+negax                     00F3AD RLA    negeax                    00F0CF RLA    
+popax                     00EEDC RLA    poplsargs                 00F10E RLA    
+popptr1                   00F3CD RLA    popsargsudiv16            00F42B RLA    
+ptr1                      000022 RLZ    ptr2                      000024 RLZ    
+ptr3                      000026 RLZ    ptr4                      000028 RLZ    
+push0                     00F3F1 RLA    push0ax                   00F0F0 RLA    
+pusha                     00F3DF RLA    pusha0                    00F3F3 RLA    
+pushax                    00F3F5 RLA    pusheax                   00F0F6 RLA    
+pushl0                    00F0ED RLA    pushw0sp                  00F40B RLA    
+pushwysp                  00F40D RLA    regsave                   00001E RLZ    
+return0                   00F427 RLA    shlax2                    00ECCA RLA    
+shlax3                    00ECD5 RLA    shlax4                    00ECE3 RLA    
+shleax1                   00ECF4 RLA    shleax2                   00ED00 RLA    
+shleax4                   00ED2D RLA    shrax1                    00F4B2 RLA    
+shrax2                    00F4BA RLA    shrax3                    00F4C5 RLA    
+shraxy                    00F485 RLA    shreax1                   00F4D3 RLA    
+shreax2                   00F4DF RLA    shreax4                   00F4F2 RLA    
+sp                        00001A RLZ    sreg                      00001C RLZ    
+staspidx                  00F503 RLA    stax0sp                   00F519 RLA    
+staxspidx                 00F524 RLA    staxysp                   00F51B RLA    
+steax0sp                  00F53F RLA    steaxspidx                00F554 RLA    
+steaxysp                  00F541 RLA    subeqysp                  00F58D RLA    
+subysp                    00F5A0 RLA    tmp1                      00002A RLZ    
+tmp2                      00002B RLZ    tmp3                      00002C RLZ    
+tmp4                      00002D RLZ    tosadd0ax                 00EF10 RLA    
+tosadda0                  00EC7F RLA    tosaddax                  00EC81 RLA    
+tosaddeax                 00EF16 RLA    tosand0ax                 00EF85 RLA    
+tosandax                  00ECBC RLA    tosasrax                  00ED3E RLA    
+tosdiv0ax                 00F034 RLA    tosdiva0                  00EE92 RLA    
+tosdiveax                 00F03A RLA    tosgeeax                  00F050 RLA    
+tosgteax                  00F056 RLA    tosicmp                   00EEA9 RLA    
+tosicmp0                  00EEA7 RLA    toslcmp                   00EFBA RLA    
+toslong                   00F5CB RLA    toslteax                  00F06D RLA    
+tosmul0ax                 00F073 RLA    tosmula0                  00F2EB RLA    
+tosmulax                  00F2A6 RLA    tosmuleax                 00F079 RLA    
+tosorax                   00F3BD RLA    tosshrax                  00F47E RLA    
+tossub0ax                 00F160 RLA    tossuba0                  00F576 RLA    
+tossubax                  00F578 RLA    tossubeax                 00F166 RLA    
+tosudiv0ax                00F1EE RLA    tosudiva0                 00F5E5 RLA    
+tosudivax                 00F5E7 RLA    tosudiveax                00F1F4 RLA    
+tosugeeax                 00F268 RLA    tosugtax                  00F638 RLA    
+tosugteax                 00F26E RLA    tosulong                  00F5AD RLA    
+tosultax                  00F640 RLA    tosulteax                 00F274 RLA    
+tosumoda0                 00F646 RLA    tosumul0ax                00F073 RLA    
+tosumula0                 00F2EB RLA    tosumulax                 00F2A6 RLA    
+tosumuleax                00F079 RLA    tsteax                    00F1DF RLA    
+udiv16                    00F5F6 RLA    udiv32                    00F223 RLA    
+utsteax                   00F1DF RLA    
+
+
+Exports list by value:
+----------------------
+__STARTUP__               000001 REA    _pad                      000002 RLZ    
+_padnew                   000003 RLZ    _frames                   000004 RLZ    
+_ppu_mask                 000005 RLZ    _vq_len                   000006 RLZ    
+_cur_bank                 00000E RLZ    _mus_season               000013 RLZ    
+sp                        00001A RLZ    sreg                      00001C RLZ    
+regsave                   00001E RLZ    ptr1                      000022 RLZ    
+ptr2                      000024 RLZ    ptr3                      000026 RLZ    
+ptr4                      000028 RLZ    tmp1                      00002A RLZ    
+tmp2                      00002B RLZ    tmp3                      00002C RLZ    
+tmp4                      00002D RLZ    _oam                      000200 RLA    
+_vq                       000300 RLA    _sbuf                     000400 RLA    
+__STACKTOP__              000800 REA    jmpvec                    006000 RLA    
+_mt                       006026 RLA    _mr                       006926 RLA    
+_conn                     007226 RLA    _wards_owned              007346 RLA    
+_gate_open                007348 RLA    _dig_ward                 007351 RLA    
+_dig_weeks                007352 RLA    _dig_prog                 007353 RLA    
+_dig_crew                 007354 RLA    _bt                       007355 RLA    
+_bx                       00738D RLA    _by                       0073C5 RLA    
+_bs                       0073FD RLA    _bprog                    007435 RLA    
+_bwk                      00746D RLA    _bef                      0074A5 RLA    
+_bfl                      0074DD RLA    _baux                     007515 RLA    
+_bacc                     00754D RLA    _rng                      0075BD RLA    
+_net_dirty                0075BF RLA    _arg_a                    0075C0 RLA    
+_arg_b                    0075C1 RLA    _arg_c                    0075C2 RLA    
+_ret_a                    0075C3 RLA    _whybuf                   0075C4 RLA    
+_tsub2                    0075E4 RLA    _last_tool                0075E5 RLA    
+_last_sub                 0075E6 RLA    _save_flag                0075E7 RLA    
+_save_magic               0075E8 RLA    _farm_fields              0075EA RLA    
+_stock                    0075FA RLA    _pop_c                    00762E RLA    
+_pop_a                    007630 RLA    _pop_e                    007632 RLA    
+_happy                    007634 RLA    _health                   007636 RLA    
+_week                     007638 RLA    _rank                     00763A RLA    
+_castle_lvl               00763B RLA    _tax                      00763C RLA    
+_castle_work              00763D RLA    _castle_prog              00763E RLA    
+_castle_crew              00763F RLA    _castle_weeks_total       007640 RLA    
+_diff                     007642 RLA    _harvest_k                007643 RLA    
+_winter_k                 007644 RLA    _next_raid                007645 RLA    
+_next_merchant            007647 RLA    _raid_gate                007649 RLA    
+_plague                   00764A RLA    _shock                    00764B RLA    
+_takings                  00764D RLA    _raids_won                00764F RLA    
+_raids_lost               007650 RLA    _raids_bought             007651 RLA    
+_gameover                 007652 RLA    _trade_sell               007653 RLA    
+_trade_buy                007660 RLA    _r_income                 00766D RLA    
+_r_taxes                  00766F RLA    _r_upkeep                 007671 RLA    
+_r_workforce              007673 RLA    _r_employed               007675 RLA    
+_r_idle                   007677 RLA    _r_foodsat                007679 RLA    
+_r_fuelsat                00767A RLA    _r_variety                00767B RLA    
+_r_food                   00767C RLA    _r_cap                    007680 RLA    
+_sim_p                    007682 RLA    _msgbuf                   007683 RLA    
+_msg_new                  0076A3 RLA    _svc_n                    0076A4 RLA    
+_svc_i                    0076A5 RLA    _pk_x                     0076BD RLA    
+_pk_y                     0076BE RLA    _flow_made                0076BF RLA    
+_flow_used                0076D9 RLA    _view_dirty               0076F3 RLA    
+_dirty_q                  0076F4 RLA    _dirty_n                  007714 RLA    
+_chron                    007715 RLA    _vx                       007815 RLA    
+_vy                       007816 RLA    _cx                       007817 RLA    
+_cy                       007818 RLA    _tool                     007819 RLA    
+_tsub                     00781A RLA    _speed                    00781B RLA    
+_paused                   00781C RLA    _cap_food                 00781D RLA    
+_cap_goods                00781F RLA    _care                     007821 RLA    
+_jobless_q                007828 RLA    _food_avg                 00782C RLA    
+_fed_ahead_f              00782E RLA    _crewk                    00782F RLA    
+_dig_k                    00789F RLA    _castle_k                 0078A1 RLA    
+_farm_slot                0078A3 RLA    _farm_n                   0078DB RLA    
+_farm_crop                0078FB RLA    _farm_nfarms              00790B RLA    
+_happy_target             00790C RLA    _ui_choose_tool           0088BC RLA    
+_sc_consume               009031 RLA    _sc_money                 009034 RLA    
+_sc_net                   009037 RLA    _gen_new                  0097EC RLA    
+_sb2_construct            0098DE RLA    _sb2_grow                 0098E1 RLA    
+_sb2_place                0098E4 RLA    _sb2_demolish             0098FE RLA    
+_sb2_annex_ok             00990A RLA    _sb2_start_annex          009935 RLA    
+_sb2_castle_ok            00993B RLA    _sb2_start_castle         00995A RLA    
+_sb1_weather              009B31 RLA    _sb1_mood                 009B34 RLA    
+_sb1_people               009B37 RLA    _sb1_events               009B3A RLA    
+_ui_castle                009FD6 RLA    _sa_pre                   00A72A RLA    
+_sa_work                  00A733 RLA    _sa_care                  00A739 RLA    
+_w_kind                   00A73C RLA    _ui_title                 00A756 RLA    
+_w_res                    00A75F RLA    _w_rate                   00A782 RLA    
+_w_from                   00A7C8 RLA    _w_rad                    00A7EB RLA    
+_w_tools                  00A80E RLA    _w_fuel                   00A831 RLA    
+_w_season                 00A877 RLA    _w_i0r                    00A903 RLA    
+_w_i0a                    00A926 RLA    _w_i1r                    00A96C RLA    
+_w_i1a                    00A98F RLA    _w_o0r                    00A9D5 RLA    
+_w_o0a                    00A9F8 RLA    _view_new_game            00AA18 RLA    
+_w_yg                     00AA3E RLA    _view_game                00AA55 RLA    
+_ui_main_menu             00AA7F RLA    _w_yp                     00AA84 RLA    
+_w_ym                     00AACA RLA    _w_yw                     00AB10 RLA    
+_st_food                  00AB56 RLA    _st_goods                 00AB9C RLA    
+_title_map                00AF75 RLA    _b_art                    00B05A RLA    
+_b_off                    00B140 RLA    _title_attr               00B235 RLA    
+_set_chr                  00C094 RLA    _set_bank                 00C0A8 RLA    
+_nmi_wait                 00C0BE RLA    _snd_play                 00C14F RLA    
+_ppu_off                  00C151 RLA    _ppu_on                   00C15F RLA    
+_vq_byte                  00C28A RLA    _vram_adr                 00C2B9 RLA    
+_text_n                   00C390 RLA    _text_pad                 00C450 RLA    
+_set_palettes             00C510 RLA    _set_title_palettes       00C626 RLA    
+_sprites_clear            00C644 RLA    _spr                      00C675 RLA    
+_ntfill                   00C742 RLA    _fill_attr_ui             00C79F RLA    
+_rebuild_moat             00C869 RLA    _rnd8                     00CA81 RLA    
+_rnd16                    00CA88 RLA    _rndn                     00CAD2 RLA    
+_owned_at                 00CB0F RLA    _owned_count              00CB50 RLA    
+_can_place                00CB85 RLA    _place_building           00CEC4 RLA    
+_remove_building          00D09D RLA    _find_building            00D187 RLA    
+_adjacent_road            00D268 RLA    _refresh_net              00D480 RLA    
+_is_water                 00D492 RLA    _count_near               00D4AE RLA    
+_set_road                 00D6EF RLA    _set_zone                 00D757 RLA    
+_tile_ok_zone             00D7BD RLA    _complete_annex           00D89B RLA    
+_gate_set                 00D96B RLA    _gate_pos                 00D9F2 RLA    
+_gate_exposed             00DAB8 RLA    _bldg_of_type             00DB7C RLA    
+_call_in                  00DFD5 RLA    _utoa                     00DFFA RLA    
+_scat                     00E0DC RLA    _ncat                     00E14C RLA    
+_whole_of                 00E176 RLA    _sim_step                 00E1D2 RLA    
+_sim_prime                00E484 RLA    _headcount                00E4E7 RLA    
+_note                     00E503 RLA    _pay_ok                   00E60C RLA    
+_pay_cost                 00E6BC RLA    _place_player             00E75C RLA    
+_demolish_at              00E786 RLA    _plan_annex_ok            00E7A5 RLA    
+_start_annex              00E7D7 RLA    _castle_plan_ok           00E7F0 RLA    
+_start_castle             00E81B RLA    _housing_cap              00E827 RLA    
+_coverage_at              00E889 RLA    _svc_rebuild              00EA35 RLA    
+_season_of                00EA9A RLA    _inyear                   00EAB2 RLA    
+_gates_all                00EAC5 RLA    _mark                     00EB35 RLA    
+_main                     00EC42 RLA    tosadda0                  00EC7F RLA    
+tosaddax                  00EC81 RLA    addeq0sp                  00EC9B RLA    
+addeqysp                  00EC9D RLA    addysp1                   00ECAC RLA    
+addysp                    00ECAD RLA    tosandax                  00ECBC RLA    
+aslax2                    00ECCA RLA    shlax2                    00ECCA RLA    
+aslax3                    00ECD5 RLA    shlax3                    00ECD5 RLA    
+aslax4                    00ECE3 RLA    shlax4                    00ECE3 RLA    
+asleax1                   00ECF4 RLA    shleax1                   00ECF4 RLA    
+asleax2                   00ED00 RLA    shleax2                   00ED00 RLA    
+asleax3                   00ED13 RLA    asleax4                   00ED2D RLA    
+shleax4                   00ED2D RLA    tosasrax                  00ED3E RLA    
+asrax1                    00ED7A RLA    asrax2                    00ED84 RLA    
+asrax4                    00ED93 RLA    asreax1                   00EDAC RLA    
+asreax2                   00EDBC RLA    asreax3                   00EDD5 RLA    
+asreax4                   00EDF7 RLA    axlong                    00EE0C RLA    
+bnega                     00EE1D RLA    callax                    00EE27 RLA    
+decsp1                    00EE2E RLA    decsp2                    00EE37 RLA    
+decsp3                    00EE44 RLA    decsp4                    00EE51 RLA    
+decsp5                    00EE5E RLA    decsp6                    00EE6B RLA    
+decsp7                    00EE78 RLA    decsp8                    00EE85 RLA    
+tosdiva0                  00EE92 RLA    tosicmp0                  00EEA7 RLA    
+tosicmp                   00EEA9 RLA    incsp1                    00EED5 RLA    
+popax                     00EEDC RLA    incsp2                    00EEE4 RLA    
+incsp3                    00EEF2 RLA    incsp4                    00EEF7 RLA    
+incsp5                    00EEFC RLA    incsp6                    00EF01 RLA    
+incsp7                    00EF06 RLA    incsp8                    00EF0B RLA    
+tosadd0ax                 00EF10 RLA    tosaddeax                 00EF16 RLA    
+laddeq                    00EF3D RLA    laddeq0sp                 00EF62 RLA    
+laddeqysp                 00EF64 RLA    tosand0ax                 00EF85 RLA    
+bnegeax                   00EFA9 RLA    toslcmp                   00EFBA RLA    
+ldeaxi                    00EFF5 RLA    ldeax0sp                  00F00C RLA    
+ldeaxysp                  00F00E RLA    deceaxy                   00F01F RLA    
+tosdiv0ax                 00F034 RLA    tosdiveax                 00F03A RLA    
+tosgeeax                  00F050 RLA    tosgteax                  00F056 RLA    
+inceaxy                   00F05C RLA    toslteax                  00F06D RLA    
+tosmul0ax                 00F073 RLA    tosumul0ax                00F073 RLA    
+tosmuleax                 00F079 RLA    tosumuleax                00F079 RLA    
+negeax                    00F0CF RLA    pushl0                    00F0ED RLA    
+push0ax                   00F0F0 RLA    pusheax                   00F0F6 RLA    
+poplsargs                 00F10E RLA    tossub0ax                 00F160 RLA    
+tossubeax                 00F166 RLA    lsubeq                    00F18F RLA    
+lsubeqysp                 00F1BA RLA    tsteax                    00F1DF RLA    
+utsteax                   00F1DF RLA    tosudiv0ax                00F1EE RLA    
+tosudiveax                00F1F4 RLA    getlop                    00F1FF RLA    
+udiv32                    00F223 RLA    tosugeeax                 00F268 RLA    
+tosugteax                 00F26E RLA    tosulteax                 00F274 RLA    
+boolne                    00F27A RLA    booleq                    00F280 RLA    
+boollt                    00F289 RLA    boolgt                    00F28F RLA    
+boolge                    00F291 RLA    boolult                   00F299 RLA    
+boolugt                   00F29F RLA    booluge                   00F2A1 RLA    
+tosmulax                  00F2A6 RLA    tosumulax                 00F2A6 RLA    
+tosmula0                  00F2EB RLA    tosumula0                 00F2EB RLA    
+mul8x16                   00F2ED RLA    mul8x16a                  00F2F7 RLA    
+mulax10                   00F325 RLA    mulax3                    00F33E RLA    
+mulax5                    00F34F RLA    mulax6                    00F363 RLA    
+mulax7                    00F379 RLA    mulax9                    00F392 RLA    
+negax                     00F3AD RLA    tosorax                   00F3BD RLA    
+popptr1                   00F3CD RLA    pusha                     00F3DF RLA    
+push0                     00F3F1 RLA    pusha0                    00F3F3 RLA    
+pushax                    00F3F5 RLA    pushw0sp                  00F40B RLA    
+pushwysp                  00F40D RLA    return0                   00F427 RLA    
+popsargsudiv16            00F42B RLA    aslaxy                    00F452 RLA    
+tosshrax                  00F47E RLA    shraxy                    00F485 RLA    
+shrax1                    00F4B2 RLA    shrax2                    00F4BA RLA    
+shrax3                    00F4C5 RLA    shreax1                   00F4D3 RLA    
+shreax2                   00F4DF RLA    shreax4                   00F4F2 RLA    
+staspidx                  00F503 RLA    stax0sp                   00F519 RLA    
+staxysp                   00F51B RLA    staxspidx                 00F524 RLA    
+steax0sp                  00F53F RLA    steaxysp                  00F541 RLA    
+steaxspidx                00F554 RLA    tossuba0                  00F576 RLA    
+tossubax                  00F578 RLA    subeqysp                  00F58D RLA    
+subysp                    00F5A0 RLA    tosulong                  00F5AD RLA    
+toslong                   00F5CB RLA    tosudiva0                 00F5E5 RLA    
+tosudivax                 00F5E7 RLA    udiv16                    00F5F6 RLA    
+tosugtax                  00F638 RLA    tosultax                  00F640 RLA    
+tosumoda0                 00F646 RLA    _zone_name                00F68A RLA    
+_zone_cost                00F69C RLA    _month_name               00F6A5 RLA    
+_b_w                      00F756 RLA    _b_d                      00F779 RLA    
+_b_cw                     00F79C RLA    _b_cs                     00F7E2 RLA    
+_b_ci                     00F828 RLA    _b_cg                     00F86E RLA    
+_b_weeks                  00F8B4 RLA    _b_crew                   00F8D7 RLA    
+_b_jobs                   00F8FA RLA    _b_cap                    00F91D RLA    
+_b_upk                    00F940 RLA    _b_shop                   00F963 RLA    
+_b_cat                    00F986 RLA    _b_auto                   00F9A9 RLA    
+_b_level                  00F9CC RLA    _b_rank                   00F9EF RLA    
+_sv_k                     00FA12 RLA    _sv_v                     00FA35 RLA    
+_sv_k2                    00FA58 RLA    _sv_v2                    00FA7B RLA    
+_sv_r                     00FA9E RLA    _b_def                    00FB07 RLA    
+_b_trade                  00FB2A RLA    _castle_cost              00FB4D RLA    
+_castle_weeks             00FB6D RLA    _castle_wards             00FB71 RLA    
+_castle_def               00FB75 RLA    _castle_jobs              00FB79 RLA    
+_castle_rank              00FB7D RLA    _castle_sfood             00FB81 RLA    
+_castle_sgoods            00FB89 RLA    _castle_crews             00FB91 RLA    
+_prices                   00FB95 RLA    _castle_name              00FBA2 RLA    
+_rank_name                00FBAA RLA    _res_name                 00FBB4 RLA    
+_rank_pop                 00FBCE RLA    _rank_wards               00FBD3 RLA    
+_rank_castle              00FBD8 RLA    _rank_bld                 00FBDD RLA    
+_res_spoil                00FBE2 RLA    _tile_pal                 00FBEF RLA    
+_row_off                  00FCEF RLA    _wbit                     00FD4F RLA    
+_b_name                   00FD61 RLA    
+
+
+Imports list:
+-------------
+__STACKTOP__ ([linker generated]):
+    crt0.o                    src/crt0.s(9)
+__STARTUP__ (crt0.o):
+    core.o                    build/core.s(13)
+_adjacent_road (world.o):
+    sim_c.o                   build/sim_c.s(39)
+    sim_b2.o                  build/sim_b2.s(53)
+_arg_a (core.o):
+    sim_b2.o                  build/sim_b2.s(17)
+_arg_b (core.o):
+    sim_b2.o                  build/sim_b2.s(18)
+_arg_c (core.o):
+    sim_b2.o                  build/sim_b2.s(19)
+_b_art (tab_view.o):
+    view.o                    build/view.s(85)
+_b_auto (tables.o):
+    ui.o                      build/ui.s(76)
+    sim_b2.o                  build/sim_b2.s(74)
+    sim_b1.o                  build/sim_b1.s(75)
+_b_cap (tables.o):
+    view.o                    build/view.s(87)
+    sim_a.o                   build/sim_a.s(60)
+    core.o                    build/core.s(116)
+_b_cat (tables.o):
+    ui.o                      build/ui.s(75)
+    sim_b1.o                  build/sim_b1.s(74)
+    sim_a.o                   build/sim_a.s(61)
+_b_cg (tables.o):
+    ui.o                      build/ui.s(80)
+    view.o                    build/view.s(92)
+    core.o                    build/core.s(120)
+_b_ci (tables.o):
+    view.o                    build/view.s(91)
+    core.o                    build/core.s(119)
+_b_crew (tables.o):
+    sim_a.o                   build/sim_a.s(58)
+_b_cs (tables.o):
+    ui.o                      build/ui.s(79)
+    view.o                    build/view.s(90)
+    sim_b2.o                  build/sim_b2.s(78)
+    core.o                    build/core.s(118)
+_b_cw (tables.o):
+    ui.o                      build/ui.s(78)
+    view.o                    build/view.s(89)
+    sim_b2.o                  build/sim_b2.s(77)
+    core.o                    build/core.s(117)
+_b_d (tables.o):
+    view.o                    build/view.s(84)
+    gen.o                     build/gen.s(74)
+    sim_c.o                   build/sim_c.s(47)
+    sim_b2.o                  build/sim_b2.s(70)
+    sim_b1.o                  build/sim_b1.s(73)
+    sim_a.o                   build/sim_a.s(57)
+    core.o                    build/core.s(115)
+    world.o                   build/world.s(63)
+_b_def (tables.o):
+    sim_b1.o                  build/sim_b1.s(76)
+_b_jobs (tables.o):
+    view.o                    build/view.s(86)
+    sim_b2.o                  build/sim_b2.s(72)
+    sim_a.o                   build/sim_a.s(59)
+_b_level (tables.o):
+    sim_b2.o                  build/sim_b2.s(75)
+_b_name (tables.o):
+    ui.o                      build/ui.s(81)
+    view.o                    build/view.s(93)
+_b_off (tab_view.o):
+    view.o                    build/view.s(88)
+_b_rank (tables.o):
+    ui.o                      build/ui.s(77)
+    sim_b2.o                  build/sim_b2.s(76)
+_b_shop (tables.o):
+    sim_c.o                   build/sim_c.s(49)
+    sim_b2.o                  build/sim_b2.s(73)
+_b_trade (tables.o):
+    sim_b1.o                  build/sim_b1.s(77)
+_b_upk (tables.o):
+    sim_c.o                   build/sim_c.s(48)
+_b_w (tables.o):
+    view.o                    build/view.s(83)
+    gen.o                     build/gen.s(73)
+    sim_c.o                   build/sim_c.s(46)
+    sim_b2.o                  build/sim_b2.s(69)
+    sim_b1.o                  build/sim_b1.s(72)
+    sim_a.o                   build/sim_a.s(56)
+    core.o                    build/core.s(114)
+    world.o                   build/world.s(62)
+_b_weeks (tables.o):
+    sim_b2.o                  build/sim_b2.s(71)
+_bacc (world.o):
+    ui.o                      build/ui.s(32)
+    sim_b2.o                  build/sim_b2.s(33)
+    sim_a.o                   build/sim_a.s(29)
+_baux (world.o):
+    view.o                    build/view.s(44)
+    sim_b1.o                  build/sim_b1.s(22)
+    sim_a.o                   build/sim_a.s(28)
+_bef (world.o):
+    sim_c.o                   build/sim_c.s(21)
+    sim_b2.o                  build/sim_b2.s(32)
+    sim_b1.o                  build/sim_b1.s(20)
+    sim_a.o                   build/sim_a.s(26)
+_bfl (world.o):
+    view.o                    build/view.s(43)
+    sim_c.o                   build/sim_c.s(22)
+    sim_b1.o                  build/sim_b1.s(21)
+    sim_a.o                   build/sim_a.s(27)
+_bldg_of_type (world.o):
+    sim_b1.o                  build/sim_b1.s(60)
+_bprog (world.o):
+    sim_b2.o                  build/sim_b2.s(31)
+_bs (world.o):
+    view.o                    build/view.s(41)
+    gen.o                     build/gen.s(24)
+    sim_c.o                   build/sim_c.s(20)
+    sim_b2.o                  build/sim_b2.s(30)
+    sim_b1.o                  build/sim_b1.s(19)
+    sim_a.o                   build/sim_a.s(24)
+    core.o                    build/core.s(41)
+_bt (world.o):
+    view.o                    build/view.s(38)
+    gen.o                     build/gen.s(21)
+    sim_c.o                   build/sim_c.s(17)
+    sim_b2.o                  build/sim_b2.s(27)
+    sim_b1.o                  build/sim_b1.s(16)
+    sim_a.o                   build/sim_a.s(21)
+    core.o                    build/core.s(38)
+_bwk (world.o):
+    view.o                    build/view.s(42)
+    sim_a.o                   build/sim_a.s(25)
+_bx (world.o):
+    view.o                    build/view.s(39)
+    gen.o                     build/gen.s(22)
+    sim_c.o                   build/sim_c.s(18)
+    sim_b2.o                  build/sim_b2.s(28)
+    sim_b1.o                  build/sim_b1.s(17)
+    sim_a.o                   build/sim_a.s(22)
+    core.o                    build/core.s(39)
+_by (world.o):
+    view.o                    build/view.s(40)
+    gen.o                     build/gen.s(23)
+    sim_c.o                   build/sim_c.s(19)
+    sim_b2.o                  build/sim_b2.s(29)
+    sim_b1.o                  build/sim_b1.s(18)
+    sim_a.o                   build/sim_a.s(23)
+    core.o                    build/core.s(40)
+_call_in (core.o):
+    view.o                    build/view.s(22)
+    world.o                   build/world.s(18)
+_can_place (world.o):
+    view.o                    build/view.s(63)
+    gen.o                     build/gen.s(56)
+    sim_b2.o                  build/sim_b2.s(49)
+_cap_food (core.o):
+    sim_c.o                   build/sim_c.s(52)
+    sim_a.o                   build/sim_a.s(91)
+_cap_goods (core.o):
+    sim_c.o                   build/sim_c.s(53)
+    sim_a.o                   build/sim_a.s(92)
+_care (core.o):
+    sim_c.o                   build/sim_c.s(54)
+    sim_b1.o                  build/sim_b1.s(85)
+    sim_a.o                   build/sim_a.s(93)
+_castle_cost (tables.o):
+    ui.o                      build/ui.s(72)
+    sim_b2.o                  build/sim_b2.s(62)
+_castle_crew (core.o):
+    sim_b2.o                  build/sim_b2.s(41)
+    sim_a.o                   build/sim_a.s(36)
+_castle_crews (tables.o):
+    sim_b2.o                  build/sim_b2.s(82)
+_castle_def (tables.o):
+    ui.o                      build/ui.s(84)
+    sim_b1.o                  build/sim_b1.s(78)
+_castle_jobs (tables.o):
+    ui.o                      build/ui.s(85)
+    sim_c.o                   build/sim_c.s(50)
+    sim_a.o                   build/sim_a.s(87)
+_castle_k (core.o):
+    sim_b2.o                  build/sim_b2.s(88)
+    sim_a.o                   build/sim_a.s(98)
+_castle_lvl (core.o):
+    ui.o                      build/ui.s(39)
+    view.o                    build/view.s(48)
+    gen.o                     build/gen.s(33)
+    sim_c.o                   build/sim_c.s(26)
+    sim_b2.o                  build/sim_b2.s(38)
+    sim_b1.o                  build/sim_b1.s(31)
+    sim_a.o                   build/sim_a.s(34)
+_castle_name (tables.o):
+    ui.o                      build/ui.s(89)
+    view.o                    build/view.s(94)
+_castle_plan_ok (core.o):
+    ui.o                      build/ui.s(70)
+_castle_prog (core.o):
+    sim_b2.o                  build/sim_b2.s(40)
+_castle_rank (tables.o):
+    ui.o                      build/ui.s(86)
+    sim_b2.o                  build/sim_b2.s(81)
+_castle_sfood (tables.o):
+    ui.o                      build/ui.s(87)
+    sim_a.o                   build/sim_a.s(88)
+_castle_sgoods (tables.o):
+    ui.o                      build/ui.s(88)
+    sim_a.o                   build/sim_a.s(89)
+_castle_wards (tables.o):
+    ui.o                      build/ui.s(83)
+    sim_b2.o                  build/sim_b2.s(80)
+_castle_weeks (tables.o):
+    ui.o                      build/ui.s(82)
+    sim_b2.o                  build/sim_b2.s(79)
+_castle_weeks_total (core.o):
+    ui.o                      build/ui.s(42)
+    sim_b2.o                  build/sim_b2.s(42)
+_castle_work (core.o):
+    ui.o                      build/ui.s(41)
+    view.o                    build/view.s(49)
+    gen.o                     build/gen.s(35)
+    sim_b2.o                  build/sim_b2.s(39)
+    sim_a.o                   build/sim_a.s(35)
+_chron (core.o):
+    ui.o                      build/ui.s(93)
+    gen.o                     build/gen.s(75)
+_complete_annex (world.o):
+    sim_b2.o                  build/sim_b2.s(57)
+_conn (world.o):
+    gen.o                     build/gen.s(15)
+    sim_c.o                   build/sim_c.s(14)
+_count_near (world.o):
+    sim_a.o                   build/sim_a.s(44)
+_coverage_at (core.o):
+    sim_b2.o                  build/sim_b2.s(64)
+    sim_b1.o                  build/sim_b1.s(64)
+_crewk (core.o):
+    sim_b2.o                  build/sim_b2.s(86)
+    sim_a.o                   build/sim_a.s(96)
+_cur_bank (crt0.o):
+    core.o                    build/core.s(16)
+_cx (core.o):
+    view.o                    build/view.s(101)
+_cy (core.o):
+    view.o                    build/view.s(102)
+_demolish_at (core.o):
+    view.o                    build/view.s(80)
+_diff (core.o):
+    gen.o                     build/gen.s(36)
+    sim_b1.o                  build/sim_b1.s(33)
+_dig_crew (world.o):
+    sim_b2.o                  build/sim_b2.s(26)
+    sim_a.o                   build/sim_a.s(20)
+_dig_k (core.o):
+    sim_b2.o                  build/sim_b2.s(87)
+    sim_a.o                   build/sim_a.s(97)
+_dig_prog (world.o):
+    sim_b2.o                  build/sim_b2.s(25)
+_dig_ward (world.o):
+    ui.o                      build/ui.s(30)
+    gen.o                     build/gen.s(20)
+    sim_b2.o                  build/sim_b2.s(23)
+    sim_a.o                   build/sim_a.s(19)
+_dig_weeks (world.o):
+    ui.o                      build/ui.s(31)
+    sim_b2.o                  build/sim_b2.s(24)
+_dirty_n (core.o):
+    view.o                    build/view.s(98)
+_dirty_q (core.o):
+    view.o                    build/view.s(97)
+_farm_crop (core.o):
+    gen.o                     build/gen.s(77)
+    sim_a.o                   build/sim_a.s(101)
+_farm_fields (core.o):
+    view.o                    build/view.s(36)
+    sim_a.o                   build/sim_a.s(17)
+_farm_n (core.o):
+    sim_a.o                   build/sim_a.s(100)
+_farm_nfarms (core.o):
+    sim_a.o                   build/sim_a.s(102)
+_farm_slot (core.o):
+    sim_a.o                   build/sim_a.s(99)
+_fed_ahead_f (core.o):
+    sim_c.o                   build/sim_c.s(57)
+    sim_a.o                   build/sim_a.s(95)
+_fill_attr_ui (ppu.o):
+    ui.o                      build/ui.s(64)
+_find_building (world.o):
+    view.o                    build/view.s(64)
+    sim_b2.o                  build/sim_b2.s(52)
+_flow_made (core.o):
+    ui.o                      build/ui.s(73)
+    sim_c.o                   build/sim_c.s(44)
+    sim_b2.o                  build/sim_b2.s(67)
+    sim_b1.o                  build/sim_b1.s(69)
+    sim_a.o                   build/sim_a.s(54)
+_flow_used (core.o):
+    ui.o                      build/ui.s(74)
+    sim_c.o                   build/sim_c.s(45)
+    sim_b2.o                  build/sim_b2.s(68)
+    sim_b1.o                  build/sim_b1.s(70)
+    sim_a.o                   build/sim_a.s(55)
+_food_avg (core.o):
+    gen.o                     build/gen.s(76)
+    sim_c.o                   build/sim_c.s(56)
+    sim_b2.o                  build/sim_b2.s(85)
+    sim_b1.o                  build/sim_b1.s(87)
+_frames (crt0.o):
+    ui.o                      build/ui.s(15)
+    view.o                    build/view.s(15)
+    core.o                    build/core.s(14)
+_gameover (core.o):
+    view.o                    build/view.s(50)
+    gen.o                     build/gen.s(48)
+    sim_b1.o                  build/sim_b1.s(45)
+_gate_exposed (world.o):
+    view.o                    build/view.s(72)
+    sim_b1.o                  build/sim_b1.s(59)
+    core.o                    build/core.s(84)
+_gate_open (world.o):
+    view.o                    build/view.s(37)
+    gen.o                     build/gen.s(19)
+    sim_b1.o                  build/sim_b1.s(15)
+_gate_pos (world.o):
+    view.o                    build/view.s(71)
+_gate_set (world.o):
+    view.o                    build/view.s(70)
+_gates_all (core.o):
+    sim_b1.o                  build/sim_b1.s(71)
+_gen_new (gen.o):
+    core.o                    build/core.s(170)
+_happy (core.o):
+    ui.o                      build/ui.s(36)
+    view.o                    build/view.s(46)
+    gen.o                     build/gen.s(29)
+    sim_c.o                   build/sim_c.s(24)
+    sim_b2.o                  build/sim_b2.s(35)
+    sim_b1.o                  build/sim_b1.s(27)
+    sim_a.o                   build/sim_a.s(32)
+_happy_target (core.o):
+    sim_b1.o                  build/sim_b1.s(88)
+_harvest_k (core.o):
+    gen.o                     build/gen.s(37)
+    sim_b1.o                  build/sim_b1.s(34)
+    sim_a.o                   build/sim_a.s(37)
+_headcount (core.o):
+    ui.o                      build/ui.s(67)
+    view.o                    build/view.s(75)
+    sim_c.o                   build/sim_c.s(41)
+    sim_b2.o                  build/sim_b2.s(58)
+    sim_b1.o                  build/sim_b1.s(61)
+    sim_a.o                   build/sim_a.s(45)
+_health (core.o):
+    ui.o                      build/ui.s(37)
+    gen.o                     build/gen.s(30)
+    sim_b1.o                  build/sim_b1.s(28)
+_housing_cap (core.o):
+    sim_b2.o                  build/sim_b2.s(63)
+    sim_b1.o                  build/sim_b1.s(63)
+    sim_a.o                   build/sim_a.s(46)
+_inyear (core.o):
+    view.o                    build/view.s(82)
+    sim_c.o                   build/sim_c.s(43)
+    sim_b1.o                  build/sim_b1.s(68)
+    sim_a.o                   build/sim_a.s(53)
+_is_water (world.o):
+    view.o                    build/view.s(66)
+_jobless_q (core.o):
+    sim_c.o                   build/sim_c.s(55)
+    sim_b1.o                  build/sim_b1.s(86)
+    sim_a.o                   build/sim_a.s(94)
+_last_sub (core.o):
+    view.o                    build/view.s(27)
+_last_tool (core.o):
+    view.o                    build/view.s(26)
+_main (core.o):
+    crt0.o                    src/crt0.s(2)
+_mark (core.o):
+    sim_b2.o                  build/sim_b2.s(84)
+    sim_a.o                   build/sim_a.s(90)
+_month_name (core.o):
+    view.o                    build/view.s(32)
+_mr (world.o):
+    view.o                    build/view.s(20)
+    gen.o                     build/gen.s(14)
+    sim_c.o                   build/sim_c.s(13)
+    sim_b2.o                  build/sim_b2.s(15)
+    sim_a.o                   build/sim_a.s(14)
+_msg_new (core.o):
+    view.o                    build/view.s(77)
+    gen.o                     build/gen.s(69)
+_msgbuf (core.o):
+    view.o                    build/view.s(76)
+    gen.o                     build/gen.s(68)
+_mt (world.o):
+    view.o                    build/view.s(19)
+    gen.o                     build/gen.s(13)
+    sim_b2.o                  build/sim_b2.s(14)
+    sim_a.o                   build/sim_a.s(13)
+_mus_season (crt0.o):
+    view.o                    build/view.s(18)
+    core.o                    build/core.s(15)
+_ncat (core.o):
+    ui.o                      build/ui.s(27)
+    view.o                    build/view.s(34)
+_net_dirty (world.o):
+    view.o                    build/view.s(65)
+    gen.o                     build/gen.s(59)
+    sim_c.o                   build/sim_c.s(40)
+    sim_b2.o                  build/sim_b2.s(55)
+_next_merchant (core.o):
+    gen.o                     build/gen.s(40)
+    sim_b1.o                  build/sim_b1.s(37)
+_next_raid (core.o):
+    gen.o                     build/gen.s(39)
+    sim_b1.o                  build/sim_b1.s(36)
+_nmi_wait (crt0.o):
+    ui.o                      build/ui.s(16)
+    view.o                    build/view.s(16)
+    ppu.o                     build/ppu.s(17)
+_note (core.o):
+    gen.o                     build/gen.s(67)
+    sim_c.o                   build/sim_c.s(42)
+    sim_b2.o                  build/sim_b2.s(59)
+    sim_b1.o                  build/sim_b1.s(62)
+_ntfill (ppu.o):
+    ui.o                      build/ui.s(63)
+    view.o                    build/view.s(61)
+_oam (crt0.o):
+    ppu.o                     build/ppu.s(15)
+_owned_at (world.o):
+    view.o                    build/view.s(62)
+    gen.o                     build/gen.s(55)
+    sim_b2.o                  build/sim_b2.s(47)
+    sim_a.o                   build/sim_a.s(43)
+_owned_count (world.o):
+    ui.o                      build/ui.s(65)
+    sim_b2.o                  build/sim_b2.s(48)
+    sim_b1.o                  build/sim_b1.s(56)
+_pad (crt0.o):
+    ui.o                      build/ui.s(13)
+    view.o                    build/view.s(13)
+_padnew (crt0.o):
+    ui.o                      build/ui.s(14)
+    view.o                    build/view.s(14)
+_paused (core.o):
+    ui.o                      build/ui.s(97)
+    view.o                    build/view.s(106)
+_pay_cost (core.o):
+    sim_b2.o                  build/sim_b2.s(61)
+_pay_ok (core.o):
+    view.o                    build/view.s(78)
+    sim_b2.o                  build/sim_b2.s(60)
+_pk_x (core.o):
+    sim_a.o                   build/sim_a.s(50)
+_pk_y (core.o):
+    sim_a.o                   build/sim_a.s(51)
+_place_building (world.o):
+    gen.o                     build/gen.s(57)
+    sim_b2.o                  build/sim_b2.s(50)
+_place_player (core.o):
+    view.o                    build/view.s(79)
+_plague (core.o):
+    gen.o                     build/gen.s(42)
+    sim_b1.o                  build/sim_b1.s(39)
+_plan_annex_ok (core.o):
+    ui.o                      build/ui.s(68)
+_pop_a (core.o):
+    ui.o                      build/ui.s(34)
+    gen.o                     build/gen.s(27)
+    sim_b1.o                  build/sim_b1.s(25)
+    sim_a.o                   build/sim_a.s(31)
+_pop_c (core.o):
+    ui.o                      build/ui.s(33)
+    gen.o                     build/gen.s(26)
+    sim_b1.o                  build/sim_b1.s(24)
+_pop_e (core.o):
+    ui.o                      build/ui.s(35)
+    gen.o                     build/gen.s(28)
+    sim_b1.o                  build/sim_b1.s(26)
+_ppu_mask (crt0.o):
+    ppu.o                     build/ppu.s(13)
+_ppu_off (ppu.o):
+    ui.o                      build/ui.s(57)
+    view.o                    build/view.s(52)
+_ppu_on (ppu.o):
+    ui.o                      build/ui.s(58)
+    view.o                    build/view.s(53)
+_prices (tables.o):
+    sim_b1.o                  build/sim_b1.s(79)
+_r_cap (core.o):
+    ui.o                      build/ui.s(56)
+    sim_b1.o                  build/sim_b1.s(52)
+_r_employed (core.o):
+    ui.o                      build/ui.s(52)
+    sim_c.o                   build/sim_c.s(33)
+    sim_a.o                   build/sim_a.s(39)
+_r_food (core.o):
+    view.o                    build/view.s(51)
+    sim_c.o                   build/sim_c.s(37)
+    sim_b1.o                  build/sim_b1.s(51)
+_r_foodsat (core.o):
+    ui.o                      build/ui.s(54)
+    sim_c.o                   build/sim_c.s(34)
+    sim_b1.o                  build/sim_b1.s(48)
+_r_fuelsat (core.o):
+    ui.o                      build/ui.s(55)
+    sim_c.o                   build/sim_c.s(35)
+    sim_b1.o                  build/sim_b1.s(49)
+_r_idle (core.o):
+    ui.o                      build/ui.s(53)
+    sim_b2.o                  build/sim_b2.s(43)
+    sim_a.o                   build/sim_a.s(40)
+_r_income (core.o):
+    ui.o                      build/ui.s(48)
+    sim_c.o                   build/sim_c.s(30)
+_r_taxes (core.o):
+    ui.o                      build/ui.s(49)
+    sim_c.o                   build/sim_c.s(31)
+_r_upkeep (core.o):
+    ui.o                      build/ui.s(50)
+    sim_c.o                   build/sim_c.s(32)
+_r_variety (core.o):
+    sim_c.o                   build/sim_c.s(36)
+    sim_b1.o                  build/sim_b1.s(50)
+_r_workforce (core.o):
+    ui.o                      build/ui.s(51)
+    sim_a.o                   build/sim_a.s(38)
+_raid_gate (core.o):
+    gen.o                     build/gen.s(41)
+    sim_b1.o                  build/sim_b1.s(38)
+_raids_bought (core.o):
+    gen.o                     build/gen.s(47)
+    sim_b1.o                  build/sim_b1.s(44)
+_raids_lost (core.o):
+    ui.o                      build/ui.s(44)
+    gen.o                     build/gen.s(46)
+    sim_b1.o                  build/sim_b1.s(43)
+_raids_won (core.o):
+    ui.o                      build/ui.s(43)
+    gen.o                     build/gen.s(45)
+    sim_b1.o                  build/sim_b1.s(42)
+_rank (core.o):
+    ui.o                      build/ui.s(38)
+    gen.o                     build/gen.s(32)
+    sim_b2.o                  build/sim_b2.s(37)
+    sim_b1.o                  build/sim_b1.s(30)
+_rank_bld (tables.o):
+    sim_b1.o                  build/sim_b1.s(83)
+_rank_castle (tables.o):
+    sim_b1.o                  build/sim_b1.s(82)
+_rank_name (tables.o):
+    ui.o                      build/ui.s(90)
+_rank_pop (tables.o):
+    sim_b1.o                  build/sim_b1.s(80)
+_rank_wards (tables.o):
+    sim_b1.o                  build/sim_b1.s(81)
+_rebuild_moat (world.o):
+    gen.o                     build/gen.s(17)
+_refresh_net (world.o):
+    gen.o                     build/gen.s(58)
+    sim_b2.o                  build/sim_b2.s(54)
+    core.o                    build/core.s(83)
+_remove_building (world.o):
+    sim_b2.o                  build/sim_b2.s(51)
+    sim_b1.o                  build/sim_b1.s(57)
+_res_name (tables.o):
+    ui.o                      build/ui.s(91)
+_res_spoil (tables.o):
+    sim_c.o                   build/sim_c.s(51)
+_ret_a (core.o):
+    ui.o                      build/ui.s(19)
+    view.o                    build/view.s(23)
+    sim_b2.o                  build/sim_b2.s(20)
+_rnd16 (world.o):
+    sim_b1.o                  build/sim_b1.s(54)
+_rnd8 (world.o):
+    sim_b2.o                  build/sim_b2.s(44)
+    sim_b1.o                  build/sim_b1.s(53)
+_rndn (world.o):
+    gen.o                     build/gen.s(53)
+    sim_b2.o                  build/sim_b2.s(46)
+    sim_b1.o                  build/sim_b1.s(55)
+    sim_a.o                   build/sim_a.s(42)
+_rng (world.o):
+    ui.o                      build/ui.s(45)
+    gen.o                     build/gen.s(49)
+_row_off (tables.o):
+    view.o                    build/view.s(21)
+    gen.o                     build/gen.s(16)
+    sim_c.o                   build/sim_c.s(15)
+    sim_b2.o                  build/sim_b2.s(16)
+    sim_a.o                   build/sim_a.s(15)
+    world.o                   build/world.s(16)
+_sa_care (sim_a.o):
+    core.o                    build/core.s(155)
+_sa_pre (sim_a.o):
+    core.o                    build/core.s(153)
+_sa_work (sim_a.o):
+    core.o                    build/core.s(154)
+_save_flag (core.o):
+    ui.o                      build/ui.s(21)
+    view.o                    build/view.s(28)
+_save_magic (core.o):
+    ui.o                      build/ui.s(22)
+    view.o                    build/view.s(29)
+_sb1_events (sim_b1.o):
+    core.o                    build/core.s(161)
+_sb1_mood (sim_b1.o):
+    core.o                    build/core.s(159)
+_sb1_people (sim_b1.o):
+    core.o                    build/core.s(160)
+_sb1_weather (sim_b1.o):
+    core.o                    build/core.s(158)
+_sb2_annex_ok (sim_b2.o):
+    core.o                    build/core.s(166)
+_sb2_castle_ok (sim_b2.o):
+    core.o                    build/core.s(168)
+_sb2_construct (sim_b2.o):
+    core.o                    build/core.s(162)
+_sb2_demolish (sim_b2.o):
+    core.o                    build/core.s(165)
+_sb2_grow (sim_b2.o):
+    core.o                    build/core.s(163)
+_sb2_place (sim_b2.o):
+    core.o                    build/core.s(164)
+_sb2_start_annex (sim_b2.o):
+    core.o                    build/core.s(167)
+_sb2_start_castle (sim_b2.o):
+    core.o                    build/core.s(169)
+_sbuf (world.o):
+    view.o                    build/view.s(24)
+    sim_c.o                   build/sim_c.s(16)
+_sc_consume (sim_c.o):
+    core.o                    build/core.s(156)
+_sc_money (sim_c.o):
+    core.o                    build/core.s(157)
+_sc_net (sim_c.o):
+    world.o                   build/world.s(1858)
+_scat (core.o):
+    ui.o                      build/ui.s(26)
+    view.o                    build/view.s(33)
+_season_of (core.o):
+    view.o                    build/view.s(81)
+    sim_b2.o                  build/sim_b2.s(65)
+    sim_b1.o                  build/sim_b1.s(67)
+    sim_a.o                   build/sim_a.s(52)
+_set_bank (crt0.o):
+    core.o                    build/core.s(17)
+_set_chr (crt0.o):
+    ui.o                      build/ui.s(18)
+_set_palettes (ppu.o):
+    view.o                    build/view.s(58)
+_set_road (world.o):
+    view.o                    build/view.s(67)
+_set_title_palettes (ppu.o):
+    ui.o                      build/ui.s(61)
+_set_zone (world.o):
+    view.o                    build/view.s(68)
+    gen.o                     build/gen.s(60)
+    sim_b2.o                  build/sim_b2.s(56)
+    sim_b1.o                  build/sim_b1.s(58)
+_shock (core.o):
+    gen.o                     build/gen.s(43)
+    sim_b1.o                  build/sim_b1.s(40)
+_sim_p (core.o):
+    view.o                    build/view.s(74)
+_sim_prime (core.o):
+    ui.o                      build/ui.s(66)
+    gen.o                     build/gen.s(65)
+_sim_step (core.o):
+    view.o                    build/view.s(73)
+_snd_play (crt0.o):
+    ui.o                      build/ui.s(17)
+    view.o                    build/view.s(17)
+    sim_b2.o                  build/sim_b2.s(13)
+    sim_b1.o                  build/sim_b1.s(13)
+_speed (core.o):
+    ui.o                      build/ui.s(96)
+    view.o                    build/view.s(105)
+_spr (ppu.o):
+    view.o                    build/view.s(60)
+_sprites_clear (ppu.o):
+    ui.o                      build/ui.s(62)
+    view.o                    build/view.s(59)
+_st_food (tab_a.o):
+    sim_a.o                   build/sim_a.s(80)
+_st_goods (tab_a.o):
+    sim_a.o                   build/sim_a.s(81)
+_start_annex (core.o):
+    ui.o                      build/ui.s(69)
+_start_castle (core.o):
+    ui.o                      build/ui.s(71)
+_stock (core.o):
+    view.o                    build/view.s(45)
+    gen.o                     build/gen.s(25)
+    sim_c.o                   build/sim_c.s(23)
+    sim_b2.o                  build/sim_b2.s(34)
+    sim_b1.o                  build/sim_b1.s(23)
+    sim_a.o                   build/sim_a.s(30)
+_sv_k (tables.o):
+    sim_a.o                   build/sim_a.s(82)
+    core.o                    build/core.s(121)
+_sv_k2 (tables.o):
+    sim_a.o                   build/sim_a.s(84)
+    core.o                    build/core.s(123)
+_sv_r (tables.o):
+    sim_a.o                   build/sim_a.s(86)
+    core.o                    build/core.s(125)
+_sv_v (tables.o):
+    sim_a.o                   build/sim_a.s(83)
+    core.o                    build/core.s(122)
+_sv_v2 (tables.o):
+    sim_a.o                   build/sim_a.s(85)
+    core.o                    build/core.s(124)
+_svc_i (core.o):
+    sim_a.o                   build/sim_a.s(49)
+_svc_n (core.o):
+    sim_a.o                   build/sim_a.s(48)
+_svc_rebuild (core.o):
+    sim_a.o                   build/sim_a.s(47)
+_takings (core.o):
+    gen.o                     build/gen.s(44)
+    sim_c.o                   build/sim_c.s(29)
+    sim_b1.o                  build/sim_b1.s(41)
+_tax (core.o):
+    ui.o                      build/ui.s(40)
+    gen.o                     build/gen.s(34)
+    sim_c.o                   build/sim_c.s(27)
+    sim_b1.o                  build/sim_b1.s(32)
+_text_n (ppu.o):
+    view.o                    build/view.s(56)
+_text_pad (ppu.o):
+    ui.o                      build/ui.s(60)
+    view.o                    build/view.s(57)
+_tile_ok_zone (world.o):
+    view.o                    build/view.s(69)
+    gen.o                     build/gen.s(61)
+_tile_pal (tables.o):
+    view.o                    build/view.s(116)
+_title_attr (tab_ui.o):
+    ui.o                      build/ui.s(101)
+_title_map (tab_ui.o):
+    ui.o                      build/ui.s(100)
+_tool (core.o):
+    ui.o                      build/ui.s(94)
+    view.o                    build/view.s(103)
+_trade_buy (core.o):
+    ui.o                      build/ui.s(47)
+    gen.o                     build/gen.s(51)
+    sim_b1.o                  build/sim_b1.s(47)
+_trade_sell (core.o):
+    ui.o                      build/ui.s(46)
+    gen.o                     build/gen.s(50)
+    sim_b1.o                  build/sim_b1.s(46)
+_tsub (core.o):
+    ui.o                      build/ui.s(95)
+    view.o                    build/view.s(104)
+_tsub2 (core.o):
+    ui.o                      build/ui.s(20)
+    view.o                    build/view.s(25)
+_ui_castle (ui.o):
+    view.o                    build/view.s(113)
+_ui_choose_tool (ui.o):
+    view.o                    build/view.s(114)
+_ui_main_menu (ui.o):
+    view.o                    build/view.s(115)
+_ui_title (ui.o):
+    core.o                    build/core.s(173)
+_utoa (core.o):
+    ui.o                      build/ui.s(25)
+_view_dirty (core.o):
+    ui.o                      build/ui.s(92)
+    view.o                    build/view.s(95)
+    sim_b2.o                  build/sim_b2.s(83)
+    sim_b1.o                  build/sim_b1.s(84)
+_view_game (view.o):
+    core.o                    build/core.s(172)
+_view_new_game (view.o):
+    core.o                    build/core.s(171)
+_vq (crt0.o):
+    ppu.o                     build/ppu.s(16)
+_vq_byte (ppu.o):
+    view.o                    build/view.s(54)
+_vq_len (crt0.o):
+    ppu.o                     build/ppu.s(14)
+_vram_adr (ppu.o):
+    ui.o                      build/ui.s(59)
+    view.o                    build/view.s(55)
+_vx (core.o):
+    view.o                    build/view.s(99)
+_vy (core.o):
+    view.o                    build/view.s(100)
+_w_from (tab_a.o):
+    sim_a.o                   build/sim_a.s(64)
+_w_fuel (tab_a.o):
+    sim_a.o                   build/sim_a.s(72)
+_w_i0a (tab_a.o):
+    sim_a.o                   build/sim_a.s(73)
+_w_i0r (tab_a.o):
+    sim_a.o                   build/sim_a.s(68)
+_w_i1a (tab_a.o):
+    sim_a.o                   build/sim_a.s(74)
+_w_i1r (tab_a.o):
+    sim_a.o                   build/sim_a.s(69)
+_w_kind (tab_a.o):
+    sim_a.o                   build/sim_a.s(62)
+_w_o0a (tab_a.o):
+    sim_a.o                   build/sim_a.s(75)
+_w_o0r (tab_a.o):
+    sim_a.o                   build/sim_a.s(70)
+_w_rad (tab_a.o):
+    sim_a.o                   build/sim_a.s(65)
+_w_rate (tab_a.o):
+    sim_a.o                   build/sim_a.s(71)
+_w_res (tab_a.o):
+    sim_a.o                   build/sim_a.s(63)
+_w_season (tab_a.o):
+    sim_a.o                   build/sim_a.s(67)
+_w_tools (tab_a.o):
+    sim_a.o                   build/sim_a.s(66)
+_w_yg (tab_a.o):
+    sim_a.o                   build/sim_a.s(76)
+_w_ym (tab_a.o):
+    sim_a.o                   build/sim_a.s(78)
+_w_yp (tab_a.o):
+    sim_a.o                   build/sim_a.s(77)
+_w_yw (tab_a.o):
+    sim_a.o                   build/sim_a.s(79)
+_wards_owned (world.o):
+    ui.o                      build/ui.s(29)
+    gen.o                     build/gen.s(18)
+    sim_b2.o                  build/sim_b2.s(22)
+    sim_a.o                   build/sim_a.s(18)
+_wbit (tables.o):
+    sim_a.o                   build/sim_a.s(16)
+    world.o                   build/world.s(17)
+_week (core.o):
+    view.o                    build/view.s(47)
+    gen.o                     build/gen.s(31)
+    sim_c.o                   build/sim_c.s(25)
+    sim_b2.o                  build/sim_b2.s(36)
+    sim_b1.o                  build/sim_b1.s(29)
+    sim_a.o                   build/sim_a.s(33)
+_whole_of (core.o):
+    ui.o                      build/ui.s(28)
+    view.o                    build/view.s(35)
+_whybuf (core.o):
+    sim_b2.o                  build/sim_b2.s(21)
+_winter_k (core.o):
+    gen.o                     build/gen.s(38)
+    sim_c.o                   build/sim_c.s(28)
+    sim_b1.o                  build/sim_b1.s(35)
+_zone_cost (core.o):
+    ui.o                      build/ui.s(24)
+    view.o                    build/view.s(31)
+_zone_name (core.o):
+    ui.o                      build/ui.s(23)
+    view.o                    build/view.s(30)
+addeq0sp (addeqsp.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+addeqysp (addeqsp.o):
+    ui.o                      build/ui.s(6339)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+addysp (addysp.o):
+    incsp8.o                  runtime/incsp8.s(8)
+    incsp7.o                  runtime/incsp7.s(8)
+    incsp6.o                  runtime/incsp6.s(8)
+    incsp5.o                  runtime/incsp5.s(8)
+    incsp4.o                  runtime/incsp4.s(8)
+    incsp3.o                  runtime/incsp3.s(8)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+addysp1 (addysp.o):
+    sub.o                     runtime/sub.s(8)
+    or.o                      runtime/or.s(9)
+    ludiv.o                   runtime/ludiv.s(9)
+    lsub.o                    runtime/lsub.s(11)
+    lmul.o                    runtime/lmul.s(9)
+    land.o                    runtime/land.s(9)
+    ladd.o                    runtime/ladd.s(8)
+    and.o                     runtime/and.s(8)
+aslax2 (aslax2.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+aslax3 (aslax3.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    world.o                   build/world.s(3583)
+aslax4 (aslax4.o):
+    ui.o                      build/ui.s(6339)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    core.o                    build/core.s(2395)
+aslaxy (shl.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+asleax1 (asleax1.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+asleax2 (asleax2.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+asleax3 (asleax3.o):
+    sim_b2.o                  build/sim_b2.s(3737)
+asleax4 (asleax4.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+asrax1 (asrax1.o):
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+asrax2 (asrax2.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+asrax4 (asrax4.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+asreax1 (asreax1.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+asreax2 (asreax2.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+asreax3 (asreax3.o):
+    sim_a.o                   build/sim_a.s(5201)
+asreax4 (asreax4.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+axlong (axlong.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+bnega (bneg.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    world.o                   build/world.s(3583)
+bnegeax (lbneg.o):
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+booleq (makebool.o):
+    world.o                   build/world.s(3583)
+boolge (makebool.o):
+    lge.o                     runtime/lge.s(8)
+boolgt (makebool.o):
+    lgt.o                     runtime/lgt.s(8)
+boollt (makebool.o):
+    llt.o                     runtime/llt.s(8)
+boolne (makebool.o):
+    view.o                    build/view.s(6407)
+    world.o                   build/world.s(3583)
+booluge (makebool.o):
+    luge.o                    runtime/luge.s(8)
+boolugt (makebool.o):
+    ugt.o                     runtime/ugt.s(8)
+    lugt.o                    runtime/lugt.s(8)
+boolult (makebool.o):
+    ult.o                     runtime/ult.s(8)
+    lult.o                    runtime/lult.s(8)
+    sim_b1.o                  build/sim_b1.s(3648)
+callax (call.o):
+    core.o                    build/core.s(2395)
+deceaxy (ldec.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+decsp1 (decsp1.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+decsp2 (decsp2.o):
+    toslong.o                 runtime/toslong.s(8)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+decsp3 (decsp3.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+decsp4 (decsp4.o):
+    lpush.o                   runtime/lpush.s(12)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+decsp5 (decsp5.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+decsp6 (decsp6.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    gen.o                     build/gen.s(3413)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+decsp7 (decsp7.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+decsp8 (decsp8.o):
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+getlop (ludiv.o):
+    lshelp.o                  runtime/lshelp.s(11)
+inceaxy (linc.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+incsp1 (incsp1.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+incsp2 (incsp2.o):
+    staxspi.o                 runtime/staxspi.s(9)
+    staspidx.o                runtime/staspidx.s(8)
+    popptr1.o                 runtime/popptr1.s(8)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+incsp3 (incsp3.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+incsp4 (incsp4.o):
+    lcmp.o                    runtime/lcmp.s(9)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+incsp5 (incsp5.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+incsp6 (incsp6.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+incsp7 (incsp7.o):
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    ppu.o                     build/ppu.s(1260)
+incsp8 (incsp8.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+jmpvec (jmpvec.o):
+    ui.o                      build/ui.s(6339)
+laddeq (laddeq.o):
+    view.o                    build/view.s(6407)
+laddeq0sp (laddeqsp.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+laddeqysp (laddeqsp.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+ldeax0sp (ldeaxysp.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+ldeaxi (ldeaxi.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+ldeaxysp (ldeaxysp.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+lsubeq (lsubeq.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+lsubeqysp (lsubeqsp.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+mul8x16 (mul8.o):
+    mul.o                     runtime/mul.s(8)
+mul8x16a (mul8.o):
+    mul.o                     runtime/mul.s(8)
+mulax10 (mulax10.o):
+    ui.o                      build/ui.s(6339)
+mulax3 (mulax3.o):
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+mulax5 (mulax5.o):
+    view.o                    build/view.s(6407)
+    sim_b1.o                  build/sim_b1.s(3648)
+mulax6 (mulax6.o):
+    ui.o                      build/ui.s(6339)
+    sim_b1.o                  build/sim_b1.s(3648)
+mulax7 (mulax7.o):
+    view.o                    build/view.s(6407)
+    sim_b1.o                  build/sim_b1.s(3648)
+mulax9 (mulax9.o):
+    ui.o                      build/ui.s(6339)
+negax (negabs.o):
+    shelp.o                   runtime/shelp.s(11)
+    div.o                     runtime/div.s(11)
+    ui.o                      build/ui.s(6339)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+negeax (lneg.o):
+    ldiv.o                    runtime/ldiv.s(11)
+    sim_b1.o                  build/sim_b1.s(3648)
+popax (incsp2.o):
+    shr.o                     runtime/shr.s(15)
+    shl.o                     runtime/shl.s(15)
+    shelp.o                   runtime/shelp.s(11)
+    asr.o                     runtime/asr.s(15)
+poplsargs (lshelp.o):
+    ldiv.o                    runtime/ldiv.s(11)
+popptr1 (popptr1.o):
+    umod.o                    runtime/umod.s(8)
+    udiv.o                    runtime/udiv.s(9)
+    steaxspi.o                runtime/steaxspi.s(9)
+    mul8.o                    runtime/mul8.s(9)
+    mul.o                     runtime/mul.s(9)
+popsargsudiv16 (shelp.o):
+    div.o                     runtime/div.s(11)
+ptr1 (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    udiv.o                    runtime/udiv.s(10)
+    steaxspi.o                runtime/steaxspi.s(10)
+    staxspi.o                 runtime/staxspi.s(10)
+    staspidx.o                runtime/staspidx.s(9)
+    shelp.o                   runtime/shelp.s(12)
+    popptr1.o                 runtime/popptr1.s(9)
+    mulax9.o                  runtime/mulax9.s(10)
+    mulax7.o                  runtime/mulax7.s(10)
+    mulax6.o                  runtime/mulax6.s(9)
+    mulax5.o                  runtime/mulax5.s(9)
+    mulax3.o                  runtime/mulax3.s(9)
+    mulax10.o                 runtime/mulax10.s(9)
+    mul8.o                    runtime/mul8.s(10)
+    mul.o                     runtime/mul.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lsubeq.o                  runtime/lsubeq.s(12)
+    lshelp.o                  runtime/lshelp.s(12)
+    lmul.o                    runtime/lmul.s(10)
+    ldiv.o                    runtime/ldiv.s(12)
+    ldeaxi.o                  runtime/ldeaxi.s(8)
+    laddeq.o                  runtime/laddeq.s(12)
+    div.o                     runtime/div.s(12)
+    call.o                    runtime/call.s(8)
+    ui.o                      build/ui.s(11)
+    view.o                    build/view.s(11)
+    gen.o                     build/gen.s(11)
+    sim_c.o                   build/sim_c.s(11)
+    sim_b2.o                  build/sim_b2.s(11)
+    sim_b1.o                  build/sim_b1.s(11)
+    sim_a.o                   build/sim_a.s(11)
+    core.o                    build/core.s(11)
+    world.o                   build/world.s(11)
+    ppu.o                     build/ppu.s(11)
+ptr2 (zeropage.o):
+    ludiv.o                   runtime/ludiv.s(10)
+ptr3 (zeropage.o):
+    ludiv.o                   runtime/ludiv.s(10)
+    lshelp.o                  runtime/lshelp.s(12)
+    lmul.o                    runtime/lmul.s(10)
+ptr4 (zeropage.o):
+    umod.o                    runtime/umod.s(9)
+    udiv.o                    runtime/udiv.s(10)
+    shelp.o                   runtime/shelp.s(12)
+    mul8.o                    runtime/mul8.s(10)
+    mul.o                     runtime/mul.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lshelp.o                  runtime/lshelp.s(12)
+    lmul.o                    runtime/lmul.s(10)
+    linc.o                    runtime/linc.s(8)
+push0 (pushax.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    core.o                    build/core.s(2395)
+push0ax (lpush.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+pusha (pusha.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+pusha0 (pushax.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+pushax (pushax.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+pusheax (lpush.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+pushl0 (lpush.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+pushw0sp (pushwsp.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+pushwysp (pushwsp.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+regsave (zeropage.o):
+    ui.o                      build/ui.s(10)
+    view.o                    build/view.s(10)
+    sim_c.o                   build/sim_c.s(10)
+    core.o                    build/core.s(10)
+    ppu.o                     build/ppu.s(10)
+return0 (return0.o):
+    ult.o                     runtime/ult.s(8)
+shlax2 (aslax2.o):
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+shlax3 (aslax3.o):
+    view.o                    build/view.s(6407)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+shlax4 (aslax4.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+shleax1 (asleax1.o):
+    sim_a.o                   build/sim_a.s(5201)
+shleax2 (asleax2.o):
+    sim_b2.o                  build/sim_b2.s(3737)
+shleax4 (asleax4.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+shrax1 (shrax1.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+shrax2 (shrax2.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    ppu.o                     build/ppu.s(1260)
+shrax3 (shrax3.o):
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+shraxy (shr.o):
+    ui.o                      build/ui.s(6339)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    world.o                   build/world.s(3583)
+shreax1 (shreax1.o):
+    sim_a.o                   build/sim_a.s(5201)
+shreax2 (shreax2.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+shreax4 (shreax4.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+sp (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    toslong.o                 runtime/toslong.s(9)
+    subysp.o                  runtime/subysp.s(9)
+    subeqsp.o                 runtime/subeqsp.s(8)
+    sub.o                     runtime/sub.s(9)
+    steaxsp.o                 runtime/steaxsp.s(8)
+    staxspi.o                 runtime/staxspi.s(10)
+    staxsp.o                  runtime/staxsp.s(8)
+    staspidx.o                runtime/staspidx.s(9)
+    pushwsp.o                 runtime/pushwsp.s(8)
+    pushax.o                  runtime/pushax.s(8)
+    pusha.o                   runtime/pusha.s(8)
+    popptr1.o                 runtime/popptr1.s(9)
+    or.o                      runtime/or.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lsubeqsp.o                runtime/lsubeqsp.s(8)
+    lsub.o                    runtime/lsub.s(12)
+    lpush.o                   runtime/lpush.s(13)
+    lmul.o                    runtime/lmul.s(10)
+    ldeaxysp.o                runtime/ldeaxysp.s(12)
+    land.o                    runtime/land.s(10)
+    laddeqsp.o                runtime/laddeqsp.s(8)
+    ladd.o                    runtime/ladd.s(9)
+    incsp2.o                  runtime/incsp2.s(8)
+    incsp1.o                  runtime/incsp1.s(8)
+    icmp.o                    runtime/icmp.s(9)
+    decsp8.o                  runtime/decsp8.s(8)
+    decsp7.o                  runtime/decsp7.s(8)
+    decsp6.o                  runtime/decsp6.s(8)
+    decsp5.o                  runtime/decsp5.s(8)
+    decsp4.o                  runtime/decsp4.s(8)
+    decsp3.o                  runtime/decsp3.s(8)
+    decsp2.o                  runtime/decsp2.s(8)
+    decsp1.o                  runtime/decsp1.s(8)
+    and.o                     runtime/and.s(9)
+    addysp.o                  runtime/addysp.s(8)
+    addeqsp.o                 runtime/addeqsp.s(8)
+    add.o                     runtime/add.s(12)
+    ui.o                      build/ui.s(10)
+    view.o                    build/view.s(10)
+    gen.o                     build/gen.s(10)
+    sim_c.o                   build/sim_c.s(10)
+    sim_b2.o                  build/sim_b2.s(10)
+    sim_b1.o                  build/sim_b1.s(10)
+    sim_a.o                   build/sim_a.s(10)
+    core.o                    build/core.s(10)
+    world.o                   build/world.s(10)
+    ppu.o                     build/ppu.s(10)
+    crt0.o                    src/crt0.s(3)
+sreg (zeropage.o):
+    lcmp.o                    runtime/lcmp.s(10)
+    umod.o                    runtime/umod.s(9)
+    udiv.o                    runtime/udiv.s(10)
+    steaxspi.o                runtime/steaxspi.s(10)
+    steaxsp.o                 runtime/steaxsp.s(8)
+    shreax4.o                 runtime/shreax4.s(8)
+    shreax2.o                 runtime/shreax2.s(8)
+    shreax1.o                 runtime/shreax1.s(8)
+    ludiv.o                   runtime/ludiv.s(10)
+    ltest.o                   runtime/ltest.s(8)
+    lsubeqsp.o                runtime/lsubeqsp.s(8)
+    lsubeq.o                  runtime/lsubeq.s(12)
+    lsub.o                    runtime/lsub.s(12)
+    lshelp.o                  runtime/lshelp.s(12)
+    lpush.o                   runtime/lpush.s(13)
+    lneg.o                    runtime/lneg.s(11)
+    lmul.o                    runtime/lmul.s(10)
+    linc.o                    runtime/linc.s(8)
+    ldiv.o                    runtime/ldiv.s(12)
+    ldec.o                    runtime/ldec.s(9)
+    ldeaxysp.o                runtime/ldeaxysp.s(12)
+    ldeaxi.o                  runtime/ldeaxi.s(8)
+    lbneg.o                   runtime/lbneg.s(8)
+    land.o                    runtime/land.s(10)
+    laddeqsp.o                runtime/laddeqsp.s(8)
+    laddeq.o                  runtime/laddeq.s(12)
+    ladd.o                    runtime/ladd.s(9)
+    icmp.o                    runtime/icmp.s(9)
+    axlong.o                  runtime/axlong.s(9)
+    asreax4.o                 runtime/asreax4.s(8)
+    asreax3.o                 runtime/asreax3.s(8)
+    asreax2.o                 runtime/asreax2.s(8)
+    asreax1.o                 runtime/asreax1.s(8)
+    asleax4.o                 runtime/asleax4.s(8)
+    asleax3.o                 runtime/asleax3.s(8)
+    asleax2.o                 runtime/asleax2.s(8)
+    asleax1.o                 runtime/asleax1.s(8)
+    ui.o                      build/ui.s(10)
+    view.o                    build/view.s(10)
+    gen.o                     build/gen.s(10)
+    sim_c.o                   build/sim_c.s(10)
+    sim_b2.o                  build/sim_b2.s(10)
+    sim_b1.o                  build/sim_b1.s(10)
+    sim_a.o                   build/sim_a.s(10)
+    core.o                    build/core.s(10)
+    world.o                   build/world.s(10)
+staspidx (staspidx.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+    ppu.o                     build/ppu.s(1260)
+stax0sp (staxsp.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+staxspidx (staxspi.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+staxysp (staxsp.o):
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+steax0sp (steaxsp.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+steaxspidx (steaxspi.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+steaxysp (steaxsp.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+subeqysp (subeqsp.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+subysp (subysp.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tmp1 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s(10)
+    staxspi.o                 runtime/staxspi.s(10)
+    staspidx.o                runtime/staspidx.s(9)
+    shreax4.o                 runtime/shreax4.s(8)
+    shreax2.o                 runtime/shreax2.s(8)
+    shreax1.o                 runtime/shreax1.s(8)
+    shrax3.o                  runtime/shrax3.s(8)
+    shrax2.o                  runtime/shrax2.s(8)
+    shrax1.o                  runtime/shrax1.s(8)
+    shr.o                     runtime/shr.s(16)
+    shl.o                     runtime/shl.s(16)
+    shelp.o                   runtime/shelp.s(12)
+    or.o                      runtime/or.s(10)
+    mul.o                     runtime/mul.s(10)
+    ltest.o                   runtime/ltest.s(8)
+    lshelp.o                  runtime/lshelp.s(12)
+    ldiv.o                    runtime/ldiv.s(12)
+    ldec.o                    runtime/ldec.s(9)
+    lbneg.o                   runtime/lbneg.s(8)
+    land.o                    runtime/land.s(10)
+    ladd.o                    runtime/ladd.s(9)
+    div.o                     runtime/div.s(12)
+    asreax4.o                 runtime/asreax4.s(8)
+    asreax3.o                 runtime/asreax3.s(8)
+    asreax2.o                 runtime/asreax2.s(8)
+    asreax1.o                 runtime/asreax1.s(8)
+    asrax4.o                  runtime/asrax4.s(9)
+    asrax2.o                  runtime/asrax2.s(8)
+    asrax1.o                  runtime/asrax1.s(8)
+    asr.o                     runtime/asr.s(16)
+    asleax4.o                 runtime/asleax4.s(8)
+    asleax3.o                 runtime/asleax3.s(8)
+    asleax2.o                 runtime/asleax2.s(8)
+    asleax1.o                 runtime/asleax1.s(8)
+    aslax4.o                  runtime/aslax4.s(8)
+    aslax3.o                  runtime/aslax3.s(8)
+    aslax2.o                  runtime/aslax2.s(8)
+    add.o                     runtime/add.s(12)
+    ui.o                      build/ui.s(11)
+    view.o                    build/view.s(11)
+    gen.o                     build/gen.s(11)
+    sim_c.o                   build/sim_c.s(11)
+    sim_b2.o                  build/sim_b2.s(11)
+    sim_b1.o                  build/sim_b1.s(11)
+    sim_a.o                   build/sim_a.s(11)
+    core.o                    build/core.s(11)
+    world.o                   build/world.s(11)
+    ppu.o                     build/ppu.s(11)
+tmp2 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s(10)
+    shelp.o                   runtime/shelp.s(12)
+    lshelp.o                  runtime/lshelp.s(12)
+    lmul.o                    runtime/lmul.s(10)
+    ldiv.o                    runtime/ldiv.s(12)
+    div.o                     runtime/div.s(12)
+tmp3 (zeropage.o):
+    steaxspi.o                runtime/steaxspi.s(10)
+    ludiv.o                   runtime/ludiv.s(10)
+    lmul.o                    runtime/lmul.s(10)
+tmp4 (zeropage.o):
+    ludiv.o                   runtime/ludiv.s(10)
+    lmul.o                    runtime/lmul.s(10)
+tosadd0ax (ladd.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+tosadda0 (add.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+tosaddax (add.o):
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+tosaddeax (ladd.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosand0ax (land.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+tosandax (and.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+tosasrax (asr.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+tosdiv0ax (ldiv.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosdiva0 (div.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+tosdiveax (ldiv.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosgeeax (lge.o):
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+tosgteax (lgt.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosicmp (icmp.o):
+    ult.o                     runtime/ult.s(8)
+    ugt.o                     runtime/ugt.s(8)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+tosicmp0 (icmp.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+toslcmp (lcmp.o):
+    lult.o                    runtime/lult.s(8)
+    lugt.o                    runtime/lugt.s(8)
+    luge.o                    runtime/luge.s(8)
+    llt.o                     runtime/llt.s(8)
+    lgt.o                     runtime/lgt.s(8)
+    lge.o                     runtime/lge.s(8)
+toslong (toslong.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+toslteax (llt.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+tosmul0ax (lmul.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosmula0 (mul8.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+tosmulax (mul.o):
+    gen.o                     build/gen.s(3413)
+    gen.o                     build/gen.s(3413)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    world.o                   build/world.s(3583)
+tosmuleax (lmul.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+tosorax (or.o):
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+tosshrax (shr.o):
+    world.o                   build/world.s(3583)
+tossub0ax (lsub.o):
+    view.o                    build/view.s(6407)
+tossuba0 (sub.o):
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_a.o                   build/sim_a.s(5201)
+tossubax (sub.o):
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+tossubeax (lsub.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+tosudiv0ax (ludiv.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+tosudiva0 (udiv.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+tosudivax (udiv.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    gen.o                     build/gen.s(3413)
+tosudiveax (ludiv.o):
+    sim_a.o                   build/sim_a.s(5201)
+tosugeeax (luge.o):
+    sim_c.o                   build/sim_c.s(2534)
+tosugtax (ugt.o):
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+tosugteax (lugt.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_a.o                   build/sim_a.s(5201)
+tosulong (toslong.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+tosultax (ult.o):
+    sim_b2.o                  build/sim_b2.s(3737)
+tosulteax (lult.o):
+    sim_b2.o                  build/sim_b2.s(3737)
+tosumoda0 (umod.o):
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    core.o                    build/core.s(2395)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+    ppu.o                     build/ppu.s(1260)
+tosumul0ax (lmul.o):
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+    core.o                    build/core.s(2395)
+tosumula0 (mul8.o):
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    ui.o                      build/ui.s(6339)
+    view.o                    build/view.s(6407)
+    view.o                    build/view.s(6407)
+    gen.o                     build/gen.s(3413)
+    sim_c.o                   build/sim_c.s(2534)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b2.o                  build/sim_b2.s(3737)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    world.o                   build/world.s(3583)
+    world.o                   build/world.s(3583)
+tosumulax (mul.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+tosumuleax (lmul.o):
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_b1.o                  build/sim_b1.s(3648)
+    sim_a.o                   build/sim_a.s(5201)
+tsteax (ltest.o):
+    sim_a.o                   build/sim_a.s(5201)
+    sim_a.o                   build/sim_a.s(5201)
+udiv16 (udiv.o):
+    umod.o                    runtime/umod.s(8)
+    shelp.o                   runtime/shelp.s(11)
+udiv32 (ludiv.o):
+    ldiv.o                    runtime/ldiv.s(11)
+utsteax (ltest.o):
+    sim_a.o                   build/sim_a.s(5201)
+
