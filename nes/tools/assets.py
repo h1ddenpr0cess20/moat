@@ -50,7 +50,7 @@ def put(idx, name, t):
     bg[idx] = t
     if name: names[name] = idx
 
-# --- terrain (palette 0 nature: 1 foliage, 2 brown, 3 light accent;  palette 1 water: 1 glint, 2 brown (roads, planks), 3 water;  palette 3: 1 dark 2 grey 3 white)
+# --- terrain (palette 0 nature: 1 foliage, 2 brown, 3 light accent;  palette 1 water: 1 glint, 2 brown (roads, planks), 3 water;  palette 3: 1 dark 2 gray 3 white)
 put(0x00, 'grass', BLANK)
 put(0x01, 'grass2', tile_art(['........', '...1....', '..1.1...', '........', '........', '.....1..', '....1.1.', '........']))
 put(0x02, 'grass3', tile_art(['........', '........', '....3...', '...323..', '....3...', '........', '.1...1..', '........']))
@@ -251,7 +251,7 @@ def special(name, rows, pal=2):
 ART = {}
 
 def house(w, h, rmat, wmat, deco=None):
-    """A gabled front: a roof row (or two), then wall rows with windows and one door. Stone buildings are slate over stone, in the grey palette."""
+    """A gabled front: a roof row (or two), then wall rows with windows and one door. Stone buildings are slate over stone, in the gray palette."""
     pal = 4 if wmat == 'stone' else 2
     if pal == 4: rmat = 'slate'
     rows = []
@@ -323,7 +323,7 @@ def build_art():
     A['tavern']       = house(3, 3, 'tile', 'timber')
     A['healer']       = house(2, 2, 'thatch', 'plaster')
     A['market_sq']    = None
-    # stone buildings: grey palette
+    # stone buildings: gray palette
     A['storehouse']   = house(3, 3, 'slate', 'stone')
     A['smithy']       = house(2, 3, 'slate', 'stone')
     A['barracks']     = house(4, 3, 'slate', 'stone')
