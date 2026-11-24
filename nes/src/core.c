@@ -55,7 +55,7 @@ u16 save_magic;
 u8 arg_a, arg_b, arg_c, ret_a;
 char whybuf[32];
 
-const char *const zone_name[] = { "", "HOUSING", "MARKET", "WHEAT", "GARDENS", "ORCHARD", "PASTURE", "SMALLHOLDINGS", "WORKSHOPS" };
+const char *const zone_name[] = { "OPEN FOR A HEART", "HOUSING", "MARKET", "WHEAT", "GARDENS", "ORCHARD", "PASTURE", "SMALLHOLDINGS", "WORKSHOPS" };
 const u8 zone_cost[] = { 0, 1, 1, 1, 1, 3, 1, 1, 2 };
 const char *const month_name[] = { "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC", "JAN", "FEB" };
 const char *const season_name[] = { "SPRING", "SUMMER", "AUTUMN", "WINTER" };

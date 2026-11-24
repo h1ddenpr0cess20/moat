@@ -86,7 +86,7 @@ static void upgrade_try(void) {
   if (!c) return;
   pick = cand[rndn(c)];
   t = bt[pick]; z = b_auto[t]; lvl = b_level[t]; nt = grown_b[zone_idx(z)][lvl];
-  if (happy < (lvl == 1 ? 52 : 62) * 16) return;
+  { u8 bk = block_at(bx[pick], by[pick]); if (happy < (lvl == 1 ? 52 : 62) * 16 - (bk != 0xFF ? (s16)blk_rate[bk] * 10 * 16 / 255 : 0)) return; }
   if (lvl == 2 && coverage_at(1, bx[pick], by[pick]) + coverage_at(3, bx[pick], by[pick]) + coverage_at(2, bx[pick], by[pick]) < 40) return;
   if (!pay_ok(nt)) return;
   x = bx[pick]; y = by[pick]; w2 = b_w[nt]; d2 = b_d[nt];
@@ -240,28 +240,34 @@ static void b2_start_castle(void) {
   note("WORK BEGINS ON THE CASTLE.");
 }
 
-/* stamp a loop of street with a ring of housing plots inside it, around a core left open for a heart */
+/* stamp a loop of street with a ring of plots three deep and a core, each zoned as chosen */
 static u8 b2_block(u8 x, u8 y) {
-  u8 i, j;
-  u16 cost = 0;
+  u8 i, j, s = blk_size, d;
+  u16 cost = 0, k;
   if (blk_n >= MAXBLK) return 1;
-  if (!block_ok(x, y)) return 2;
-  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
-    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
-    if (edge && ROAD(IDX(x + i, y + j)) == RD_NONE) cost++;
-    else if (!edge && !core) cost++;
+  if (!block_ok(x, y, s)) return 2;
+  for (j = 0; j < s; j++) for (i = 0; i < s; i++) {
+    d = i < j ? i : j;
+    if (s - 1 - i < d) d = s - 1 - i;
+    if (s - 1 - j < d) d = s - 1 - j;
+    k = IDX(x + i, y + j);
+    if (d == 0) { if (ROAD(k) == RD_NONE) cost++; }
+    else if (d <= 3) cost += zone_cost[blk_ring];
+    else if (blk_core) cost += zone_cost[blk_core];
   }
   if (whole(R_GOLD) < (s16)cost) return 3;
   spend(R_GOLD, (s32)cost << 8);
-  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
-    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
-    u16 k = IDX(x + i, y + j);
+  for (j = 0; j < s; j++) for (i = 0; i < s; i++) {
+    d = i < j ? i : j;
+    if (s - 1 - i < d) d = s - 1 - i;
+    if (s - 1 - j < d) d = s - 1 - j;
+    k = IDX(x + i, y + j);
     mt[k] &= ~0x18;
-    if (edge) mr[k] = (mr[k] & ~0x7F) | RD_DIRT;
-    else if (!core) mr[k] = (mr[k] & ~0x78) | (Z_RES << 3);
-    else mr[k] &= ~0x78;
+    if (d == 0) mr[k] = (mr[k] & ~0x7F) | RD_DIRT;
+    else if (d <= 3) mr[k] = (mr[k] & ~0x78) | (blk_ring << 3);
+    else mr[k] = (mr[k] & ~0x78) | (blk_core << 3);
   }
-  blk_x[blk_n] = x; blk_y[blk_n] = y; blk_n++;
+  blk_x[blk_n] = x; blk_y[blk_n] = y; blk_s[blk_n] = s; blk_cz[blk_n] = blk_core; blk_rate[blk_n] = 0; blk_n++;
   net_dirty = 1;
   view_dirty = 1;
   return 0;

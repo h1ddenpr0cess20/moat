@@ -219,7 +219,7 @@ void hud_update(u8 force) {
 
 /* ---------------------------------------------------------------- sprites: castle, cursor, smoke */
 static void draw_sprites(void) {
-  u8 i, tx, ty, fw = 1, fh = 1, valid = 1, sx, sy, base;
+  u8 i, tx, ty, fw = 1, fh = 1, valid = 1, gx, gy, half, base;
   oam_busy = 1;
   sprites_clear();
   /* the castle, as sixteen sprites, with a banner on its tower */
@@ -243,18 +243,24 @@ static void draw_sprites(void) {
       n++;
     }
   }
-  /* the cursor: a box, or the corners of the footprint to be built */
+  /* the cursor: a box, or the corners of the footprint to be built (a block is centered on the cursor) */
+  gx = cx; gy = cy;
   if (tool == TL_BUILD) { fw = b_w[tsub]; fh = b_d[tsub]; valid = can_place(tsub, cx, cy, 0) && pay_ok(tsub); }
-  if (tool == TL_BLOCK) { fw = BLK; fh = BLK; valid = block_ok(cx, cy) && blk_n < MAXBLK; }
-  if (!vis(cx, cy)) { oam_busy = 0; return; }
-  sx = cx - vx; sx <<= 3;
-  sy = cy - vy; sy += 4; sy <<= 3;
+  if (tool == TL_BLOCK) {
+    fw = fh = blk_size;
+    half = (blk_size - 1) >> 1;
+    valid = cx >= half && cy >= half && block_ok(cx - half, cy - half, blk_size) && blk_n < MAXBLK;
+    gx = cx >= half ? cx - half : 0; gy = cy >= half ? cy - half : 0;
+  }
   base = tool == TL_LOOK ? 0x60 : valid ? 0x40 : 0x50;
   if (fw == 1 && fh == 1) {
-    spr(sx, sy, base + 4, 3);
+    if (vis(cx, cy)) spr((cx - vx) << 3, (cy - vy + 4) << 3, base + 4, 3);
   } else {
-    spr(sx, sy, base, 3); spr(sx + (fw << 3) - 8, sy, base + 1, 3);
-    spr(sx, sy + (fh << 3) - 8, base + 2, 3); spr(sx + (fw << 3) - 8, sy + (fh << 3) - 8, base + 3, 3);
+    u8 ex = gx + fw - 1, ey = gy + fh - 1;
+    if (vis(gx, gy)) spr((gx - vx) << 3, (gy - vy + 4) << 3, base, 3);
+    if (vis(ex, gy)) spr((ex - vx) << 3, (gy - vy + 4) << 3, base + 1, 3);
+    if (vis(gx, ey)) spr((gx - vx) << 3, (ey - vy + 4) << 3, base + 2, 3);
+    if (vis(ex, ey)) spr((ex - vx) << 3, (ey - vy + 4) << 3, base + 3, 3);
   }
   oam_busy = 0;
 }
@@ -298,7 +304,7 @@ static void info_line(char *o) {
       return;
     }
   }
-  { u8 b = block_at(cx, cy); if (b != 0xFF && !(mr[i] & BLD)) { n = scat(o, 0, "COURTYARD "); n = ncat(o, n, (u16)block_rating(b) * 100 / 255); scat(o, n, "% RATING"); return; } }
+  { u8 b = block_at(cx, cy); if (b != 0xFF && !(mr[i] & BLD)) { n = scat(o, 0, "BLOCK RATING "); n = ncat(o, n, (u16)blk_rate[b] * 100 / 255); scat(o, n, "%"); return; } }
   if (ROAD(i) == RD_GATE) { n = scat(o, 0, "GATE. A: RAISE OR LOWER"); return; }
   if (ROAD(i)) { scat(o, 0, ROAD(i) == RD_COBBLE ? "COBBLED ROAD" : ROAD(i) == RD_BRIDGE ? "BRIDGE" : "DIRT ROAD"); return; }
   if (ZONE(i)) { n = scat(o, 0, zone_name[ZONE(i)]); n = scat(o, n, " ZONE"); return; }
@@ -316,7 +322,7 @@ void status_update(void) {
     case TL_ZONE: n = scat(buf, 0, zone_name[tsub]); n = scat(buf, n, " ZONE "); n = ncat(buf, n, zone_cost[tsub]); n = scat(buf, n, " GOLD"); break;
     case TL_BUILD: n = scat(buf, 0, b_name[tsub]); n = scat(buf, n, " "); n = ncat(buf, n, b_cg[tsub]); n = scat(buf, n, "G "); n = ncat(buf, n, b_cw[tsub]); n = scat(buf, n, "W "); n = ncat(buf, n, b_cs[tsub]); n = scat(buf, n, "S"); if (b_ci[tsub]) { n = scat(buf, n, " "); n = ncat(buf, n, b_ci[tsub]); n = scat(buf, n, "I"); } break;
     case TL_CLEAR: n = scat(buf, 0, "CLEAR"); break;
-    case TL_BLOCK: n = scat(buf, 0, "BLOCK: LOOP OF STREET AND PLOTS"); break;
+    case TL_BLOCK: n = scat(buf, 0, "BLOCK: "); n = scat(buf, n, zone_name[blk_ring]); n = scat(buf, n, blk_core ? " AROUND " : " AROUND A HEART"); if (blk_core) n = scat(buf, n, zone_name[blk_core]); break;
   }
   text_pad(0, 26, buf, 32);
   if (msg_t) text_pad(0, 27, msgbuf, 32);
@@ -422,11 +428,13 @@ static void apply_tool(u8 first) {
       break;
     }
     case TL_BLOCK: {
-      u8 r;
+      u8 r, half;
       if (!first) return;
-      r = block_stamp(cx, cy);
+      half = (blk_size - 1) >> 1;
+      if (cx < half || cy < half) { say("NO ROOM FOR A BLOCK HERE."); return; }
+      r = block_stamp(cx - half, cy - half);
       if (r == 1) say("NO MORE BLOCKS (SIX).");
-      else if (r == 2) say("NO ROOM: NEEDS 9X9 FREE LAND.");
+      else if (r == 2) say("NO ROOM: FREE LAND INSIDE THE WARD.");
       else if (r == 3) say("NOT ENOUGH GOLD FOR THE BLOCK.");
       else { set_msg("BLOCK LAID. JOIN IT TO YOUR ROADS."); msg_t = 120; snd_play(2); }
       break;

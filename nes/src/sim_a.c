@@ -15,49 +15,123 @@ static s32 cap_for(u8 r) {
   return (s32)cap_goods << 8;
 }
 
+/* what a building in a block's core is worth to the homes around it, x255 (the web game's HEARTS table) */
+static u8 heart_fine(u8 t) {
+  switch (t) {
+    case B_GREEN: return 217;
+    case B_CATHEDRAL: return 230;
+    case B_CHAPEL: case B_MARKET: return 153;
+    case B_WELL: case B_GRANARY: case B_SMITHY: case B_MILL: return 102;
+    case B_TAVERN: case B_HEALER: case B_STOREHOUSE: return 115;
+    case B_WATCHTOWER: return 89;
+    case B_BARRACKS: return 77;
+  }
+  return 0;
+}
+static u8 crop_fine(u8 z) { return z == Z_RES ? 77 : z == Z_VEG ? 92 : z == Z_ORCHARD ? 107 : z == Z_PASTURE ? 82 : z == Z_WHEAT ? 64 : 0; }
+
+/* rate every block the way the web game does: how built the ring is, times what is at the heart */
+static void blocks_week(void) {
+  u8 b, i, k;
+  u32 weighted = 0, total = 0, rooms = 0;
+  static u8 cnt[NB];
+  for (b = 0; b < blk_n; b++) {
+    u8 x0 = blk_x[b], y0 = blk_y[b], s = blk_s[b], x, y, nh = 0;
+    u16 zoned = 0, built = 0, corelen = 0, cropn[9], bestn = 0, cap = 0;
+    u8 crop = 0, heart, closure, fill, rest = 255;
+    for (k = 0; k < NB; k++) cnt[k] = 0;
+    for (k = 0; k < 9; k++) cropn[k] = 0;
+    for (k = 0; k < 7; k++) blk_serve[b][k] = 0;
+    for (y = y0; y < y0 + s; y++) for (x = x0; x < x0 + s; x++) {
+      u8 d = block_depth(b, x, y), z;
+      u16 t = IDX(x, y);
+      if (d == 0) continue;
+      z = ZONE(t);
+      if (d <= 3) { if (!(mr[t] & BLD) && (z == Z_RES || z == Z_MARKET || z == Z_CROFT || z == Z_CRAFT)) zoned++; }
+      else { corelen++; if (!(mr[t] & BLD) && crop_fine(z)) cropn[z]++; }
+    }
+    for (i = 1; i < MAXB; i++) {
+      u8 t = bt[i], d;
+      if (bs[i] == BS_FREE || block_at(bx[i], by[i]) != b) continue;
+      d = block_depth(b, bx[i], by[i]);
+      if (d >= 1 && d <= 3 && b_auto[t]) {
+        zoned++;
+        if (bs[i] == BS_READY) { built++; if (b_cap[t] || b_auto[t] == Z_CROFT || b_auto[t] == Z_CRAFT) nh++; if (b_cap[t]) cap += b_cap[t]; }
+      } else if (d > 3 && bs[i] == BS_READY && heart_fine(t)) {
+        cnt[t]++;
+        { u8 q, sk;
+          for (q = 0; q < 2; q++) {
+            u8 kind = q ? sv_k2[t] : sv_k[t];
+            if (!kind) continue;
+            sk = (u8)(((u16)(q ? sv_v2[t] : sv_v[t]) * 51 / 2 > 255 ? 255 : (u16)(q ? sv_v2[t] : sv_v[t]) * 51 / 2) * (b_jobs[t] ? (128 + (bef[i] >> 1)) : 255) / 255);
+            if (sk > blk_serve[b][kind]) blk_serve[b][kind] = sk;
+          }
+        }
+      }
+    }
+    for (k = 0; k < NB; k++) if (cnt[k]) {
+      u16 fine = (u16)heart_fine(k) * (100 + 15 * (cnt[k] - 1)) / 100;
+      if (fine > 242) fine = 242;
+      rest = (u8)((u16)rest * (255 - fine) / 255);
+    }
+    for (k = 1; k < 9; k++) if (cropn[k] > bestn) { bestn = cropn[k]; crop = k; }
+    if (crop && corelen) {
+      u32 share = (u32)bestn * 255 * 100 / ((u32)corelen * 55);
+      if (share > 255) share = 255;
+      rest = (u8)((u16)rest * (255 - (u16)crop_fine(crop) * share / 255) / 255);
+    }
+    heart = corelen >= 4 ? 255 - rest : 0;
+    fill = zoned ? (u8)((u32)built * 255 / zoned) : 0;
+    closure = fill > 89 ? (u8)(((u16)(fill - 89) * 255 / 140) > 255 ? 255 : (u16)(fill - 89) * 255 / 140) : 0;
+    closure = (u8)((u16)closure * (nh >= 6 ? 255 : nh * 255 / 6) / 255);
+    blk_rate[b] = (u8)((u16)heart * closure / 255);
+    weighted += (u32)cap * blk_rate[b];
+    rooms += (u32)cap * blk_rate[b];
+  }
+  for (i = 1; i < MAXB; i++) if (bs[i] == BS_READY && b_cap[bt[i]]) total += b_cap[bt[i]];
+  total += 1;
+  {
+    u32 share = weighted * 256 / (total * 255);
+    blk_tax = (s16)(share * 46 / 256);          /* 18% of the tax, in proportion */
+    blk_mood = (s16)(share * 7 * 16 / 256);     /* up to +7 */
+    blk_cap = (s16)(rooms / 255 * 12 / 100);    /* 12% more beds */
+  }
+}
+
 static void compute_care(void) {
   u8 k, i, n;
   u32 acc[7], weight = 0;
   for (k = 1; k < 7; k++) acc[k] = 0;
   svc_rebuild();
+  blocks_week();
   for (i = 1; i < MAXB; i++) {
-    u8 t = bt[i], cxm, cym, w;
+    u8 t = bt[i], cxm, cym, w, blk;
+    u16 c[7];
     if (bs[i] != BS_READY || !b_cap[t]) continue;
     cxm = bx[i] + (b_w[t] >> 1); cym = by[i] + (b_d[t] >> 1); w = b_cap[t];
+    for (k = 1; k < 7; k++) c[k] = 0;
     for (n = 0; n < svc_n; n++) {
       u8 s = svc_i[n], st = bt[s];
       s16 dx = (s16)bx[s] + (b_w[st] >> 1) - cxm, dy = (s16)by[s] + (b_d[st] >> 1) - cym, d;
-      u16 v;
       if (dx < 0) dx = -dx;
       if (dy < 0) dy = -dy;
       d = dx > dy ? dx + (dy >> 1) : dy + (dx >> 1);
       if (d > sv_r[st]) continue;
-      v = (u16)((u32)sv_v[st] * 16 * (sv_r[st] + 1 - d) / (sv_r[st] + 1));
-      acc[sv_k[st]] += (u32)v * w;
-      if (sv_k2[st]) acc[sv_k2[st]] += (u32)((u32)sv_v2[st] * 16 * (sv_r[st] + 1 - d) / (sv_r[st] + 1)) * w;
+      c[sv_k[st]] += (u16)((u32)sv_v[st] * 16 * (sv_r[st] + 1 - d) / (sv_r[st] + 1));
+      if (sv_k2[st]) c[sv_k2[st]] += (u16)((u32)sv_v2[st] * 16 * (sv_r[st] + 1 - d) / (sv_r[st] + 1));
+    }
+    /* a heart in a block lends its services to every door in the ring */
+    blk = block_at(bx[i], by[i]);
+    for (k = 1; k < 7; k++) {
+      if (c[k] > 255) c[k] = 255;
+      if (blk != 0xFF && blk_serve[blk][k] > c[k]) c[k] = blk_serve[blk][k];
+      acc[k] += (u32)c[k] * w;
     }
     weight += w;
   }
   for (k = 1; k < 7; k++) {
     u32 v = weight ? acc[k] / weight : 0;
     care[k] = v > 255 ? 255 : (u8)v;
-  }
-  /* courtyards: what a built ring around a good heart earns the realm */
-  {
-    u8 rating[MAXBLK], b;
-    u32 weighted = 0, total = 0, share;
-    for (b = 0; b < blk_n; b++) rating[b] = block_rating(b);
-    for (i = 1; i < MAXB; i++) {
-      u8 t = bt[i];
-      if (bs[i] != BS_READY || !b_cap[t]) continue;
-      total += b_cap[t];
-      b = block_at(bx[i], by[i]);
-      if (b != 0xFF) weighted += (u32)b_cap[t] * rating[b];
-    }
-    share = total ? weighted * 256 / (total * 255) : 0;
-    blk_tax = (s16)(share * 46 / 256);
-    blk_mood = (s16)(share * 7 * 16 / 256);
-    blk_cap = (s16)(weighted / 255 * 12 / 100);
   }
 }
 

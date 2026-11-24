@@ -103,7 +103,6 @@ extern const u16 wbit[];
 #define TL_BUILD 3
 #define TL_CLEAR 4
 #define TL_BLOCK 5
-#define BLK 9
 #define MAXBLK 6
 
 /* ---- banks */
@@ -132,12 +131,13 @@ void rebuild_moat(void);
 void burn_building(u8 id);
 extern u16 farm_fields[8];
 
-/* donut blocks: a loop of street with a ring of plots and a core */
-extern u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK];
+/* donut blocks, as in the web game: a closed loop of street, a ring of plots three deep, and a core. Each has its own zones. */
+extern u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK], blk_s[MAXBLK], blk_cz[MAXBLK], blk_rate[MAXBLK], blk_serve[MAXBLK][7];
 extern s16 blk_tax, blk_mood, blk_cap;   /* what the courtyards earn the realm this week: tax x256, mood x16, beds */
-u8 block_ok(u8 x, u8 y);
-u8 block_rating(u8 b);                  /* 0..255 */
+extern u8 blk_size, blk_ring, blk_core;  /* the block tool's options: side (10 or 14), the ring's zone, the core's zone (0 = open for a heart) */
+u8 block_ok(u8 x, u8 y, u8 s);
 u8 block_at(u8 x, u8 y);                /* index or 0xFF */
+u8 block_depth(u8 b, u8 x, u8 y);       /* 0 on the street, 1 beside it, ... */
 u8 block_stamp(u8 x, u8 y);             /* 0 ok, else a reason code */
 
 /* ---- state (all of it in battery WRAM) */

@@ -192,7 +192,8 @@ u8 place_building(u8 type, u8 x, u8 y, u8 ready) {
   if (type == B_GATEHOUSE) baux[id] = gate_near(x, y, w, d);
   for (j = 0; j < d; j++) for (i = 0; i < w; i++) {
     u16 k = IDX(x + i, y + j);
-    mr[k] = (mr[k] & ~0x78) | BLD;
+    /* a house on its own housing zone keeps the zone under it (so it grows back if it burns); anything else clears it */
+    if (b_auto[type] && ZONE(k) == b_auto[type]) mr[k] |= BLD; else mr[k] = (mr[k] & ~0x78) | BLD;
   }
   net_dirty = 1;
   return id;
@@ -238,15 +239,16 @@ void refresh_net(void) {
 
 
 /* ---------------------------------------------------------------- donut blocks */
-u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK];
+u8 blk_n, blk_x[MAXBLK], blk_y[MAXBLK], blk_s[MAXBLK], blk_cz[MAXBLK], blk_rate[MAXBLK], blk_serve[MAXBLK][7];
 s16 blk_tax, blk_mood, blk_cap;
+u8 blk_size = 14, blk_ring = 1, blk_core = 1;
 
-/* a nine-by-nine plot of free ground in the realm, away from the moat */
-u8 block_ok(u8 x, u8 y) {
+/* a square of free ground in the realm, clear of the moat and of buildings (streets and zones already there are taken over) */
+u8 block_ok(u8 x, u8 y, u8 s) {
   u8 i, j;
   u16 k;
-  if (x + BLK > MAPW || y + BLK > MAPH) return 0;
-  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
+  if (x + s > MAPW || y + s > MAPH) return 0;
+  for (j = 0; j < s; j++) for (i = 0; i < s; i++) {
     u8 lx, ly;
     if (!owned_at(x + i, y + j)) return 0;
     lx = (x + i) & 15; ly = (y + j) & 15;
@@ -260,32 +262,14 @@ u8 block_ok(u8 x, u8 y) {
 
 u8 block_at(u8 x, u8 y) {
   u8 b;
-  for (b = 0; b < blk_n; b++) if (x >= blk_x[b] && x < blk_x[b] + BLK && y >= blk_y[b] && y < blk_y[b] + BLK) return b;
+  for (b = 0; b < blk_n; b++) if (x >= blk_x[b] && x < blk_x[b] + blk_s[b] && y >= blk_y[b] && y < blk_y[b] + blk_s[b]) return b;
   return 0xFF;
 }
 
-/* how built the ring is, times how good the heart is */
-u8 block_rating(u8 b) {
-  u8 i, j, built = 0, ring = 0, heart = 0;
-  u16 k;
-  for (j = 0; j < BLK; j++) for (i = 0; i < BLK; i++) {
-    u8 edge = i == 0 || j == 0 || i == BLK - 1 || j == BLK - 1, core = i >= 3 && i <= 5 && j >= 3 && j <= 5;
-    if (edge || core) continue;
-    ring++;
-    if (mr[IDX(blk_x[b] + i, blk_y[b] + j)] & BLD) built++;
-  }
-  for (j = 3; j <= 5; j++) for (i = 3; i <= 5; i++) {
-    u8 id;
-    k = IDX(blk_x[b] + i, blk_y[b] + j);
-    if (!(mr[k] & BLD)) continue;
-    id = find_building(blk_x[b] + i, blk_y[b] + j);
-    if (id == 0xFF || id == 0) continue;
-    {
-      u8 t = bt[id], q = 90;
-      if (t == B_GREEN) q = 255;
-      else if (t == B_CATHEDRAL || t == B_CHAPEL || t == B_MARKET || t == B_WELL || t == B_TAVERN || t == B_HEALER || t == B_WATCHTOWER || t == B_BARRACKS) q = 204;
-      if (q > heart) heart = q;
-    }
-  }
-  return ring ? (u8)((u16)built * heart / ring) : 0;
+u8 block_depth(u8 b, u8 x, u8 y) {
+  u8 d = x - blk_x[b], e = blk_x[b] + blk_s[b] - 1 - x;
+  if (e < d) d = e;
+  e = y - blk_y[b]; if (e < d) d = e;
+  e = blk_y[b] + blk_s[b] - 1 - y; if (e < d) d = e;
+  return d;
 }

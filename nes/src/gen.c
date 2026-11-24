@@ -177,7 +177,7 @@ void sim_new(void) {
   raids_won = raids_lost = raids_bought = 0; gameover = 0; food_avg = 4 * 256; dig_ward = 0xFF;
   for (i = 0; i < NRES; i++) { trade_sell[i] = 0; trade_buy[i] = 0; }
   for (i = 0; i < 8; i++) farm_crop[i] = 0;
-  blk_n = 0; blk_tax = 0; blk_mood = 0; blk_cap = 0;
+  blk_size = 14; blk_ring = Z_RES; blk_core = Z_RES; blk_n = 0; blk_tax = 0; blk_mood = 0; blk_cap = 0;
   msg_new = 0; msgbuf[0] = 0;
   for (i = 0; i < 8; i++) chron[i][0] = 0;
   /* the hamlet: a road around the castle, houses along its south side, a farm and a woodcutter to the north */
@@ -188,7 +188,7 @@ void sim_new(void) {
   lay_line(19, 20, 28, 20);
   zone_rect(17, 29, 30, 30, Z_RES);
   zone_rect(17, 21, 18, 28, Z_RES);
-  zone_rect(29, 21, 30, 28, Z_RES);
+  zone_rect(29, 24, 30, 28, Z_RES);
   net_dirty = 1;
   refresh_net();
   place_building(B_WELL, 20, 27, 1);
@@ -201,11 +201,10 @@ void sim_new(void) {
   place_building(B_FARMSTEAD, 22, 17, 1);
   zone_rect(25, 17, 28, 19, Z_WHEAT);
   zone_rect(29, 17, 30, 19, Z_VEG);
-  zone_rect(20, 17, 21, 19, Z_WHEAT);
   mt[IDX(20, 18)] = GR_GRASS; mt[IDX(21, 18)] = GR_GRASS; mt[IDX(20, 19)] = GR_GRASS; mt[IDX(21, 19)] = GR_GRASS;
   mr[IDX(20, 18)] &= 0x87; mr[IDX(21, 18)] &= 0x87; mr[IDX(20, 19)] &= 0x87; mr[IDX(21, 19)] &= 0x87;
   place_building(B_WOODCUTTER, 20, 18, 1);
-  place_building(B_FISHERY, 29, 22, 1);
+  place_building(B_FISHERY, 29, 21, 1);
   for (y = 17; y <= 19; y++) for (x = 17; x <= 19; x++) mr[IDX(x, y)] &= 0x87;
   net_dirty = 1;
   sim_prime();

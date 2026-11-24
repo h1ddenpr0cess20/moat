@@ -146,8 +146,8 @@ void sc_money(void) { money(); }
 /* does any tile of the block's loop belong to the castle's connected network? */
 static u8 block_joined(u8 b) {
   u8 k;
-  for (k = 0; k < BLK; k++) {
-    u16 a = IDX(blk_x[b] + k, blk_y[b]), c = IDX(blk_x[b] + k, blk_y[b] + BLK - 1), d = IDX(blk_x[b], blk_y[b] + k), e = IDX(blk_x[b] + BLK - 1, blk_y[b] + k);
+  for (k = 0; k < blk_s[b]; k++) {
+    u16 a = IDX(blk_x[b] + k, blk_y[b]), c = IDX(blk_x[b] + k, blk_y[b] + blk_s[b] - 1), d = IDX(blk_x[b], blk_y[b] + k), e = IDX(blk_x[b] + blk_s[b] - 1, blk_y[b] + k);
     if ((conn[a >> 3] & (1 << (a & 7))) || (conn[c >> 3] & (1 << (c & 7))) || (conn[d >> 3] & (1 << (d & 7))) || (conn[e >> 3] & (1 << (e & 7)))) return 1;
   }
   return 0;

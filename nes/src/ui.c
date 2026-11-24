@@ -88,6 +88,14 @@ static void f_tool(u8 i, char *o) {
 }
 static void f_road(u8 i, char *o) { scat(o, 0, i ? "COBBLE 1 STONE 1 GOLD" : "DIRT 1 GOLD"); }
 static void f_zone(u8 i, char *o) { u8 n = scat(o, 0, zone_name[i + 1]); n = scat(o, n, " "); ncat(o, n, zone_cost[i + 1]); }
+static const u8 ring_z[4] = { Z_RES, Z_MARKET, Z_CROFT, Z_CRAFT }, core_z[6] = { 0, Z_RES, Z_VEG, Z_ORCHARD, Z_PASTURE, Z_WHEAT };
+static void f_bopt(u8 i, char *o) {
+  u8 n;
+  if (i == 0) { n = scat(o, 0, "SIZE: "); scat(o, n, blk_size == 10 ? "SMALL 10X10" : "MEDIUM 14X14"); }
+  else if (i == 1) { n = scat(o, 0, "RING: "); scat(o, n, zone_name[blk_ring]); }
+  else if (i == 2) { n = scat(o, 0, "CORE: "); scat(o, n, zone_name[blk_core]); }
+  else scat(o, 0, "STAMP BLOCKS");
+}
 static void f_cat(u8 i, char *o) { static const char *const n[] = { "FOOD", "INDUSTRY", "CIVIC", "DEFENSE" }; scat(o, 0, n[i]); }
 
 static void collect(void) {
@@ -113,7 +121,18 @@ void ui_choose_tool(void) {
   u8 t = menu("TOOLS", 6, f_tool, tool, 14);
   view_dirty = 1;                    /* every way out of the menus repaints the map */
   if (t == 0xFF) return;
-  if (t == TL_LOOK || t == TL_CLEAR || t == TL_BLOCK) { tool = t; }
+  if (t == TL_LOOK || t == TL_CLEAR) { tool = t; }
+  else if (t == TL_BLOCK) {
+    u8 s = 0;
+    for (;;) {
+      s = menu("BLOCK: A CHANGES, B BACK", 4, f_bopt, s, 32);
+      if (s == 0xFF) break;
+      if (s == 3) { tool = TL_BLOCK; break; }
+      if (s == 0) blk_size = blk_size == 10 ? 14 : 10;
+      else if (s == 1) { u8 i = 0; while (i < 3 && ring_z[i] != blk_ring) i++; blk_ring = ring_z[i == 3 ? 0 : i + 1]; }
+      else { u8 i = 0; while (i < 5 && core_z[i] != blk_core) i++; blk_core = core_z[i == 5 ? 0 : i + 1]; }
+    }
+  }
   else if (t == TL_ROAD) { u8 s = menu("ROADS", 2, f_road, tsub2 & 1, 26); if (s != 0xFF) { tool = TL_ROAD; tsub = s; tsub2 = s; } }
   else if (t == TL_ZONE) { u8 s = menu("ZONES", 8, f_zone, 0, 20); if (s != 0xFF) { tool = TL_ZONE; tsub = s + 1; } }
   else if (t == TL_BUILD) {

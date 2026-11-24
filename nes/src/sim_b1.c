@@ -112,6 +112,7 @@ static void fires_week(void) {
     chance = 4 + (t == B_COTTAGE || t == B_WORKSHOP || t == B_STALL ? 4 : 0) + (b_cat[t] == 3 ? 2 : 0);
     if (s == 1) chance += chance / 3;
     chance = chance * (255 - coverage_at(1, bx[i], by[i]) * 85 / 100) / 255;
+    { u8 bk = block_at(bx[i], by[i]); if (bk != 0xFF) chance = chance * (255 - (u16)blk_rate[bk] * 30 / 100) / 255; }
     if (rnd16() < chance) { if (t != B_WELL && t != B_GREEN) burn_building(i); return; }
   }
 }
