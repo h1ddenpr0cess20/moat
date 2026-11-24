@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Moat for the NES</title>
+<style>
+  :root { color-scheme: dark; --bg: #0c0a07; --fg: #f4ecd6; --dim: #b4a47a; --accent: #d9aa44; }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--fg); font: 15px/1.5 'Palatino Linotype', Palatino, Georgia, serif;
+         display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 16px; }
+  h1 { margin: 4px 0 0; font-size: 22px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: #f4e4b0; }
+  .screen { position: relative; width: min(100%, 768px); aspect-ratio: 256 / 240; background: #000; border: 2px solid #3a2a10; border-radius: 6px; overflow: hidden; }
+  canvas { width: 100%; height: 100%; display: block; image-rendering: pixelated; }
+  .overlay { position: absolute; inset: 0; display: grid; place-items: center; background: rgba(0,0,0,.6); text-align: center; padding: 16px; }
+  .overlay[hidden] { display: none; }
+  button { font: inherit; color: var(--fg); background: #2a1c08; border: 1px solid var(--accent); border-radius: 4px; padding: 8px 16px; cursor: pointer; }
+  button:hover, button:focus-visible { background: #4a3210; outline: none; }
+  .bar { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
+  dl.keys { display: grid; grid-template-columns: auto auto; gap: 2px 14px; margin: 0; color: var(--dim); font-size: 13px; }
+  dl.keys dt { text-align: right; color: var(--fg); } dl.keys dd { margin: 0; }
+  .pad { display: none; gap: 10px; width: min(100%, 768px); justify-content: space-between; }
+  .pad .grp { display: grid; grid-template-columns: repeat(3, 56px); grid-auto-rows: 56px; gap: 6px; }
+  .pad button { padding: 0; touch-action: none; user-select: none; }
+  @media (pointer: coarse) { .pad { display: flex; } dl.keys { display: none; } }
+  .note { color: var(--dim); font-size: 12px; max-width: 640px; text-align: center; }
+  kbd { border: 1px solid #5a4423; border-radius: 3px; padding: 0 5px; }
+  a { color: var(--accent); }
+</style>
+</head>
+<body>
+<h1>Moat · NES</h1>
+<div class="screen">
+  <canvas id="nes" width="256" height="240" aria-label="NES screen"></canvas>
+  <div class="overlay" id="start"><div><p>A real NES cartridge image (mapper 1, 128K), running on the jsnes emulator.</p><button id="go">Play</button></div></div>
+</div>
+<div class="bar">
+  <button id="pause">Pause</button>
+  <button id="reset">Reset</button>
+  <button id="mute">Sound on</button>
+  <button id="fs">Fullscreen</button>
+  <button id="forget" title="Erase the saved realm kept in this browser">Erase save</button>
+  <button id="load" type="button">Load another ROM…</button><input id="file" type="file" accept=".nes" hidden>
+  <a href="./moat.nes" download><button type="button">Download .nes</button></a>
+</div>
+<dl class="keys">
+  <dt><kbd>←↑↓→</kbd> <kbd>WASD</kbd></dt><dd>move the cursor (hold A to paint roads and zones)</dd>
+  <dt><kbd>Z</kbd> <kbd>Space</kbd></dt><dd>A: use the tool, open things</dd>
+  <dt><kbd>X</kbd></dt><dd>B: choose a tool; back</dd>
+  <dt><kbd>Tab</kbd> <kbd>Shift</kbd></dt><dd>Select: look / last tool</dd>
+  <dt><kbd>Enter</kbd></dt><dd>Start: the menu (realm, stores, castle, trade, speed, save)</dd>
+  <dt><kbd>M</kbd></dt><dd>mute</dd>
+</dl>
+<div class="pad" id="pad">
+  <div class="grp"><span></span><button data-b="UP">▲</button><span></span><button data-b="LEFT">◀</button><span></span><button data-b="RIGHT">▶</button><span></span><button data-b="DOWN">▼</button><span></span></div>
+  <div class="grp"><button data-b="SELECT">SEL</button><button data-b="START">START</button><span></span><button data-b="B">B</button><span></span><button data-b="A">A</button><span></span><span></span><span></span></div>
+</div>
+<p class="note">The game saves itself each season into the cartridge's battery RAM, kept here in your browser. The ROM's source lives in <code>nes/</code>; rebuild it with <code>nes/build.sh</code> (cc65, Python, Node). <a href="./">The browser game</a>.</p>
+<script type="module" src="/src/nes/player.js"></script>
+</body>
+</html>

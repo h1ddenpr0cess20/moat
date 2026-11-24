@@ -62,3 +62,12 @@ Take the **Blocks** tool (4), pick **Open ★** for the core, and click to stamp
 * `test/`: node tests, and `test/bot.js`, a scripted player used for tuning.
 
 See [docs/design.md](docs/design.md) for the numbers.
+
+## The NES port
+
+`nes/` holds **Moat for the NES**: a real cartridge image (`nes/moat.nes`, mapper 1, 128K PRG, 8K battery RAM) that plays the same game in the medium's terms. The web build serves it at `nes.html` on the jsnes emulator, and it runs on any NES emulator or flash cartridge.
+
+* **What carries over**: the seeded land with forests, rock, ore, rivers and the moat around each ward; roads, bridges, drawbridge gates; zoned housing, market, fields, gardens, orchards, pasture, smallholdings and workshops that the people build and improve themselves; the 35 buildings with the catalog's costs, crews, jobs and rates (the ROM's tables are generated from `src/catalog.js`); the weekly simulation (jobs, harvests, gathering and making, three-group table, firewood, ale, coin, mood, births, plague, fires, merchants, raiders with a warning, the king's tribute, ranks); digging the moat to take in the next ward; the castle's four tiers; donut blocks with courtyard bonuses; the seasons in the palette; a generative score.
+* **What changes**: a 3 × 3 realm of 16-tile wards (48 × 48 tiles), paged scrolling, radii scaled to match, one font of text, no minimap, and a trade page in place of the full ledger.
+* **Controls**: D-pad moves the cursor (hold A to paint roads and zones); A uses the tool; B picks a tool; Select toggles Look; Start opens the menu (realm, stores, castle, trade, chronicle, speed, tax, save).
+* **Build**: `nes/build.sh` (needs cc65, Python 3 with Pillow for previews only, and Node). `node nes/tools/shot.mjs` drives the ROM headless on jsnes for screenshots and checks.

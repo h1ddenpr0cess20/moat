@@ -16,7 +16,7 @@ export default [
   },
 
   {
-    files: ['test/**/*.js', 'scripts/**/*.{js,mjs}', 'eslint.config.js', 'vite.config.js'],
+    files: ['test/**/*.js', 'scripts/**/*.{js,mjs}', 'nes/tools/*.mjs', 'eslint.config.js', 'vite.config.js'],
     languageOptions: {
       ecmaVersion: 'latest',
       sourceType: 'module',
