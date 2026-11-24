@@ -99,7 +99,7 @@ void set_palettes(u8 s) {
   u8 g = pal_season[s][0];
   tbuf[0] = g;
   tbuf[1] = pal_season[s][1]; tbuf[2] = pal_season[s][2]; tbuf[3] = pal_season[s][3];
-  tbuf[4] = g; tbuf[5] = 0x21; tbuf[6] = 0x11; tbuf[7] = 0x17;
+  tbuf[4] = g; tbuf[5] = 0x21; tbuf[6] = 0x17; tbuf[7] = 0x11;   /* water: glint, brown (so roads stay brown by the shore), blue */
   tbuf[8] = g; tbuf[9] = 0x07; tbuf[10] = 0x37; tbuf[11] = 0x16;
   tbuf[12] = g; tbuf[13] = 0x0F; tbuf[14] = 0x10; tbuf[15] = 0x30;
   tbuf[16] = g; tbuf[17] = 0x00; tbuf[18] = 0x10; tbuf[19] = 0x30;      /* smoke */
